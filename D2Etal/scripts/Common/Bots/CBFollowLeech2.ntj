@@ -1,0 +1,449 @@
+var LeaderLoc = [];
+var busy = false;
+var lastchant = Math.round(GetTickCount() / 1000)+20;
+
+function NTMain(){
+	Include("Common/Libs/CLCommon.ntl");
+	CLC_IncludeLibs();
+	CLC_IncludeConfig();
+
+	NT_LoadConfig();
+	CLSI_LoadNIPFiles();
+
+	CLA_Initialize();
+	
+	Print(COLOR_2 + "Starting Follower Script");
+
+	RegisterEvent(EVENT_GAMEMSG, NTF_Chat);
+
+	
+	while(true){// follow loop
+		if (me.mode === 0 || me.mode === 17) {
+			Say("/w " + _leader.name + " Reviving...");
+			me.Cancel(0);
+			me.Cancel(1);
+			Delay(1000);
+			
+			if (CLTM_TownMove("portalspot")) {
+				Say("/w " + _leader.name + " I'M ALIVE!!!");
+			}
+		}
+		while(busy){Delay(300);}
+		
+		if (CLC_InTown()){			
+			CLTM_TownMove("portalspot");
+			while (CLC_InTown()){ CLC_Delay(250);}
+		}
+		_leader = GetLeaderUnit(NTConfig_Leader);
+		if(_leader) {
+			CLM_GetCloserInt(_leader);
+			CLA_ClearPosition(25, true);
+		}
+		if (!_leader) {
+			Delay(2000);//testing try to prevent chars going wrong direction when changing area
+			_leader = GetLeader()
+			My_LocateLeader(_leader, _leader.areaid);
+		}		
+		
+		if(me.GetSkill(52, false)){enchantgroup();}
+	CLC_Delay(100);
+
+	}
+}
+
+function GetLeader(){
+	var _player = GetPlayerUnit();
+	while(_player.GetNext())
+		{
+		if(_player.name == NTConfig_Leader){
+				return _player;
+		}
+	}
+
+	return false;
+}
+function GetLeaderUnit() {
+	var _unit = CLC_FindUnit(NTC_UNIT_PLAYER);
+	
+	if (_unit) {
+		do {
+			if (_unit.name === NTConfig_Leader) {
+				return _unit;
+			}
+		} while (_unit.GetNext());
+		
+		return false;
+	}
+}	
+
+function My_GetArea(){	
+	var _player = GetPlayerUnit();
+	var Larea;
+	while(_player.GetNext()){
+		if(_player.name == NTConfig_Leader){
+			while(_player.areaid == 0){Delay(200);}
+			return _player.areaid;			
+			}		
+		}
+		
+	return false;
+}
+
+function CheckLeaderAct(leader) {
+	var newact;
+	switch(true){
+	case (leader.areaid<40): newact = 1;break;
+	case (leader.areaid<75): newact = 2;break;
+	case (leader.areaid<103): newact = 3;break;
+	case (leader.areaid<109): newact = 4;break;
+	case (leader.areaid>108): newact = 5;break;
+	}
+
+	if(me.act != newact){CLTM_CheckAct(newact);}
+	return;
+}
+
+function My_LocateLeader(unit, area){
+			_result = CheckExit(unit, area);
+			//if(CheckLeaderAct(unit)) {return;}
+			if(CLM_MoveTo(me.areaid, unit.x, unit.y)){return;}
+			if(CLVT_MoveToClosestPreSetUnit(area)){return;}
+
+			if (_result) {
+				switch (_result) {
+				case 1:
+					Say("Taking stairs.");
+					Delay(500);
+					CLM_TakeStair(unit.areaid);
+					break;
+				case 2:
+					Say("Using portal.");
+					Delay(500);
+					CLM_UsePortal(null, unit.areaid, null);
+					break;
+				case 3:
+					Say("Taking waypoint.");
+					Delay(500);
+					CLM_TakeWaypoint(unit.areaid);
+					break;
+				case 4:
+					Say("Special transit.");
+					break;
+				}
+				
+				while (me.areaid === 0) {
+					Delay(100);
+				}
+			}
+}
+
+function CLVT_MoveToClosestPreSetUnit(Dest) { 
+	
+	var allUnits = [];
+	var presetUnit = GetPresetUnits(Dest);
+	
+	if(!presetUnit) {return false;}
+	
+	if(presetUnit) {
+		for (var i = 0; i < presetUnit.length; i++) {			
+			allUnits.push([presetUnit[i].roomx*5+presetUnit[i].x, presetUnit[i].roomy*5+presetUnit[i].y])					
+		}
+	}	
+	if(allUnits.length >0){
+	allUnits.sort(SortCoords);
+	if(CLM_MoveTo(Dest, allUnits[0][0], allUnits[0][1]))
+		return true;
+	}
+	return false;
+}
+
+function SortCoords(a, b){	
+	return (GetDistance(me.x, me.y, a[0], a[1]) - GetDistance(me.x, me.y, b[0], b[1]));
+}
+function FindStair(sub){
+	var _stair = GetPresetUnits(me.areaid, NTC_UNIT_TILE);
+	if(_stair){
+		for(n = 0 ; n < _stair.length ; n++)	{
+			if(_stair[n].subareaid == sub) {
+				CLM_MoveTo(me.areaid, _stair[n].roomx*5+_stair[n].x, _stair[n].roomy*5+_stair[n].y, 3);
+				CLM_TakeStair(sub);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+function NTF_Chat(msg, type){
+
+   	if(type != 0 || (msg.indexOf(NTConfig_Leader) == -1)){return;}
+	
+	if((msg.indexOf("pause") != -1)){
+		if(busy){Say("Resuming");busy = false;return;}
+		Say("Pausing");
+		busy = true; return;
+	}
+	if((msg.indexOf("town") != -1)){
+		busy = true;
+		CLTM_CheckAct();
+		CLTMGR_TownManager();
+		CLTM_TownMove("portalspot");
+		Say("Town Errands done");
+		busy = false;
+	}
+	if((msg.indexOf("1") != -1)){
+		CLM_UsePortal("BluePortal",My_GetArea(), NTConfig_Leader);
+		CLP_DoPrecast(true);
+	}
+	
+	if((msg.indexOf("2") != -1)){
+		if(CLC_InTown()){return;}
+		Say("Going to town");
+		CLM_TakeUnit(NTC_UNIT_OBJECT, 59);
+	}
+	
+	if((msg.indexOf("scatter") != -1)){
+		CLM_MoveTo(me.areaid, me.x + Random(-8, 8), me.y + Random(-8, 8));
+	}
+	
+	if((msg.indexOf("c") != -1)){
+		CLT_GetCorpses();
+	}
+
+	if((msg.indexOf("next act") != -1)){
+		ChangeAct(me.act+1)
+	}
+}
+
+function enchantgroup(){
+	//var chantduration = 120+(CLC_GetSkillLevel(52)*24);
+
+	timecheck = Math.round(GetTickCount() / 1000);	
+	if((CLC_InTown() || (lastchant+20) > timecheck))
+		return;
+	
+	lastchant = timecheck;	
+    var _unit = CLC_FindUnit(NTC_UNIT_PLAYER);
+    if (_unit){
+        do {
+            if (GetDistance(me, _unit) < 30 && _unit.mode != 0 && !_unit.GetState(16)){
+				CLC_CastSkill(52, NTC_HAND_RIGHT, _unit);me.ping;Delay(300);
+			}
+        } while (_unit.GetNext());
+    }
+
+    _unit = CLC_FindUnit(NTC_UNIT_MERC);
+    if (_unit){
+        do{
+			_parent = _unit.GetParent();
+			if(_parent){
+				if (GetDistance(me, _unit) < 30 && CLC_InMyParty(_parent.name) && _parent.name != me.name  && _unit.mode != 0 && !_unit.GetState(16))
+				{
+					CLC_CastSkill(52, NTC_HAND_RIGHT, _unit);me.ping;Delay(300);
+				}
+			}
+        } while (_unit.GetNext());
+    }
+	return;
+
+}
+
+function CheckExit(leader, area) {
+	var _unit = GetPresetUnits(me.areaid, NTC_UNIT_TILE);
+	
+	if (_unit) {
+		for (var i = 0; i < _unit.length; i += 1) {
+			if (_unit[i].subareaid === area) {
+				return 1;
+			}
+		}
+	}
+	
+	_unit = CLC_FindUnit(NTC_UNIT_OBJECT, GetLocaleString(3226));
+	
+	if (_unit) {
+		do {
+			if (_unit.subareaid === area || _unit.subareaid === area + 256 || _unit.subareaid === area + 768) {
+				return 2;
+			}
+		} while (_unit.GetNext());
+	}
+	
+	if (CLC_InTown(leader)) {
+		_unit = CLM_GetWaypointInt();
+		
+		if (_unit) {
+			return 3;
+		}
+	}
+	
+	if((me.areaid === 74 && area === 54 || me.areaid === 54 && area === 74)) { // arcane portal
+		CLM_TakeUnit(NTC_UNIT_OBJECT, 298);
+		return 4;
+	}
+	
+	if (me.areaid >= 66 && me.areaid <= 72 && area === 73) { // duriel's wall
+		CLM_TakeUnit(NTC_UNIT_OBJECT, 100);
+		return 4;
+	}
+	
+	/*if (me.areaid === 92 && area === 93) {	// kurast sewers
+		???
+	}*/
+	
+	if (me.areaid === 131 && area === 132) { // throne of destruction
+		CLM_TakeUnit(NTC_UNIT_OBJECT, 563);
+		return 4;
+	}
+	
+	return 0;
+}
+
+
+function ChangeAct(act) {
+	var npc, portal, preArea;
+	
+	preArea = me.areaid;
+	
+	switch (act) {
+	case 2:
+		if (me.areaid >= 40) {
+			break;
+		}
+	
+		CLTM_TownMove("warriv");
+		
+		npc = CLC_FindUnit(1, 155);
+		
+		if (npc) {
+			QuestInteract(npc);
+			
+			if (CLT_DoInteract(npc)) {
+				me.SelectNPCMenu(0x0D36);
+			}
+		}
+		
+		break;
+	case 3:
+		if (me.areaid >= 75) {
+			break;
+		}
+	
+		CLTM_TownMove("palace");
+		
+		npc = CLC_FindUnit(1, 201);
+		
+		if (npc) {
+			QuestInteract(npc);
+		}
+		
+		CLTM_TownMove("meshif");
+		
+		npc = CLC_FindUnit(1, 210);
+		
+		if (npc) {
+			QuestInteract(npc);
+			
+			if (CLT_DoInteract(npc)) {
+				me.SelectNPCMenu(0x0D38);
+			}
+		}
+		
+		break;
+	case 4:
+		if (me.areaid >= 103) {
+			break;
+		}
+		
+		if (CLC_InTown()) {
+			CLTM_TownMove("cain");
+			
+			npc = CLC_FindUnit(1, 245);
+		
+			if (npc) {
+				QuestInteract(npc);
+			}
+		
+			CLTM_TownMove("portalspot");
+			CLM_UsePortal(null, 102, null);
+		}
+		
+		target = CLC_FindUnit(2, 342, 20);
+		
+		CLM_MoveTo(target.areaid, target.x - 3, target.y - 1);
+		CLM_TakeUnit(NTC_UNIT_OBJECT, 342);
+		
+		break;
+	case 5:
+		if (me.areaid >= 109) {
+			break;
+		}
+		
+		CLTM_TownMove("tyrael");
+
+		npc = CLC_FindUnit(1, NTC_NPC_ID_TYRAEL_ACT_4);
+
+		if(npc) {
+			QuestInteract(npc);
+			
+		}
+		var _unit = CLM_TakeUnit(NTC_UNIT_OBJECT, 566)
+		if(_unit){CLM_TakeUnit(NTC_UNIT_OBJECT, 566);}
+		if(!_unit)
+			{
+			_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_TYRAEL_ACT_4);
+			if(_npc){
+				if(CLT_VisitNpc(_npc)){
+					CLT_DoInteract(_npc);
+					me.SelectNPCMenu(0x58D2);
+					}
+				}
+			}
+	}
+	
+	
+	CLC_PingDelay(2000);
+	
+	while (!me.areaid) {
+		CLC_Delay(500);
+	}
+	
+	if (me.areaid === preArea) {
+		me.Cancel(1);
+		CLTM_TownMove("portalspot");
+		Say("Act change failed.");
+		
+		return;
+	}
+	
+	CLTM_TownMove("portalspot");
+	Say("Act change successful.");
+	
+	if (act === 2) {
+		Say("Don't forget to talk to Drognan after getting the Viper Amulet!");
+	}
+}
+
+function QuestInteract(npc) {
+	var i;
+	
+	CLM_GetCloserInt(npc);
+	
+	for (i = 0; i < 20; i += 1) {
+		if (i % 10 === 0) {
+			CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, npc);
+		}
+		
+		if (i % 10 === 9) {
+			while (!GetUIState(0x09)) {
+				me.Cancel(0);
+				CLC_Delay(100);
+			}
+			
+			me.Cancel(1);
+			break;
+		}
+		
+		CLC_Delay(200);
+	}
+}

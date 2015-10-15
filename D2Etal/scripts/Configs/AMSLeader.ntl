@@ -1,0 +1,137 @@
+// Edit Realm Settings
+// =============================================================================
+
+function EntryPointSetup(){
+	// =============================================================================
+	//USWest Account settings
+	// =============================================================================
+	if(me.gatewayid == 0){
+		MuleGamePassword = ""; 								// Consistant through all games
+		muleAccountPassword = ""; 							// for all mule accounts
+		CharPrefix = "";
+		AccountPrefix = "";
+		CreateCharacterClass = 4;  							// 0:Amazon, 1:Sorceress, 2:Necromancer, 3:Paladin, 4:Barbarian, 5:Druid, 6:Assassin 
+		Hardcore = false;
+		Ladder = true;
+		Classic = false;
+		MuleNotification = true; 							// Set to true to send status to manager
+		UseCDKeyChangeTrick = true;
+		joinChannelInChat    = "";
+		characterdiff        =  "99"; 						//use this to keep those pesky spam bots out of the f'ing game
+		maxNumberOfPlayersss = "8";							//use this to set the maximum number of players allowed in your game
+		joinChatAfterGame			= true;			 		// join chat after leaving a game
+		joinRandomChannel			= false;		 		// if this is true, will join a random channel, otherwise it will use the channel below..
+		chatMessageOnJoin			= "";					// Chat Message to say Login command for channel bot will only be sent once
+		chatMessageAfterGame1		= "";					// Optional chat message Line #1 to say after each game on Channel
+		chatMessageAfterGame2		= "";					// Optional chat message Line #2 to say after each game on Channel
+		chatMessageAfterGame3		= "";					// Optional chat message Line #3 to say after each game on Channel
+		chatMessageAfterGame4		= "";					// Optional chat message Line #4 to say after each game on Channel
+		chatMessageAfterGame5		= "";					// Optional chat message Line #5 to say after each game on Channel
+		saygamename 			= false;					// Must be true for any of the game message settings to work
+		nextgamemessage			= "next game should be";	// This will come befor your next game name eg "New game is"
+		saypassword 			= true;						// This will togle if the bot says your game pw
+		saytime 				= true;						// This will togle if the bot says how much time till creation
+		timemessage 			= "in about";				// This will come after your pw and befor the time eg. "in about" xx seconds say time MUST be true for this to be used
+		return true;
+	}
+	
+	// =============================================================================
+	// USEast Account settings
+	// =============================================================================
+	if(me.gatewayid == 1){
+		MuleGamePassword = ""; 								// Consistant through all games
+		muleAccountPassword = ""; 							// for all mule accounts
+		CharPrefix = "";
+		AccountPrefix = "";
+		CreateCharacterClass = 4;  							// 0:Amazon, 1:Sorceress, 2:Necromancer, 3:Paladin, 4:Barbarian, 5:Druid, 6:Assassin 
+		Hardcore = false;
+		Ladder = true;
+		Classic = false;
+		MuleNotification = true; 							// Set to true to send status to manager
+		UseCDKeyChangeTrick = true;
+		joinChannelInChat    = "";
+		characterdiff        =  "99"; 						//use this to keep those pesky spam bots out of the f'ing game
+		maxNumberOfPlayersss = "8";							//use this to set the maximum number of players allowed in your game
+		joinChatAfterGame			= true;			 		// join chat after leaving a game
+		joinRandomChannel			= false;		 		// if this is true, will join a random channel, otherwise it will use the channel below..
+		chatMessageOnJoin			= "";					// Chat Message to say Login command for channel bot will only be sent once
+		chatMessageAfterGame1		= "";					// Optional chat message Line #1 to say after each game on Channel
+		chatMessageAfterGame2		= "";					// Optional chat message Line #2 to say after each game on Channel
+		chatMessageAfterGame3		= "";					// Optional chat message Line #3 to say after each game on Channel
+		chatMessageAfterGame4		= "";					// Optional chat message Line #4 to say after each game on Channel
+		chatMessageAfterGame5		= "";					// Optional chat message Line #5 to say after each game on Channel
+		saygamename 			= false;					// Must be true for any of the game message settings to work
+		nextgamemessage			= "next game should be";	// This will come befor your next game name eg "New game is"
+		saypassword 			= true;						// This will togle if the bot says your game pw
+		saytime 				= true;						// This will togle if the bot says how much time till creation
+		timemessage 			= "in about";				// This will come after your pw and befor the time eg. "in about" xx seconds say time MUST be true for this to be used
+		return true;
+	}
+	
+	// =============================================================================
+	// Asia Account settings
+	// =============================================================================
+	if(me.gatewayid == 2){
+		MuleGamePassword = ""; 								// Consistant through all games
+		muleAccountPassword = ""; 							// for all mule accounts
+		CharPrefix = "";
+		AccountPrefix = "";
+		CreateCharacterClass = 4;  							// 0:Amazon, 1:Sorceress, 2:Necromancer, 3:Paladin, 4:Barbarian, 5:Druid, 6:Assassin 
+		Hardcore = false;
+		Ladder = true;
+		Classic = false;
+		MuleNotification = true; 							// Set to true to send status to manager
+		UseCDKeyChangeTrick = true;
+		joinChannelInChat    = "";
+		characterdiff        =  "99"; 						//use this to keep those pesky spam bots out of the f'ing game
+		maxNumberOfPlayersss = "8";							//use this to set the maximum number of players allowed in your game
+		joinChatAfterGame			= true;			 		// join chat after leaving a game
+		joinRandomChannel			= false;		 		// if this is true, will join a random channel, otherwise it will use the channel below..
+		chatMessageOnJoin			= "";					// Chat Message to say Login command for channel bot will only be sent once
+		chatMessageAfterGame1		= "";					// Optional chat message Line #1 to say after each game on Channel
+		chatMessageAfterGame2		= "";					// Optional chat message Line #2 to say after each game on Channel
+		chatMessageAfterGame3		= "";					// Optional chat message Line #3 to say after each game on Channel
+		chatMessageAfterGame4		= "";					// Optional chat message Line #4 to say after each game on Channel
+		chatMessageAfterGame5		= "";					// Optional chat message Line #5 to say after each game on Channel
+		saygamename 			= false;					// Must be true for any of the game message settings to work
+		nextgamemessage			= "next game should be";	// This will come befor your next game name eg "New game is"
+		saypassword 			= true;						// This will togle if the bot says your game pw
+		saytime 				= true;						// This will togle if the bot says how much time till creation
+		timemessage 			= "in about";				// This will come after your pw and befor the time eg. "in about" xx seconds say time MUST be true for this to be used
+		return true;
+	}
+	
+	// =============================================================================
+	// Europe Account settings
+	// =============================================================================
+	if(me.gatewayid == 3){
+		MuleGamePassword = ""; 								// Consistant through all games
+		muleAccountPassword = ""; 							// for all mule accounts
+		CharPrefix = "";
+		AccountPrefix = "";
+		CreateCharacterClass = 4;  							// 0:Amazon, 1:Sorceress, 2:Necromancer, 3:Paladin, 4:Barbarian, 5:Druid, 6:Assassin 
+		Hardcore = false;
+		Ladder = true;
+		Classic = false;
+		MuleNotification = true; 							// Set to true to send status to manager
+		UseCDKeyChangeTrick = true;
+		joinChannelInChat    = "";
+		characterdiff        =  "99"; 						//use this to keep those pesky spam bots out of the f'ing game
+		maxNumberOfPlayersss = "8";							//use this to set the maximum number of players allowed in your game
+		joinChatAfterGame			= true;			 		// join chat after leaving a game
+		joinRandomChannel			= false;		 		// if this is true, will join a random channel, otherwise it will use the channel below..
+		chatMessageOnJoin			= "";					// Chat Message to say Login command for channel bot will only be sent once
+		chatMessageAfterGame1		= "";					// Optional chat message Line #1 to say after each game on Channel
+		chatMessageAfterGame2		= "";					// Optional chat message Line #2 to say after each game on Channel
+		chatMessageAfterGame3		= "";					// Optional chat message Line #3 to say after each game on Channel
+		chatMessageAfterGame4		= "";					// Optional chat message Line #4 to say after each game on Channel
+		chatMessageAfterGame5		= "";					// Optional chat message Line #5 to say after each game on Channel
+		saygamename 			= false;					// Must be true for any of the game message settings to work
+		nextgamemessage			= "next game should be";	// This will come befor your next game name eg "New game is"
+		saypassword 			= true;						// This will togle if the bot says your game pw
+		saytime 				= true;						// This will togle if the bot says how much time till creation
+		timemessage 			= "in about";				// This will come after your pw and befor the time eg. "in about" xx seconds say time MUST be true for this to be used
+		return true;
+	}
+}
+

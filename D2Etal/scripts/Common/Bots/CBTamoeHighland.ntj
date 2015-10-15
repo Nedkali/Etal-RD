@@ -1,0 +1,107 @@
+function NTMain() {
+
+	Include("Common/Libs/CLCommon.ntl");
+	CLC_IncludeLibs();
+	CLC_IncludeConfig();
+
+
+	NT_LoadConfig();
+	CLSI_LoadNIPFiles();
+
+	CLA_Initialize();
+
+	if(!CLTM_CheckAct()){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_CheckAct()");
+		return;
+	}
+	CLTMGR_TownManager();
+	if(!CLTM_TownMove("waypoint")){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_TownMove()");
+		return;
+	}
+	if(!CLM_TakeWaypoint(6)){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeWaypoint()");
+		return;
+	}
+	CLP_DoPrecast(true);
+	if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()) {
+		CLC_OpenChestsInArea();
+	}
+	if(NTConfig_ClearTamoe > 0){
+		if(!CLM_MoveToStair(7, 12)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToStair()");
+			return;
+		}
+		if(NTConfig_ClearTamoe == 1){
+			NTConfig_SkipRegularMonsters = false;
+			CLP_DoPrecast();
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+			}
+		}
+		if(NTConfig_ClearTamoe == 2){
+			NTConfig_SkipRegularMonsters = true;
+			CLP_DoPrecast();
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+			}
+		}
+	}
+	if(NTConfig_ClearTamoePit > -1){
+		if(!CLM_MoveToStair(7, 12)) {
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToStair()");
+			return;
+		}
+		if(!CLM_TakeStair(12)) {
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+			return;
+		}
+		CLP_DoPrecast();
+		if(NTConfig_ClearTamoePit == 1) {
+			NTConfig_SkipRegularMonsters = false;
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+			}
+		} 
+		if(NTConfig_ClearTamoePit == 2) {
+			NTConfig_SkipRegularMonsters = true;
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+			}
+		}
+		if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()) {
+			CLC_OpenChestsInArea();
+		}
+		if(!CLM_MoveToStair(me.areaid, 16)) {
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToStair()");
+			return;
+		}
+		if(!CLM_TakeStair(16)) {
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+			return;
+		}
+		CLP_DoPrecast();
+		if(NTConfig_ClearTamoePit == 1) {
+			var i;
+			var _attackpos = [7540, 14420, 7548, 14440, 7560, 14460, 7574, 14448, 7592, 14438, 7604, 14424, 7572, 14400, 7558, 14412];
+			for (i = 0; i < _attackpos.length; i += 2) {
+				CLM_MoveTo(me.areaid, _attackpos[i], _attackpos[i + 1]);
+				CLA_ClearPosition(20, true, 1);
+			}
+		} 
+		if(NTConfig_ClearTamoePit == 2) {
+			NTConfig_SkipRegularMonsters = true;
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+			}
+		}
+		if(CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 397, 1, 1)){
+			_target = CLC_GetSpecialChest();
+			if (_target){ CLC_OpenChest(_target); }
+		}
+	}
+	if (NTConfig_OpenChestsInArea && NTU_DontOpenAreas()) {
+		CLC_OpenChestsInArea();
+	}
+	CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+}

@@ -1,0 +1,87 @@
+function NTMain(){
+
+	Include("Common/Libs/CLCommon.ntl");
+	CLC_IncludeLibs();
+	CLC_IncludeConfig();
+
+	NT_LoadConfig();
+	CLSI_LoadNIPFiles();
+
+	var i = 0;
+	var _attackpos = [7563,13182,7570,13213,7561,13232,7540,13221,7508,13209,7516,13175,7563,13182,7595,13190,7615,13147,7565,13140,7535,13151];
+
+	CLA_Initialize();
+
+	if(!CLTM_CheckAct()){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_CheckAct()");
+		return;
+	}
+	CLTMGR_TownManager();
+	if(!CLTM_TownMove("waypoint")){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_TownMove()");
+		return;
+	}
+	if(!CLM_TakeWaypoint(4)){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeWaypoint()");
+		return;
+	}
+	CLP_DoPrecast(true);
+	if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas())
+		CLC_OpenChestsInArea();
+	if(!CLM_MoveToStair(me.areaid, 10)){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToStair()");
+		return;
+	}
+	if(!CLM_TakeStair(10)){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+		return;
+	}
+	CLP_DoPrecast();
+	if(NTConfig_ClearPassageLevel1 == 1){
+		NTConfig_SkipRegularMonsters = false;
+		if(!CLA_ClearLevel()){
+			CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+		}
+		if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas())
+			CLC_OpenChestsInArea();
+	}
+	if(NTConfig_ClearPassageLevel1 == 2){
+		NTConfig_SkipRegularMonsters = true;
+		if(!CLA_ClearLevel()){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLA_ClearLevel()");
+			return;
+		}
+		if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas())
+			CLC_OpenChestsInArea();
+	}
+	if(NTConfig_ClearPassageLevel2){
+		if(!CLM_MoveToStair(me.areaid, 14)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToStair()");
+			return;
+		}
+		if(!CLM_TakeStair(14)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+			return;
+		}
+		CLP_DoPrecast();
+		for(i = 0 ; i < _attackpos.length ; i += 2){
+			CLM_MoveTo(me.areaid, _attackpos[i], _attackpos[i+1]);
+			CLA_ClearPosition(30, 0x04);
+			CLA_ClearPosition();
+			CLSI_PickItems();
+		}
+		if(NTConfig_OpenChest){
+			var _chest;
+			_chest = CLC_FindUnit(NTC_UNIT_OBJECT, GetLocaleString(3260));
+			if(_chest){
+				if(CLM_MoveTo(_chest.areaid, _chest.x+1, _chest.y)){
+					if(CLC_OpenChest(_chest))
+					CLSI_PickItems();
+					if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas())
+						CLC_OpenChestsInArea();
+				}
+			}
+		}
+	}
+	CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+}

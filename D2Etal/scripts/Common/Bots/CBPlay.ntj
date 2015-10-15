@@ -1,0 +1,22 @@
+function NTMain()
+{
+	Include("Common/Libs/CLCommon.ntl");
+	CLC_IncludeLibs();
+	CLC_IncludeConfig();
+
+	NT_LoadConfig();
+	CLSI_LoadNIPFiles();
+
+	CLA_Initialize();
+
+	me.showenemyonautomap = true;
+	me.revealautomap	 = true;
+	me.maxgametime = 0;
+	
+	while(1) {
+		CLA_ClearPosition(40);
+		Delay(250)
+	}
+
+	CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+}

@@ -1,0 +1,20 @@
+function NTMain() {
+	Include("Common/Libs/CLCommon.ntl");
+	Include("NTRush/funcs/RushCommon.ntl");
+	Common.IncludeFuncs();
+	CLC_IncludeLibs();
+	Config.Load();
+
+	NT_LoadConfig();
+	CLSI_LoadNIPFiles("Configs/"+me.realm+"/item_configs");
+
+	CLA_Initialize();
+
+	if (!Quests.Duriel()) {
+		Common.LogError("Duriel()");
+		Script.SendMsg("OverWatch.ntj", "Duriel()");
+		return;
+	}
+
+	Script.SendMsg("OverWatch.ntj", "SCRIPT_END"); 
+}

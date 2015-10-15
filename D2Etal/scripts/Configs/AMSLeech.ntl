@@ -1,0 +1,158 @@
+
+// Edit Realm Settings for entry point
+// =============================================================================
+
+function EntryPointSetup(){
+	// =============================================================================
+	// USWest Account settings
+	// =============================================================================
+	if(me.gatewayid == 0){
+		leaderAccountName = "";					// Leader Account
+		leaderName = "";						// Leader Name
+		gamepassword = "";						// Leader's Game Password
+		
+		UseCDKeyChangeTrick = true;				// set true to enable key swapping
+		useFL = false;  						// set true if you wish your leecher to use /f l to join games.  useFL MUST be set to 0 for this to work
+		useFLCount = 1;							// this is seperate from the above setting allows you to use /f l to join, but will only spam /f l the set number of times.  set to 0 to disable
+		delayFL = 3000;							// milliseconds before the bot will use the /f l command in loby
+		reEnterSameGame = false;				// set to false to keep the bot from using /f l to re enter same game also must be set to false if you don't want bot to re enter same game for txt joining
+		useTextFileJoin = false;  				// use txt file communication between leader and leecher to join games.  False uses message sent from leader when in game
+		gameDoesNotExistDelay = 10;				// time to idle before trying if leader's game does not exist.  In seconds.
+		tryLeaderGame1x = false;				// will only try to enter the game one time.  Good for when leader drops before leecher gets in.		
+		joinChatAfterGame    = true;			//join chat after each game
+		firstJoinMessage     = "";
+		chatMessageAfterGame = "";
+		joinRandomChannel    = false;
+		joinChannelInChat    = "";				// Set a channel to join
+		leecher1 = ["characterName", 100];		// Leecher game entry delays use to stagger when leechers join game...
+		leecher2 = ["characterName", 750];		// [characterName, delay in milliseconds]...just leave these as they
+		leecher3 = ["characterName", 1250];		// are if you don't want to use them
+		leecher4 = ["characterName", 2000];		
+		
+		MuleNotification = true; 				// Set to true to send status to manager
+		MuleGamePassword = ""; 					// Consistant through all muling games
+		muleAccountPassword = "";				// for all mule accounts
+		CharPrefix = "";
+		AccountPrefix = "";
+		CreateCharacterClass = 4;  				// 0:Amazon, 1:Sorceress, 2:Necromancer, 3:Paladin, 4:Barbarian, 5:Druid, 6:Assassin
+		Hardcore = false;
+		Ladder = true;
+		Classic = false;
+		return true;
+	}
+
+	// =============================================================================
+	// USEast Account settings
+	// =============================================================================
+
+	if(me.gatewayid == 1){
+		leaderAccountName = "";					// Leader Account
+		leaderName = "";						// Leader Name
+		gamepassword = "";						// Leader's Game Password
+		
+		UseCDKeyChangeTrick = true;				// set true to enable key swapping
+		useFL = false;  						// set true if you wish your leecher to use /f l to join games.  useFL MUST be set to 0 for this to work
+		useFLCount = 1;							// this is seperate from the above setting allows you to use /f l to join, but will only spam /f l the set number of times.  set to 0 to disable
+		delayFL = 3000;							// milliseconds before the bot will use the /f l command in loby
+		reEnterSameGame = false;				// set to false to keep the bot from using /f l to re enter same game also must be set to false if you don't want bot to re enter same game for txt joining
+		useTextFileJoin = false;  				// use txt file communication between leader and leecher to join games.  False uses message sent from leader when in game
+		gameDoesNotExistDelay = 10;				// time to idle before trying if leader's game does not exist.  In seconds.
+		tryLeaderGame1x = false;				// will only try to enter the game one time.  Good for when leader drops before leecher gets in.		
+		joinChatAfterGame    = true;			//join chat after each game
+		firstJoinMessage     = "";
+		chatMessageAfterGame = "";
+		joinRandomChannel    = false;
+		joinChannelInChat    = "";				// Set a channel to join
+		leecher1 = ["characterName", 100];		// Leecher game entry delays use to stagger when leechers join game...
+		leecher2 = ["characterName", 750];		// [characterName, delay in milliseconds]...just leave these as they
+		leecher3 = ["characterName", 1250];		// are if you don't want to use them
+		leecher4 = ["characterName", 2000];		
+	
+		MuleNotification = true; 				// Set to true to send status to manager
+		MuleGamePassword = ""; 					// Consistant through all muling games
+		muleAccountPassword = "";				// for all mule accounts
+		CharPrefix = "";
+		AccountPrefix = "";
+		CreateCharacterClass = 4;  				// 0:Amazon, 1:Sorceress, 2:Necromancer, 3:Paladin, 4:Barbarian, 5:Druid, 6:Assassin
+		Hardcore = false;
+		Ladder = true;
+		Classic = false;
+		return true;
+	}
+
+	// =============================================================================
+	// Asia Account settings
+	// =============================================================================
+	if(me.gatewayid == 2){
+		leaderAccountName = "";					// Leader Account
+		leaderName = "";						// Leader Name
+		gamepassword = "";						// Leader's Game Password
+		
+		UseCDKeyChangeTrick = true;				// set true to enable key swapping
+		useFL = false;  						// set true if you wish your leecher to use /f l to join games.  useFL MUST be set to 0 for this to work
+		useFLCount = 1;							// this is seperate from the above setting allows you to use /f l to join, but will only spam /f l the set number of times.  set to 0 to disable
+		delayFL = 3000;							// milliseconds before the bot will use the /f l command in loby
+		reEnterSameGame = false;				// set to false to keep the bot from using /f l to re enter same game also must be set to false if you don't want bot to re enter same game for txt joining
+		useTextFileJoin = false;  				// use txt file communication between leader and leecher to join games.  False uses message sent from leader when in game
+		gameDoesNotExistDelay = 10;				// time to idle before trying if leader's game does not exist.  In seconds.
+		tryLeaderGame1x = false;				// will only try to enter the game one time.  Good for when leader drops before leecher gets in.		
+		joinChatAfterGame    = true;			//join chat after each game
+		firstJoinMessage     = "";
+		chatMessageAfterGame = "";
+		joinRandomChannel    = false;
+		joinChannelInChat    = "";				// Set a channel to join
+		leecher1 = ["characterName", 100];		// Leecher game entry delays use to stagger when leechers join game...
+		leecher2 = ["characterName", 750];		// [characterName, delay in milliseconds]...just leave these as they
+		leecher3 = ["characterName", 1250];		// are if you don't want to use them
+		leecher4 = ["characterName", 2000];		
+
+		MuleNotification = true; 				// Set to true to send status to manager
+		MuleGamePassword = ""; 					// Consistant through all muling games
+		muleAccountPassword = "";				// for all mule accounts
+		CharPrefix = "";
+		AccountPrefix = "";
+		CreateCharacterClass = 4;  				// 0:Amazon, 1:Sorceress, 2:Necromancer, 3:Paladin, 4:Barbarian, 5:Druid, 6:Assassin
+		Hardcore = false;
+		Ladder = true;
+		Classic = false;
+		return true;
+	}
+
+	// =============================================================================
+	// Europe Account settings
+	// =============================================================================
+	if(me.gatewayid == 3){
+		leaderAccountName = "";					// Leader Account
+		leaderName = "";						// Leader Name
+		gamepassword = "";						// Leader's Game Password
+		
+		UseCDKeyChangeTrick = true;				// set true to enable key swapping
+		useFL = false;  						// set true if you wish your leecher to use /f l to join games.  useFL MUST be set to 0 for this to work
+		useFLCount = 1;							// this is seperate from the above setting allows you to use /f l to join, but will only spam /f l the set number of times.  set to 0 to disable
+		delayFL = 3000;							// milliseconds before the bot will use the /f l command in loby
+		reEnterSameGame = false;				// set to false to keep the bot from using /f l to re enter same game also must be set to false if you don't want bot to re enter same game for txt joining
+		useTextFileJoin = false;  				// use txt file communication between leader and leecher to join games.  False uses message sent from leader when in game
+		gameDoesNotExistDelay = 10;				// time to idle before trying if leader's game does not exist.  In seconds.
+		tryLeaderGame1x = false;				// will only try to enter the game one time.  Good for when leader drops before leecher gets in.		
+		joinChatAfterGame    = true;			//join chat after each game
+		firstJoinMessage     = "";
+		chatMessageAfterGame = "";
+		joinRandomChannel    = false;
+		joinChannelInChat    = "";				// Set a channel to join
+		leecher1 = ["characterName", 100];		// Leecher game entry delays use to stagger when leechers join game...
+		leecher2 = ["characterName", 750];		// [characterName, delay in milliseconds]...just leave these as they
+		leecher3 = ["characterName", 1250];		// are if you don't want to use them
+		leecher4 = ["characterName", 2000];		
+
+		MuleNotification = true; 				// Set to true to send status to manager
+		MuleGamePassword = ""; 					// Consistant through all muling games
+		muleAccountPassword = "";				// for all mule accounts
+		CharPrefix = "";
+		AccountPrefix = "";
+		CreateCharacterClass = 4;  				// 0:Amazon, 1:Sorceress, 2:Necromancer, 3:Paladin, 4:Barbarian, 5:Druid, 6:Assassin
+		Hardcore = false;
+		Ladder = true;
+		Classic = false;
+		return true;
+	}
+}

@@ -1,0 +1,621 @@
+
+function CLSS_DoStats(){
+	if(me.screensize != 2){
+		Print("This option only works in 800x600 resolution");
+		return;
+	}
+	
+	
+	if(me.classid == NTC_CHAR_CLASS_PALADIN){
+		CLSS_GetMaxBlockDex();
+	}
+	
+	var nStats = (me.GetStat(4)-NTConfig_UnusedStats);
+	var nSkills = (me.GetStat(5)-NTConfig_UnusedSkills);
+
+	if(nStats < 1 && nSkills < 1)
+		return;
+
+	if(nStats && NTConfig_UseStatPoints)
+		CLSS_AddAttributes();
+	
+	if(nSkills && NTConfig_UseSkillPoints)
+		CLSS_Skills();
+	
+	if(me.itemoncursor){
+		me.ClickItem(0, _clickitemslot, CLC_GetBeltSize()-1, 5);
+	}
+	
+	for(var k = 0 ; k < 15 ; k++){					
+		Delay(300);
+		if(!me.itemoncursor)
+			break;
+	}
+
+	CLC_ClearCursor();
+	
+	if(GetUIState(0x1F) || GetUIState(0x04))
+		me.Cancel(1);
+	
+	return;
+}
+
+function CLSS_AddAttributes(){
+	if(NTConfig_UnusedStats < 0)
+		NTConfig_UnusedStats = 0;
+	
+	var _canuse = me.GetStat(4)-NTConfig_UnusedStats;
+
+	if(_canuse <= 0)
+		return true;
+
+	//if(NTConfig_Dexterity == "maxblock")
+		//NTConfig_Dexterity = CLSS_GetMaxBlockDex();
+	
+	var _str = me.GetStat(0);
+	var _dex = me.GetStat(2);
+	var _vit = me.GetStat(3);
+	var _ene = me.GetStat(1);
+	
+	if(_str < NTConfig_Strength){
+		if(NTConfig_Strength - _str < _canuse){
+			CLSS_StatAdd(0, NTConfig_Strength-_str);
+		}
+		
+		else
+			CLSS_StatAdd(0, _canuse);
+
+	_canuse = me.GetStat(4)-NTConfig_UnusedStats;
+	}
+	
+	if(_dex < NTConfig_Dexterity && _canuse > 0){
+		if(NTConfig_Dexterity - _dex < _canuse){
+			CLSS_StatAdd(2, NTConfig_Dexterity-_dex);
+		}		
+		else
+			CLSS_StatAdd(2, _canuse);
+
+	_canuse = me.GetStat(4)-NTConfig_UnusedStats;
+	}	
+
+	if(_vit < NTConfig_Vitality && _canuse > 0){
+		if(NTConfig_Vitality - _vit < _canuse){
+			CLSS_StatAdd(3, NTConfig_Vitality-_vit);
+		}
+		
+		else
+			CLSS_StatAdd(3, _canuse);
+
+		_canuse = me.GetStat(4)-NTConfig_UnusedStats;
+	}
+	
+	if(_ene < NTConfig_Energy && _canuse > 0){
+		if(NTConfig_Energy - _ene < _canuse){
+			CLSS_StatAdd(3, NTConfig_Energy-_ene);
+		}
+		
+		else
+			CLSS_StatAdd(3, _canuse);
+	}
+	if(GetUIState(0x02))
+		SetUIState(0x02, false);
+	
+	return true;
+}
+
+function CLSS_Skills(){
+	var _canuse = 0;
+	if(NTConfig_UnusedSkills < 0)
+		NTConfig_UnusedSkills = 0;
+	
+	for(var i = 0; i < NTConfig_SetSkill.length; i++){
+		if(!CLSS_SkillIdCheck(NTConfig_SetSkill[i][0])){
+			return CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Incorrect Char skill set " + NTConfig_SetSkill[i][0]);
+		}
+		_canuse = me.GetStat(5)-NTConfig_UnusedSkills;
+
+		if(_canuse < 1)
+			return;
+		
+		if(NTConfig_SetSkill[i][1] > 20)
+			NTConfig_SetSkill[i][1] = 20;
+		
+		_slvl =	me.GetSkill(NTConfig_SetSkill[i][0], false);
+		if(_slvl < NTConfig_SetSkill[i][1]){
+				if(NTConfig_SetSkill[i][1] - _slvl < _canuse){
+					CLSS_SkillsAdd(NTConfig_SetSkill[i][0], NTConfig_SetSkill[i][1]-_slvl);
+				}		
+			else
+					CLSS_SkillsAdd(NTConfig_SetSkill[i][0], _canuse);
+				
+		}
+	}
+}
+
+var _clickitemslot;
+function CLSS_GetPotion(){
+	_items = me.GetItems();
+
+	if(!_items)
+		return false;
+
+	for(i = 0 ; i < _items.length ; i++){
+		if(_items[i].mode == 2)	{
+			_clickitem = _items[i];
+			_clickitemslot = _items[i].x;
+			break;
+		}
+	}
+		
+	if(!_clickitem || !CLC_ItemToCursor(_clickitem))
+		return false;
+	
+	return true;	
+}
+
+function CLSS_SkillsAdd(skillid, num){
+	var max = me.GetStat(5);
+	
+	if(max < num)
+		{Print(COLOR_1 + "Not enough points available");return;}
+	
+	var pre = me.GetSkill(skillid, false);
+
+	var _beltsize = CLC_GetBeltSize();
+
+	var skilltree = CLSS_SkillArray(skillid);
+	
+	if(skilltree[4] > me.GetStat(12))
+		return CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "You need to be level " + skilltree[4] + " to get " + skilltree[0]);
+
+	SetUIState(0x04, true);//Char skill screen
+	SetUIState(0x1F, true);//Belt screen
+	
+	if(!me.itemoncursor){
+		if(!CLSS_GetPotion())
+			return false;
+	}
+	
+		
+	me.ClickItem(0, 7, skilltree[1], 5);
+	me.ping; Delay(Random(200,500));
+	
+	for(i = 0 ; i < num ; i++){
+		me.ClickItem(0, skilltree[3], skilltree[2], 5);				
+		me.ping;Delay(200);
+	}
+
+	Delay(100);
+	if(me.GetSkill(skillid, false) > pre)
+		CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_2 + "Successfully added " + (me.GetSkill(skillid, false)-pre) + " points to " + skilltree[0]);
+	
+	if(me.GetSkill(skillid, false) == pre)
+		CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Cant add to skill " + skilltree[0] + " need more levels");
+		
+	return;
+
+}
+
+function CLSS_StatAdd(stat,  num){
+	var StatId, _y;
+	var pre = me.GetStat(stat);
+
+	var _beltsize = CLC_GetBeltSize();
+
+	SetUIState(0x02, true);//Char stats screen
+	SetUIState(0x1F, true);//Belt screen
+	Delay(200);
+	
+	if(!me.itemoncursor){
+		if(!CLSS_GetPotion())
+			return false;
+	}
+	
+	switch(stat){
+		case 0:		_y = 13; StatId = "Strength";
+					break;
+		case 2:		_y = -4; StatId = "Dexterity"; SetUIState(0x01, true);
+					break;
+		case 3:		_y = 9; StatId = "Vitality";
+					break;
+		case 1:		_y = 7; StatId = "Energy";
+					break;
+	}
+	
+	for(i = 0 ; i < num ; i++){
+		if(stat == 2)
+			me.ClickItem(0, -7, _y, 0);
+		else
+			me.ClickItem(0, -7, _y, 5);
+				
+		me.ping; Delay(Random(200,500));
+		if(me.GetStat(stat) >= pre+num){
+			//Print("interupted");
+			break;
+		}
+	}
+	
+	Delay(300);
+		
+	if(me.GetStat(stat) == pre+num)
+		CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_2 + "Successfully added " + num + " points to " + StatId);
+	
+	if(me.GetStat(stat) > pre+num)
+		CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_2 + "Successfully added to " + StatId + " " + num + " + Item bonus");// unsure on this	
+		
+	if(me.GetStat(stat) == pre)
+		CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Failed adding to " + StatId);
+		
+	return;
+}
+
+function CLSS_SkillIdCheck(SkillId){
+	
+	switch (me.classid){
+		case 0:	if(SkillId >= 6 && SkillId <= 35)
+					return true;
+				break;
+		case 1:	if(SkillId >= 36 && SkillId <= 65)
+					return true;
+				break;
+		case 2:if(SkillId >= 66 && SkillId <= 95)
+					return true;
+				break;
+		case 3:	if(SkillId >= 96 && SkillId <= 125)
+					return true;
+				break;
+		case 4:	if(SkillId >= 126 && SkillId <= 155)
+					return true;
+				break;
+		case 5:	if(SkillId >= 221 && SkillId <= 250)
+					return true;
+				break;
+		case 6:	if(SkillId >= 251 && SkillId <= 280)
+					return true;
+				break;
+	}
+	return false;
+}
+
+function CLSS_SkillArray(sk){
+	var skloc = [];
+	switch(sk){
+		case 6: skloc = ["Magic Arrow", 5, 15, 2, 1];		break;
+		case 7: skloc = ["Fire Arrow", 5, 15, 5, 1];		break;
+		case 8: skloc = ["Inner Sight", 8, 15, 0, 1];		break;
+		case 9: skloc = ["Critical Strike", 8, 15, 5, 1];	break;
+		case 10: skloc = ["Jab", 11, 15, 0, 1];				break;
+		case 11: skloc = ["Cold Arrow", 5, 13, 0, 6];		break;
+		case 12: skloc = ["Multiple Shot", 5, 13, 2, 6];	break;
+		case 13: skloc = ["Dodge", 8, 13, 2, 6];			break;
+		case 14: skloc = ["Power Strike", 11, 13, 2, 6];	break;
+		case 15: skloc = ["Poison Javelin", 11, 13, 5, 6];	break;
+		case 16: skloc = ["Exploding Arrow", 5, 11, 5, 12];	break;
+		case 17: skloc = ["Slow Missiles", 8, 11, 0, 12];	break;
+		case 18: skloc = ["Avoid", 8, 11, 2, 12];			break;
+		case 19: skloc = ["Impale", 11, 11, 0, 12];			break;
+		case 20: skloc = ["Lightning Bolt", 11, 11, 5, 12];	break;
+		case 21: skloc = ["Ice Arrow", 5, 9, 0, 18];		break;
+		case 22: skloc = ["Guided Arrow", 5, 9, 2, 18];		break;
+		case 23: skloc = ["Penetrate", 8, 9, 5, 18];		break;
+		case 24: skloc = ["Charged Strike", 11, 9, 2, 18];	break;
+		case 25: skloc = ["Plague Javelin", 11, 9, 5, 18];	break;
+		case 26: skloc = ["Strafe", 5, 7, 2, 24];			break;
+		case 27: skloc = ["Immolation Arrow", 5, 7, 5, 24];	break;
+		case 28: skloc = ["Decoy", 8, 7, 0, 24];			break;
+		case 29: skloc = ["Evade", 8, 7, 2, 24];			break;
+		case 30: skloc = ["Fend", 11, 7, 0, 24];			break;
+		case 31: skloc = ["Freezing Arrow", 5, 5, 0, 30];	break;
+		case 32: skloc = ["Valkyrie", 8, 5, 0, 30];			break;
+		case 33: skloc = ["Pierce", 8, 5, 5, 30];			break;
+		case 34: skloc = ["Lightning Strike", 11, 5, 2, 30];	break;
+		case 35: skloc = ["Lightning Fury", 11, 5, 5, 30];	break;
+		case 36: skloc = ["Fire Bolt", 5, 15, 2, 1];		break;
+		case 37: skloc = ["Warmth", 5, 15, 5, 1];			break;
+		case 38: skloc = ["Charged Bolt", 8, 15, 2, 1];		break;
+		case 39: skloc = ["Ice Bolt", 11, 15, 2, 1];		break;
+		case 40: skloc = ["Frozen Armor", 11, 15, 5, 1];	break;
+		case 41: skloc = ["Inferno", 5, 13, 0, 6];			break;
+		case 42: skloc = ["Static Field", 8, 13, 0, 6];		break;
+		case 43: skloc = ["Telekinesis", 8, 13, 5, 6];		break;
+		case 44: skloc = ["Frost Nova", 11, 13, 0, 6];		break;
+		case 45: skloc = ["Ice Blast", 11, 13, 2, 6];		break;
+		case 46: skloc = ["Blaze", 5, 11, 0, 12];			break;
+		case 47: skloc = ["Fire Ball", 5, 11, 2, 12];		break;
+		case 48: skloc = ["Nova", 8, 11, 0, 12];			break;
+		case 49: skloc = ["Lightning", 8, 11, 2, 12];		break;
+		case 50: skloc = ["Shiver Armor", 11, 11, 5, 12];	break;
+		case 51: skloc = ["Fire Wall", 5, 9, 0, 18];		break;
+		case 52: skloc = ["Enchant", 5, 9, 5, 18];			break;
+		case 53: skloc = ["Chain Lightning", 8, 9, 2, 18];	break;
+		case 54: skloc = ["Teleport", 8, 9, 5, 18];			break;
+		case 55: skloc = ["Glacial Spike", 11, 9, 2, 18];	break;
+		case 56: skloc = ["Meteor", 5, 7, 2, 24];			break;
+		case 57: skloc = ["Thunder Storm", 8, 7, 0, 24];	break;
+		case 58: skloc = ["Energy Shield", 8, 7, 5, 24];	break;
+		case 59: skloc = ["Blizzard", 11, 7, 0, 24];		break;
+		case 60: skloc = ["Chilling Armor", 11, 7, 5, 24];	break;
+		case 61: skloc = ["Fire Mastery", 5, 5, 2, 30];		break;
+		case 62: skloc = ["Hydra", 5, 5, 5, 30];			break;
+		case 63: skloc = ["Lightning Mastery", 8, 5, 2, 30];	break;
+		case 64: skloc = ["Frozen Orb", 11, 5, 0, 30];		break;
+		case 65: skloc = ["Cold Mastery", 11, 5, 2, 30];	break;
+		case 66: skloc = ["Amplify Damage", 5, 15, 2, 1];	break;
+		case 67: skloc = ["Teeth", 8, 15, 2, 1];			break;
+		case 68: skloc = ["Bone Armor", 8, 15, 5, 1];		break;
+		case 69: skloc = ["Skeleton Mastery", 11, 15, 0, 1];	break;
+		case 70: skloc = ["Raise Skeleton", 11, 15, 5, 1];	break;
+		case 71: skloc = ["Dim Vision", 5, 13, 0, 6];		break;
+		case 72: skloc = ["Weaken", 5, 13, 5, 6];			break;
+		case 73: skloc = ["Poison Dagger", 8, 13, 0, 6];	break;
+		case 74: skloc = ["Corpse Explosion", 8, 13, 2, 6];	break;
+		case 75: skloc = ["Clay Golem", 11, 13, 2, 6];		break;
+		case 76: skloc = ["Iron Maiden", 5, 11, 2, 12];		break;
+		case 77: skloc = ["Terror", 5, 11, 5, 12];			break;
+		case 78: skloc = ["Bone Wall", 8, 11, 5, 12];		break;
+		case 79: skloc = ["Golem Mastery", 11, 11, 0, 12];	break;
+		case 80: skloc = ["Raise Skeletal mage", 11, 11, 5, 12];	break;
+		case 81: skloc = ["Confuse", 5, 9, 0, 18];			break;
+		case 82: skloc = ["Life Tap", 5, 9, 2, 18];			break;
+		case 83: skloc = ["Poison Explosion", 8, 9, 0, 18];	break;
+		case 84: skloc = ["Bone Spear", 8, 9, 2, 18];		break;
+		case 85: skloc = ["Blood Golem", 11, 9, 2, 18];		break;
+		case 86: skloc = ["Attract", 5, 7, 0, 24];			break;
+		case 87: skloc = ["Decrepify", 5, 7, 5, 24];		break;
+		case 88: skloc = ["Bone Prison", 8, 7, 5, 24];		break;
+		case 89: skloc = ["Summon Resist", 11, 7, 0, 24];	break;
+		case 90: skloc = ["Iron Golem", 11, 7, 2, 24];		break;
+		case 91: skloc = ["Lower Resist", 5, 5, 2, 30];		break;
+		case 92: skloc = ["Poison Nova", 8, 5, 0, 30];		break;
+		case 93: skloc = ["Bone Spirit", 8, 5, 2, 30];		break;
+		case 94: skloc = ["Fire Golem", 11, 5, 2, 30];		break;
+		case 95: skloc = ["Revive", 11, 5, 5, 30];			break;
+		case 96: skloc = ["Sacrifice", 5, 15, 0, 1];		break;
+		case 97: skloc = ["Smite", 5, 15, 5, 1];			break;
+		case 98: skloc = ["Might", 8, 15, 0, 1];			break;
+		case 99: skloc = ["Prayer", 11, 15, 0, 1];			break;
+		case 100: skloc = ["Resist Fire", 11, 15, 5, 1];	break;
+		case 101: skloc = ["Holy Bolt", 5, 13, 2, 6];		break;
+		case 102: skloc = ["Holy Fire", 8, 13, 2, 6];		break;
+		case 103: skloc = ["Thorns", 8, 13, 5, 6];			break;
+		case 104: skloc = ["Defiance", 11, 13, 2, 6];		break;
+		case 105: skloc = ["Resist Cold", 11, 13, 5, 6];	break;
+		case 106: skloc = ["Zeal", 5, 11, 0, 12];			break;
+		case 107: skloc = ["Charge", 5, 11, 5, 12];			break;
+		case 108: skloc = ["Blessed Aim", 8, 11, 0, 12];	break;
+		case 109: skloc = ["Cleansing", 11, 11, 0, 12];		break;
+		case 110: skloc = ["Resist Lightning", 11, 11, 5, 12];	break;
+		case 111: skloc = ["Vengeance", 5, 9, 0, 18];		break;
+		case 112: skloc = ["Blessed Hammer", 5, 9, 2, 18];	break;
+		case 113: skloc = ["Concentration", 8, 9, 0, 18];	break;
+		case 114: skloc = ["Holy Freeze", 8, 9, 2, 18];		break;
+		case 115: skloc = ["Vigor", 11, 9, 2, 18];			break;
+		case 116: skloc = ["Conversion", 5, 7, 0, 24];		break;
+		case 117: skloc = ["Holy Shield", 5, 7, 5, 24];		break;
+		case 118: skloc = ["Holy Shock", 8, 7, 2, 24];		break;
+		case 119: skloc = ["Sanctuary", 8, 7, 5, 24];		break;
+		case 120: skloc = ["Meditation", 11, 7, 0, 24];		break;
+		case 121: skloc = ["Fist of the Heavens", 5, 5, 2, 30];	break;
+		case 122: skloc = ["Fanaticism", 8, 5, 0, 30];		break;
+		case 123: skloc = ["Conviction", 8, 5, 5, 30];		break;
+		case 124: skloc = ["Redemption", 11, 5, 2, 30];		break;
+		case 125: skloc = ["Salvation", 11, 5, 5, 30];		break;
+		case 126: skloc = ["Bash", 5, 15, 2, 1];			break;
+		case 127: skloc = ["Sword Mastery", 8, 15, 0, 1];	break;
+		case 128: skloc = ["Axe Mastery", 8, 15, 2, 1];		break;
+		case 129: skloc = ["Mace Mastery", 8, 15, 5, 1];	break;
+		case 130: skloc = ["Howl", 11, 15, 0, 1];			break;
+		case 131: skloc = ["Find Potion", 11, 15, 5, 1];	break;
+		case 132: skloc = ["Leap", 5, 13, 0, 6];			break;
+		case 133: skloc = ["Double Swing", 5, 13, 5, 6];	break;
+		case 134: skloc = ["Polearm Mastery", 8, 13, 0, 6];	break;
+		case 135: skloc = ["Throwing Mastery", 8, 13, 2, 6];	break;
+		case 136: skloc = ["Spear Mastery", 8, 13, 5, 6];	break;
+		case 137: skloc = ["Taunt", 11, 13, 0, 6];			break;
+		case 138: skloc = ["Shout", 11, 13, 2, 6];			break;
+		case 139: skloc = ["Stun", 5, 11, 2, 12];			break;
+		case 140: skloc = ["Double Throw", 5, 11, 5, 12];	break;
+		case 141: skloc = ["Increased Stamina", 8, 11, 0, 12];	break;
+		case 142: skloc = ["Find Item", 11, 11, 5, 12];		break;
+		case 143: skloc = ["Leap Attack", 5, 9, 0, 18];		break;
+		case 144: skloc = ["Concentrate", 5, 9, 2, 18];		break;
+		case 145: skloc = ["Iron Skin", 8, 9, 5, 18];		break;
+		case 146: skloc = ["Battle Cry", 11, 9, 0, 18];		break;
+		case 147: skloc = ["Frenzy", 5, 7, 5, 24];			break;
+		case 148: skloc = ["Increased Speed", 8, 7, 0, 24];	break;
+		case 149: skloc = ["Battle Orders", 11, 7, 2, 24];	break;
+		case 150: skloc = ["Grim Ward", 11, 7, 5, 24];		break;
+		case 151: skloc = ["Whirlwind", 5, 5, 0, 30];		break;
+		case 152: skloc = ["Berserk", 5, 5, 2, 30];			break;
+		case 153: skloc = ["Natural Resistance", 8, 5, 5, 30];	break;
+		case 154: skloc = ["War Cry", 11, 5, 0, 30];		break;
+		case 155: skloc = ["Battle Command", 11, 5, 2, 30];	break;
+		case 221: skloc = ["Raven", 5, 15, 2, 1];			break;
+		case 222: skloc = ["Poison Creeper", 5, 15, 5, 1];	break;
+		case 223: skloc = ["Wearwolf", 8, 15, 0, 1];		break;
+		case 224: skloc = ["Lycanthropy", 8, 15, 2, 1];		break;
+		case 225: skloc = ["Firestorm", 11, 15, 0, 1];		break;
+		case 226: skloc = ["Oak Sage", 5, 13, 0, 6];		break;
+		case 227: skloc = ["Summon Spirit wolf", 5, 13, 2, 6];	break;
+		case 228: skloc = ["Wearbear", 8, 13, 5, 6];		break;
+		case 229: skloc = ["Molten Boulder", 11, 13, 0, 6];	break;
+		case 230: skloc = ["Arctic Blast", 11, 13, 5, 6];	break;
+		case 231: skloc = ["Carion Vine", 5, 11, 5, 12];	break;
+		case 232: skloc = ["Feral Rage", 8, 11, 0, 12];		break;
+		case 233: skloc = ["Maul", 8, 11, 5, 12];			break;
+		case 234: skloc = ["Fissure", 11, 11, 0, 12];		break;
+		case 235: skloc = ["Cyclone Armor", 11, 11, 5, 12];	break;
+		case 236: skloc = ["Heart of Wolverine", 5, 9, 0, 18];	break;
+		case 237: skloc = ["Summon DireWolf", 5, 9, 2, 18];	break;
+		case 238: skloc = ["Rabies", 8, 9, 0, 18];			break;
+		case 239: skloc = ["Fire Claws", 8, 9, 2, 18];		break;
+		case 240: skloc = ["Twister", 11, 9, 2, 18];		break;
+		case 241: skloc = ["Solar Creeper", 5, 7, 5, 24];	break;
+		case 242: skloc = ["Hunger", 8, 7, 2, 24];			break;
+		case 243: skloc = ["Shock Wave", 8, 7, 5, 24];		break;
+		case 244: skloc = ["Volcano", 11, 7, 0, 24];		break;
+		case 245: skloc = ["Tornado", 11, 7, 2, 24];		break;
+		case 246: skloc = ["Spirit of Barbs", 5, 5, 0, 30];	break;
+		case 247: skloc = ["Summon Grizzly", 5, 5, 2, 30];	break;
+		case 248: skloc = ["Fury", 8, 5, 0, 30];			break;
+		case 249: skloc = ["Armageddon", 11, 5, 0, 30];		break;
+		case 250: skloc = ["Hurricane", 11, 5, 2, 30];		break;
+		case 251: skloc = ["Fire Blast", 5, 15, 2, 1];		break;
+		case 252: skloc = ["Claw Mastery", 8, 15, 2, 1];	break;
+		case 253: skloc = ["Psychic Hammer", 8, 15, 5, 1];	break;
+		case 254: skloc = ["Tiger Strike", 11, 15, 2, 1];	break;
+		case 255: skloc = ["Dragon Talon", 11, 15, 5, 1];	break;
+		case 256: skloc = ["Shock Web", 5, 13, 0, 6];		break;
+		case 257: skloc = ["Blade Sentinel", 5, 13, 5, 6];	break;
+		case 258: skloc = ["Burst of Speed", 8, 13, 0, 6];	break;
+		case 259: skloc = ["Fists of Fire", 11, 13, 0, 6];	break;
+		case 260: skloc = ["Dragon Claw", 11, 13, 5, 6];	break;
+		case 261: skloc = ["Charged Bolt Sentry", 5, 11, 0, 12];	break;
+		case 262: skloc = ["Wake of Fire", 5, 11, 2, 12];	break;
+		case 263: skloc = ["Weapon Block", 8, 11, 2, 12];	break;
+		case 264: skloc = ["Cloak of Shadows", 8, 11, 5, 12];	break;
+		case 265: skloc = ["Cobra Strike", 11, 11, 2, 12];	break;
+		case 266: skloc = ["Blade Fury", 5, 9, 5, 18];		break;
+		case 267: skloc = ["Fade", 8, 9, 0, 18];			break;
+		case 268: skloc = ["Shadow Warrior", 8, 9, 2, 18];	break;
+		case 269: skloc = ["Claws of Thunder", 11, 9, 0, 18];	break;
+		case 270: skloc = ["Dragon Tail", 11, 9, 5, 18];	break;
+		case 271: skloc = ["Lightning Sentry", 5, 7, 0, 24];	break;
+		case 272: skloc = ["Wake of Inferno", 5, 7, 2, 24];	break;
+		case 273: skloc = ["Mind Blast", 8, 7, 5, 24];		break;
+		case 274: skloc = ["blades of Ice", 11, 7, 0, 24];	break;
+		case 275: skloc = ["Dragon Flight", 11, 7, 5, 24];	break;
+		case 276: skloc = ["Death Sentry", 5, 5, 0, 30];	break;
+		case 277: skloc = ["Blade Shield", 5, 5, 5, 30];	break;
+		case 278: skloc = ["Venom", 8, 5, 0, 30];			break;
+		case 279: skloc = ["Shadow Master", 8, 5, 2, 30];	break;
+		case 280: skloc = ["Pheonix Strike", 11, 5, 2, 30];	break;
+
+		}
+	return skloc;
+}
+
+
+function CLSS_GetMaxBlockDex(){
+	if(me.GetState(51)) { return 0; }
+	
+	var _items = me.GetItems();
+	var block = ShieldBlock();
+	if(!block)
+		return 0;
+
+	block = block + ItemAddBlock();
+	
+	block = block + ItemAddBlock() + HolyShieldBonus();
+	
+	//var d2value = Math.floor((block * (me.GetStat(2) - 15)) / (me.GetStat(12) * 2));
+	//Print("Block % + HS = " + d2value);
+	
+	var Charblock = Math.ceil((75 * ((me.GetStat(12) * 2)) / (block)) + 15);	
+	Print("Required dex = " + Charblock);
+	
+	return Charblock;
+		
+	function ShieldBlock(){
+		
+		var ShBlock = "";
+	
+		for(i = 0; i < _items.length; i++){
+			if(_items[i].itemloc == 5 && _items[i].mode){
+				var item = _items[i];
+				if(item.quality == 7){return ShieldUniq(item.classid);}
+				break;
+			}
+		}
+		if(!item)
+			return 0;
+	
+		ShBlock = item.itemdesc.split("Chance to Block: ")[1];
+
+		if(!ShBlock)
+			return 0;
+		
+		ShBlock = ShBlock.split("\n")[0];
+		ShBlock = ShBlock.replace(/ÿc[0-9]/g,"");
+		ShBlock = parseInt(ShBlock);
+			
+		return ShBlock;
+	}
+	
+	
+	function HolyShieldBonus(){
+		if(me.classid != NTC_CHAR_CLASS_PALADIN)
+			return 0;
+
+		var _hslevel = me.GetSkill(117, true);
+		if(_hslevel < 1)
+			return 0;
+			
+		if(me.GetState(51) == 0){
+			for(i = 0; i < _items.length; i++){
+				if(_items[i].mode && _items[i].itemloc == 11 && _items[i].name.indexOf("Call to Arms") != -1){
+					_hslevel++;
+					break;
+				}
+			}		
+		}
+
+		return Math.floor((30*(Math.floor((110*_hslevel) / (_hslevel+6))) / 100) + 10);
+	}
+	
+	function ItemAddBlock(){
+		var _tempblock = 0;
+				
+		for(i = 0; i < _items.length; i++){ // TemplarCoat-Twitchthroe
+			if(_items[i].mode && _items[i].itemloc == 3 && _items[i].quality == 7){
+				_tempblock = _items[i].GetStat(20);
+				break;
+			}
+		}
+		return _tempblock;
+	}
+	
+	function ShieldUniq(id){
+		var shb = 0
+
+		switch(id){
+			//case xxx: shb = 78;	break;//AlmaNegra
+			case 328: shb = 50;	break;//PeltaLunata
+			case 329: shb = 65;	break;//UmbralDisk
+			case 330: shb = 72;	break;//StormGuild
+			case 331: shb = 63;	break;//SteelClash
+			case 332: shb = 64;	break;//BverritKeep
+			case 333: shb = 56;	break;//TheWard
+			case 350: shb = 50;	break;//WalloftheEyeless
+			case 351: shb = 60;	break;//SwordBackHold
+			case 374: shb = 70;	break;//Viscurantuant
+			case 375: shb = 67;	break;//Moser's
+			case 376: shb = 64;	break;//StornChaser
+			case 377: shb = 48;	break;//TiamatsRebuke
+			case 378: shb = 84;	break;//GerkesSanctuary
+			case 379: shb = 66;	break;//RadamentsSphere
+			case 396: shb = 50;	break;//LidlessWall
+			case 397: shb = 47;	break;//LanceGuard
+			case 445: shb = 50;	break;//BlackOak
+			case 447: shb = 77;	break;//StormShield
+			case 448: shb = 54;	break;//MedusasGaze
+			case 449: shb = 84;	break;//SpiritWard
+			case 466: shb = 50;	break;//HeadHuntersGlory
+			case 467: shb = 50;	break;//SpikeThorn
+			case 481: shb = 82;	break;//hoz
+			case 501: shb = 82;	break;//hoz
+			//case xxx: shb = 57;	break;//homunculus
+			//case xxx: shb = 40;	break;//boneflame
+			//case xxx: shb = 42;	break;//darkforce
+		}
+	
+	if(shb > 0 && (me.classid == 1 || me.classid == 2 || me.classid == 5))//sorc nec dru
+		shb = shb-10;
+	
+	if(shb > 0 && (me.classid == 0 || me.classid == 4 || me.classid == 6))//zon barb sin
+		shb = shb-5;
+	
+	return shb;
+	}
+	
+}

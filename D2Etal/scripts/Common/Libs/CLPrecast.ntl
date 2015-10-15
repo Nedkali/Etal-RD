@@ -1,0 +1,290 @@
+var _minion;
+var _CLP_HaveCTA = -1;
+
+function CLP_DoPrecastCTA(refresh, castbo){
+	if(arguments.length < 2)
+		castbo = true;
+
+	if(me.classid == NTC_CHAR_CLASS_BARBARIAN || CLC_InTown())
+		return false;
+		
+	if(refresh || !me.GetState(32) || !me.GetState(51))
+	{
+		if(CLP_BOSwitch())
+		{
+			if(castbo)
+			{
+				CLC_CastSkill(155, NTC_HAND_RIGHT); // Battle Command
+				CLC_CastSkill(149, NTC_HAND_RIGHT); // Battle Orders
+			}
+			
+			CLC_SwapWeapons();
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function CLP_CastBC(refresh){
+	if(me.classid == NTC_CHAR_CLASS_BARBARIAN || CLC_InTown())
+		return false;
+
+	if(refresh || !me.GetState(51)){
+		if(CLP_BOSwitch())
+		{
+			CLC_CastSkill(155, NTC_HAND_RIGHT); // Battle Command
+
+			CLC_SwapWeapons();
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function CLP_DoEnchant(){
+	var _haveenchant = CLC_GetSkillLevel(52);
+	var _unit = CLC_FindUnit(NTC_UNIT_MERC);
+
+	if (_haveenchant && _unit ){
+		do{
+			if(CLC_CheckOwner(_unit) && _unit.hp > 0){
+				if (GetDistance(me, _unit) < 25){
+					CLC_CastSkill(52, NTC_HAND_RIGHT, _unit);
+				}
+			}
+		} while (_unit.GetNext());
+	}
+	
+	if(!NTConfig_EnchantSelf)
+		return;
+		
+	_unit = CLC_FindUnit(NTC_UNIT_PLAYER);
+	if (_haveenchant &&_unit){
+		do{
+			if (_unit.name == me.name)	{
+				CLC_CastSkill(52, NTC_HAND_RIGHT, _unit);
+				return;
+			}
+		} while (_unit.GetNext());
+	}
+ 
+}
+
+function CLP_DoPrecast(refresh, castbo){
+	var _unit = me.GetMerc();
+	
+	if(arguments.length < 2)
+		castbo = true;
+
+	switch(me.classid){
+	case NTC_CHAR_CLASS_AMAZON:
+		CLP_CastBC(refresh);
+
+		if(refresh || !CLP_GetMinion(357))
+			CLC_CastSkill(32, NTC_HAND_RIGHT); // Valkyrie
+
+		CLP_DoPrecastCTA(refresh, castbo);
+		break;
+
+	case NTC_CHAR_CLASS_SORCERESS:
+		CLP_DoPrecastCTA(refresh, castbo);
+
+		if(refresh || !me.GetState(38))
+			CLC_CastSkill(57, NTC_HAND_RIGHT); // Thunder Storm
+			
+		if(NTConfig_SwitchCastSorc)
+			CLC_SwapWeapons();
+			
+		if(refresh || me.GetState(30) == 0)
+			CLC_CastSkill(58, NTC_HAND_RIGHT); // Energy Shield
+			
+		if(refresh || (!me.GetState(10) && !me.GetState(88) && !me.GetState(20)))
+		{
+			if(!CLC_CastSkill(50, NTC_HAND_RIGHT)) // Shiver Armor
+				if(!CLC_CastSkill(60, NTC_HAND_RIGHT)) // Chilling Armor
+					CLC_CastSkill(40, NTC_HAND_RIGHT); // Frozen Armor
+		}
+		
+		if(NTConfig_SwitchCastSorc)
+			CLC_SwapWeapons();
+			
+		if((_unit != null && refresh) || (_unit != null && !_unit.GetState(16)))
+		  CLP_DoEnchant();  // Enchant Merc
+
+		break;
+
+	case NTC_CHAR_CLASS_NECROMANCER:
+		CLP_CastBC(refresh);
+		
+		if(refresh || !(CLP_GetMinion(289) || CLP_GetMinion(290) || CLP_GetMinion(291) || CLP_GetMinion(292)))
+		{
+			switch(NTConfig_Golem){
+			case 0:
+			case "None":
+			case "Iron":
+				break;
+			case 1:
+			case "Clay":
+				CLC_CastSkill(75, NTC_HAND_RIGHT); //Clay
+				break;
+			case 2:
+			case "Blood":
+				CLC_CastSkill(85, NTC_HAND_RIGHT); //Blood
+				break;
+			case 3:
+			case "Fire":
+				CLC_CastSkill(94, NTC_HAND_RIGHT); //Fire
+				break;
+			default:
+				Print(COLOR_1 + "Invalid Golem id. Check character configuration.")
+				break;
+			}
+		}
+		
+		if(CLC_GetSkillLevel(73))
+			CLC_CastSkill(73, NTC_HAND_LEFT); // Necro Poison dagger
+
+		CLP_DoPrecastCTA(refresh, castbo);
+
+		if(refresh || !me.GetState(14))
+			CLC_CastSkill(68, NTC_HAND_RIGHT); // Bone Armor
+		break;
+
+	case NTC_CHAR_CLASS_PALADIN:
+		CLP_DoPrecastCTA(refresh, castbo);
+		if(refresh || !me.GetState(101))
+			CLC_CastSkill(117, NTC_HAND_RIGHT); // Holy Shield
+		break;
+
+	case NTC_CHAR_CLASS_BARBARIAN:
+		if(refresh || !me.GetState(51) || !me.GetState(32) || !me.GetState(26)){
+			if(BarbSwitch)
+				CLC_SwapWeapons();
+				
+			if(castbo){
+				CLC_CastSkill(155, NTC_HAND_RIGHT); // Battle Command
+				CLC_CastSkill(149, NTC_HAND_RIGHT); // Battle Orders
+			}
+			
+			CLC_CastSkill(138, NTC_HAND_RIGHT); // Shout
+				
+			if(BarbSwitch)
+				CLC_SwapWeapons();
+		}
+		
+		break;
+
+	case NTC_CHAR_CLASS_DRUID:
+		CLP_CastBC(refresh);
+
+		if(refresh || !CLP_GetMinion(428))
+			CLC_CastSkill(247, NTC_HAND_RIGHT); // Summon Grizzly
+
+		if(refresh || !CLP_GetMinion(426))
+			CLC_CastSkill(231, NTC_HAND_RIGHT); // Carrion Vine
+
+		if(refresh || !me.GetState(149))
+			CLC_CastSkill(226, NTC_HAND_RIGHT); // Oak Sage
+
+		if(refresh && NTConfig_CastRaven){
+			for (i = 0; i < 5; i++){
+				CLC_CastSkill(221, NTC_HAND_RIGHT); // raven
+				Delay(100);
+			}
+		}
+
+		CLP_DoPrecastCTA(refresh, castbo);
+
+		if(refresh || !me.GetState(151))
+			CLC_CastSkill(235, NTC_HAND_RIGHT); // Cyclone Armor
+
+		if(refresh || !me.GetState(144))
+			CLC_CastSkill(250, NTC_HAND_RIGHT); // Hurricane
+
+		break;
+
+	case NTC_CHAR_CLASS_ASSASSIN:
+		CLP_CastBC(refresh);
+	
+		if(refresh || !(CLP_GetMinion(417) || CLP_GetMinion(418))){
+			switch(NTConfig_UseShadow){
+			case 0:
+			case "None":
+				break;
+			case 1:
+			case "Warrior":
+				CLC_CastSkill(268, NTC_HAND_RIGHT); // Shadow Warrior
+				break;
+			case 2:
+			case "Master":
+				CLC_CastSkill(279, NTC_HAND_RIGHT); // Shadow Master
+				break;
+			}
+		}
+
+		CLP_DoPrecastCTA(refresh, castbo);
+
+		if((refresh || !me.GetState(157)) && NTConfig_UseBOS)
+			CLC_CastSkill(258, NTC_HAND_RIGHT); // Burst of Speed
+			
+		if((refresh || !me.GetStat(181)) && NTConfig_UseFade)
+			CLC_CastSkill(267, NTC_HAND_RIGHT); // Fade
+
+		if((refresh || me.GetState(158) == 0) && NTConfig_UseBladeShield)
+			CLC_CastSkill(277, NTC_HAND_RIGHT); // Blade Shield
+
+		if((refresh || !me.GetState(153)) && NTConfig_UseCloakOfShadows)
+			CLC_CastSkill(264, NTC_HAND_RIGHT); // Cloak of Shadows
+		if(NTConfig_Venom && (refresh ||!me.GetStat(101))){ // venom
+			CLC_CastSkill(278, NTC_HAND_RIGHT);
+		}
+		break;
+	}
+}
+
+function CLP_BOSwitch()
+{
+	if(_CLP_HaveCTA < 0){
+		var _weapon;
+
+		_CLP_HaveCTA = 0;
+
+		_weapon = me.GetItems();
+
+		if(_weapon){
+			for(var i = 0 ; i < _weapon.length ; i++){
+				if(_weapon[i].mode == 1 && (_weapon[i].itemflag&0x4000000) && _weapon[i].itemprefix == 0x5027){
+					if(_weapon[i].itemloc == 4 || _weapon[i].itemloc == 5)
+						_CLP_HaveCTA = 1;
+					else
+						_CLP_HaveCTA = 2;
+
+					break;
+				}
+			}
+		}
+	}
+
+	if(_CLP_HaveCTA > 0)
+		return CLC_SwapWeapons(_CLP_HaveCTA-1);
+
+	return false;
+}
+
+function CLP_GetMinion(classID){
+	_minion = CLC_FindUnit(NTC_UNIT_MONSTER, classID);
+	
+	if(!_minion)
+		return false;
+		
+	do{
+		if(CLC_CheckOwner(_minion) && _minion.hp > 0)
+			return true;
+	}while(_minion.GetNext());
+	
+	return false;
+}

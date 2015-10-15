@@ -1,0 +1,140 @@
+function NTMain()
+{
+	Include("Common/Libs/CLCommon.ntl");
+	CLC_IncludeLibs();
+	CLC_IncludeConfig();
+
+	NT_LoadConfig();
+	CLSI_LoadNIPFiles();
+
+	CLA_Initialize();
+
+	if(!CLTM_CheckAct()){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_CheckAct()");
+		return;
+	}
+	CLTMGR_TownManager();
+	if(!CLTM_TownMove("waypoint")){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_TownMove()");
+		return;
+	}
+	if(!CLM_TakeWaypoint(74)){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeWaypoint()");
+		return;
+	}
+	CLP_DoPrecast(true);
+	if(NTConfig_OpenSummonerChests) {
+		var _object = GetPresetUnits(me.areaid);
+		for(var i = 0; i < _object.length; i++) {
+			if(_object[i].id == 357) {
+				if(_object[i].x == 11 && _object[i].y == 11){
+					Print("Summoner is at the "+COLOR_2+"Top Right");
+					CLM_MoveTo(me.areaid,  25863, 5449); //Bottom Right End No Summoner
+					Chestify();
+					CLM_MoveTo(me.areaid,  25445, 5869); //Bottom Left End No Summoner
+					Chestify();
+					CLM_MoveTo(me.areaid,  25023, 5449); //Top Left End No Summoner
+					Chestify();
+					CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 357, 2, 2); //Top Right Summoner
+					CLA_KillMonster(250);
+					Chestify();
+					if(NTConfig_ClearPosition)
+						CLA_ClearPosition();
+					CLSI_PickItems();
+				}
+				else if (_object[i].x == 26 && _object[i].y == 11){
+					Print("Summoner is at the "+COLOR_2+"Bottom Right");
+					CLM_MoveTo(me.areaid,  25445, 5869); //Bottom Left End No Summoner
+					Chestify();
+					CLM_MoveTo(me.areaid,  25023, 5449); //Top Left End No Summoner
+					Chestify();
+					CLM_MoveTo(me.areaid,  25450, 5030); //Top Right End No Summoner
+					Chestify();
+					CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 357, 2, 2); //Bottom Right Summoner
+					CLA_KillMonster(250);
+					Chestify();
+					if(NTConfig_ClearPosition)
+						CLA_ClearPosition();
+					CLSI_PickItems();
+				}
+				else if (_object[i].x == 11 && _object[i].y == 21){
+					Print("Summoner is at the "+COLOR_2+"Bottom Left");
+					CLM_MoveTo(me.areaid,  25023, 5449); //Top Left End No Summoner
+					Chestify();
+					CLM_MoveTo(me.areaid,  25450, 5030); //Top Right End No Summoner
+					Chestify();
+					CLM_MoveTo(me.areaid,  25863, 5449); //Bottom Right End No Summoner
+					Chestify();
+					CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 357, 2, 2); //Bottom Left Summoner
+					CLA_KillMonster(250);
+					Chestify();
+					if(NTConfig_ClearPosition)
+						CLA_ClearPosition();
+					CLSI_PickItems();
+				}
+				else {
+					Print("Summoner is at the "+COLOR_2+"Top Left");
+					CLM_MoveTo(me.areaid,  25450, 5030); //Top Right End No Summoner
+					Chestify();
+					CLM_MoveTo(me.areaid,  25863, 5449); //Bottom Right End No Summoner
+					Chestify();
+					CLM_MoveTo(me.areaid,  25445, 5869); //Bottom Left End No Summoner
+					Chestify();
+					CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 357, 2, 2); //Top Left Summoner
+					CLA_KillMonster(250);
+					Chestify();
+					if(NTConfig_ClearPosition)
+						CLA_ClearPosition();
+					CLSI_PickItems();
+				}
+			}
+		}
+	}
+	if(!NTConfig_OpenSummonerChests) {
+		if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 357, 2, 2)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+			return;
+		}
+	}
+	if(!NTConfig_OpenSummonerChests) {
+		if(!CLA_KillMonster(250))	{
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLA_KillMonster()");
+			return;
+		}
+	}
+	if(NTConfig_ClearPosition)
+		CLA_ClearPosition();
+	CLSI_PickItems();
+	if(NTConfig_ClearArcaneSanc > 0) {
+		if(NTConfig_ClearArcaneSanc == 1){
+			NTConfig_SkipRegularMonsters = false;
+			CLP_DoPrecast();
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+			}
+		}
+		if(NTConfig_ClearArcaneSanc == 2){
+			NTConfig_SkipRegularMonsters = true;
+			CLP_DoPrecast();
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+			}
+		}
+	}
+	if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+		CLC_OpenChestsInArea();
+	}
+	CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+}
+
+function Chestify(){
+	CLA_ClearPosition(20, true);
+	CLC_OpenChestsInAreaNear(me.x, me.y, 30);
+	CLSI_PickItems();
+	CLC_InTown();
+	CLM_MoveTo(me.areaid, 5108, 5059);
+	CLTMGR_TownManager(true);
+	CLM_MoveTo(me.areaid, 5069, 5066);
+	if(!CLM_TakeWaypoint(74)){ Print("Waypoint Error!"); }
+	if(!me.GetState(32) || !me.GetState(51)) { CLP_DoPrecast(); }
+}

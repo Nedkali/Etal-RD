@@ -1,0 +1,1831 @@
+var _NTTMGR_BuyPots;
+var _NTTMGR_BuyTP; 
+var _NTTMGR_BuyID;// id in field add
+var _NTTMGR_BuyKey;
+var _NTTMGR_DoHeal;
+var _NTTMGR_DoID;
+var _NTTMGR_DoRepair;
+var _NTTMGR_DoRevive;
+var _NTTMGR_RemoveCurse;
+var _NTTMGR_Simple;
+var _NTTMGR_BuyArrows = false;
+var ammyreq = Math.abs(Math.floor(me.GetStat(12) / 2)-90) * 2;
+var muleScripts = ("AMSLeader.ntj", "AMSLeech.ntj");
+var MuleAccount = "";
+
+function CLTMGR_TownManager(simple, ranged){
+	while(me.areaid == 0){
+		CLC_Delay(200);
+	}	
+	CLC_SwapWeapons(0);
+	var _cubing;
+
+	if(arguments.length < 2)
+		ranged = false;		
+		
+	if(arguments.length < 1)
+		simple = false;		
+	
+	CLT_ClearBelt();
+	CLT_CheckInventorypots();
+	CLT_CleanPotions();
+	_NTTMGR_BuyPotsInt = CLT_CheckBelt();
+	_NTTMGR_BuyPots = NTConfig_CheckPotsTown ? CLT_NeedPots(true) : CLT_CheckBelt();
+	
+	_NTTMGR_BuyID = (NTConfig_IdInField && CLTMGR_CheckScrolls(0) < 10);// id in field add
+	
+	_NTTMGR_BuyTP = (CLTMGR_CheckScrolls(1) < 8);
+	_NTTMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && CLTMGR_CheckKeys() < 6);
+	_NTTMGR_DoHeal = CLT_CheckHeal();
+	_NTTMGR_DoID = CLT_CheckUnids();
+	_NTTMGR_DoRepair = CLT_CheckRepair(NTConfig_Repair);
+	_NTTMGR_DoRevive = CLT_CheckMerc();
+	_NTTMGR_RemoveCurse = CLTMGR_CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
+	_NTTMGR_Simple = simple;
+	_NTTMGR_BuyArrows = ranged;
+
+	CLCU_InitCubing();
+	
+	if(_NTTMGR_BuyArrows) {
+		// check if we need ammo or not.  If we have 350 already then set _NTTMGR_BuyArrows false
+		NTT_TossAmmo();
+	}
+	
+	switch(me.act){
+	case 1:
+		if(NTConfig_IdentAtCain && _NTTMGR_DoID && CLTMGR_SkipCainAct()) 
+			CLTMGR_VisitCain(simple);
+
+		_NTTMGR_DoHeal = CLT_CheckHeal(); // put these vars here to reset them after doing cain else it does them again ending with extra pots in inv
+		_NTTMGR_RemoveCurse = CLTMGR_CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
+		_NTTMGR_DoID = CLT_CheckUnids();
+		_NTTMGR_BuyPots = NTConfig_CheckPotsTown ? CLT_NeedPots(true) : CLT_CheckBelt();
+	
+		_NTTMGR_BuyID = (NTConfig_IdInField && CLTMGR_CheckScrolls(0) < 10);// id in field add
+		
+		_NTTMGR_BuyTP = (CLTMGR_CheckScrolls(1) < 8);
+		_NTTMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && CLTMGR_CheckKeys() < 6);
+
+		if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_DoID || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey) {
+			CLTMGR_VisitAkara();
+		}
+
+		_cubing = (!simple && (CLCU_CheckCubing() || CLRW_CheckRunewords()));
+
+		if(_cubing || CLT_CheckInventory())
+			CLTMGR_VisitStash(_cubing);
+
+		if(_NTTMGR_DoRevive)
+			CLTMGR_VisitKashya();
+
+		if(_NTTMGR_DoRepair || _NTTMGR_BuyArrows) 
+			CLTMGR_VisitCharsi();
+		CLTMGR_GCCheckAmu();
+		if(!simple && NTConfig_Gamble && CLC_MyGold() > NTConfig_GambleStartGold) {
+			CLTMGR_VisitGheed();
+			_cubing = (!simple && (CLCU_CheckCubing() || CLRW_CheckRunewords()));
+			if(_cubing || CLT_CheckInventory())
+				CLTMGR_VisitStash(_cubing);
+		}
+		break;
+
+	case 2:
+		if(NTConfig_IdentAtCain && _NTTMGR_DoID && CLTMGR_SkipCainAct())
+			CLTMGR_VisitCain(simple);
+		
+		_NTTMGR_DoHeal = CLT_CheckHeal(); 
+		_NTTMGR_RemoveCurse = CLTMGR_CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
+		_NTTMGR_DoID = CLT_CheckUnids();
+		_NTTMGR_BuyPots = NTConfig_CheckPotsTown ? CLT_NeedPots(true) : CLT_CheckBelt();		
+		_NTTMGR_BuyID = (NTConfig_IdInField && CLTMGR_CheckScrolls(0) < 10);// id in field add		
+		_NTTMGR_BuyTP = (CLTMGR_CheckScrolls(1) < 8);
+		_NTTMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && CLTMGR_CheckKeys() < 6);
+
+		if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_DoRepair || _NTTMGR_BuyArrows)
+			CLTMGR_VisitFara();
+		if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_DoID)
+			CLTMGR_VisitDrognan();
+		if(_NTTMGR_BuyKey)
+			CLTMGR_VisitLysander();
+
+		_cubing = (!simple && (CLCU_CheckCubing() || CLRW_CheckRunewords()));
+
+		if(_cubing || CLT_CheckInventory())
+			CLTMGR_VisitStash(_cubing);
+		if(_NTTMGR_DoRevive)
+			CLTMGR_VisitGreiz();
+		CLTMGR_GCCheckAmu();
+		if(!simple && NTConfig_Gamble && CLC_MyGold() > NTConfig_GambleStartGold){
+			CLTMGR_VisitElzix();
+
+			_cubing = (!simple && (CLCU_CheckCubing() || CLRW_CheckRunewords()));
+
+			if(_cubing || CLT_CheckInventory())
+				CLTMGR_VisitStash(_cubing);
+		}
+		break;
+
+	case 3:
+		if(NTConfig_IdentAtCain && _NTTMGR_DoID && CLTMGR_SkipCainAct())
+			CLTMGR_VisitCain(simple);
+
+		_NTTMGR_DoHeal = CLT_CheckHeal(); 
+		_NTTMGR_RemoveCurse = CLTMGR_CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
+		_NTTMGR_DoID = CLT_CheckUnids();
+		_NTTMGR_BuyPots = NTConfig_CheckPotsTown ? CLT_NeedPots(true) : CLT_CheckBelt();		
+		_NTTMGR_BuyID = (NTConfig_IdInField && CLTMGR_CheckScrolls(0) < 10);// id in field add		
+		_NTTMGR_BuyTP = (CLTMGR_CheckScrolls(1) < 8);
+		_NTTMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && CLTMGR_CheckKeys() < 6);
+
+		if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_DoID || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyPots)
+			CLTMGR_VisitOrmus();
+
+		_cubing = (!simple && (CLCU_CheckCubing() || CLRW_CheckRunewords()));
+
+		if(_cubing || CLT_CheckInventory())
+			CLTMGR_VisitStash(_cubing);
+		if(_NTTMGR_DoRevive)
+			CLTMGR_VisitAsheara();
+		if(_NTTMGR_DoRepair || _NTTMGR_BuyKey || _NTTMGR_BuyArrows)
+			CLTMGR_VisitHratli();
+		CLTMGR_GCCheckAmu();
+		if(!simple && NTConfig_Gamble && CLC_MyGold() > NTConfig_GambleStartGold){
+			CLTMGR_VisitAlkor();
+
+			_cubing = (!simple && (CLCU_CheckCubing() || CLRW_CheckRunewords()));
+
+			if(_cubing || CLT_CheckInventory())
+				CLTMGR_VisitStash(_cubing);
+		}
+		break;
+
+	case 4:
+		if(NTConfig_IdentAtCain && _NTTMGR_DoID && CLTMGR_SkipCainAct())
+			CLTMGR_VisitCain(simple);
+
+		_NTTMGR_DoHeal = CLT_CheckHeal(); 
+		_NTTMGR_RemoveCurse = CLTMGR_CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
+		_NTTMGR_DoID = CLT_CheckUnids();
+		_NTTMGR_BuyPots = NTConfig_CheckPotsTown ? CLT_NeedPots(true) : CLT_CheckBelt();		
+		_NTTMGR_BuyID = (NTConfig_IdInField && CLTMGR_CheckScrolls(0) < 10);// id in field add		
+		_NTTMGR_BuyTP = (CLTMGR_CheckScrolls(1) < 8);
+		_NTTMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && CLTMGR_CheckKeys() < 6);
+
+		if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_DoID || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey || _NTTMGR_BuyPots)
+			CLTMGR_VisitJamella(false);
+		if(_NTTMGR_DoRepair || _NTTMGR_BuyArrows)
+			CLTMGR_VisitHalbu();
+
+		_cubing = (!simple && (CLCU_CheckCubing() || CLRW_CheckRunewords()));
+
+		if(_cubing || CLT_CheckInventory())
+			CLTMGR_VisitStash(_cubing);
+		if(_NTTMGR_DoRevive)
+			CLTMGR_VisitTyrael();
+		CLTMGR_GCCheckAmu();
+		if(!simple && NTConfig_Gamble && CLC_MyGold() > NTConfig_GambleStartGold){
+			CLTMGR_VisitJamella(true);
+
+			_cubing = (!simple && (CLCU_CheckCubing() || CLRW_CheckRunewords()));
+
+			if(_cubing || CLT_CheckInventory())
+				CLTMGR_VisitStash(_cubing);
+		}
+		break;
+
+	case 5:
+		if(NTConfig_IdentAtCain && _NTTMGR_DoID && CLTMGR_SkipCainAct())
+			CLTMGR_VisitCain(simple);
+
+		_NTTMGR_DoHeal = CLT_CheckHeal(); 
+		_NTTMGR_RemoveCurse = CLTMGR_CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
+		_NTTMGR_DoID = CLT_CheckUnids();
+		_NTTMGR_BuyPots = NTConfig_CheckPotsTown ? CLT_NeedPots(true) : CLT_CheckBelt();		
+		_NTTMGR_BuyID = (NTConfig_IdInField && CLTMGR_CheckScrolls(0) < 10);// id in field add		
+		_NTTMGR_BuyTP = (CLTMGR_CheckScrolls(1) < 8);
+		_NTTMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && CLTMGR_CheckKeys() < 6);
+
+		if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_DoID || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey || _NTTMGR_BuyPots)
+			CLTMGR_VisitMalah();
+
+		_cubing = (!simple && (CLCU_CheckCubing() || CLRW_CheckRunewords()));
+
+		if(_cubing || CLT_CheckInventory())
+			CLTMGR_VisitStash(_cubing);
+		if(_NTTMGR_DoRepair || _NTTMGR_BuyArrows)
+			CLTMGR_VisitLarzuk();
+		if(_NTTMGR_DoRevive)
+			CLTMGR_VisitQualKehk();
+		CLTMGR_GCCheckAmu();
+		if(!simple && NTConfig_Gamble && CLC_MyGold() > NTConfig_GambleStartGold){
+			CLTMGR_VisitAnya();
+			_cubing = (!simple && (CLCU_CheckCubing() || CLRW_CheckRunewords()));
+
+			if(_cubing || CLT_CheckInventory())
+				CLTMGR_VisitStash(_cubing);
+		}
+		break;
+	}
+	
+	if (NTConfig_AutoMule && CLTMGR_CheckMuleStash() < NTConfig_MuleStash && CLTMGR_CheckMuleInventory() < NTConfig_MuleInv && !CLTMGR_StatusSet()) {		
+		if(CLTMGR_MuleScriptRunning()) {
+			CLC_File("Configs/"+MyRealm+"/AMS/MuleStatus/" + me.account + "_charstatus.txt", 1, "Main");
+			CLC_File("Configs/"+MyRealm+"/AMS/MuleStatus/" + me.account + "_mulingstatus.txt", 1, "true");
+			CLC_SendLogToOOG(NTC_LOG_COMMON, 'Automuling triggered.' + COLOR_2 + 'Stash Capacity is ' + COLOR_4 + CLTMGR_CheckMuleStash() + COLOR_2 + ' Inventory Capacity is ' + COLOR_4 + CLTMGR_CheckMuleInventory());
+			Delay(500);
+			if(!NTConfig_FinishRun) {
+				CLC_SendMsgToScript("CScriptControl.ntj", "QuitGame");
+				Delay(500);
+			}
+			else {
+				CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_7 + 'Finishing run before muling');
+			}
+		}
+		else {
+			CLC_SendLogToOOG(NTC_LOG_COMMON, 'Automuling requires the AutoMulingSystem entry points!');
+			Delay(200);
+			CLC_SendLogToOOG(NTC_LOG_COMMON, 'If this is not set as entry point, either set NTConfig_AutoMule to false, or use the AutoMulingSystem entry point!');
+		}
+	}
+	
+	if (NTConfig_StopIfStashInventoryFull && !NTConfig_AutoMule && CLTMGR_CheckMuleStash() < 4  && CLTMGR_CheckMuleInventory() < NTConfig_FreeRowsQuit){
+		CLC_SendLogToOOG(NTC_LOG_COMMON,  COLOR_1 + 'Paused - Stash & Invenory full');
+		while(true){Say("! ");Delay(300);Say("!Inventory & Stash Full");Delay(1200);}
+	}
+	
+	if(NTConfig_PickupFreeGold){CLTMGR_FreeGold();}
+	if(NTConfig_UseStatPoints || NTConfig_UseSkillPoints){Include("Common/Libs/CLStatsSkills.ntl");CLSS_DoStats();}
+}
+
+function CLTMGR_FreeGold(){
+	CheckForGoldWho = ["akara", "fara", "ormus", "jamella", "malah"];
+	if((me.GetStat(14) + me.GetStat(15)) != ((me.GetStat(12) * 10000) + 2500000)){
+		switch(me.act){
+			case 1:
+				if(!CLTM_TownMove(CheckForGoldWho[0])) {
+					CLC_SendMsgToScript("NTBotGame.ntj", "CLTM_TownMove()");
+					return;
+				}
+				CLSI_PickItems();
+				break;
+			case 2:
+				if(!CLTM_TownMove(CheckForGoldWho[1])) {
+					CLC_SendMsgToScript("NTBotGame.ntj", "CLTM_TownMove()");
+					return;
+				}
+				CLSI_PickItems();
+				break;
+			case 3:
+				if(!CLTM_TownMove(CheckForGoldWho[2])) {
+					CLC_SendMsgToScript("NTBotGame.ntj", "CLTM_TownMove()");
+					return;
+				}
+				CLSI_PickItems();
+				break;
+			case 4:
+				if(!CLTM_TownMove(CheckForGoldWho[3])) {
+					CLC_SendMsgToScript("NTBotGame.ntj", "CLTM_TownMove()");
+					return;
+				}
+				CLSI_PickItems();
+				break;
+			case 5:
+				if(!CLTM_TownMove(CheckForGoldWho[4])) {
+					CLC_SendMsgToScript("NTBotGame.ntj", "CLTM_TownMove()");
+					return;
+				}
+				CLSI_PickItems();
+				break;
+			default:
+				break;
+		} return;
+	}
+}
+
+function CLTMGR_VisitTown(ranged){
+	
+	if(arguments.length < 1)
+		ranged = false;		
+	
+	var _prearea = me.areaid;
+
+	if(!CLTM_CheckAct())
+		return false;
+
+	CLTMGR_TownManager(true, ranged);
+
+	if(!CLTM_TownMove("portalspot", true))
+		return false;
+		
+	if(me.classid == NTC_CHAR_CLASS_ASSASSIN && NTConfig_UseFade)
+		CLC_CastSkill(267, NTC_HAND_RIGHT);
+
+	if(!CLM_UsePortal("BluePortal", _prearea))
+		return false;
+
+	if(NTConfig_PublicMode)
+		CLM_MakeTP();
+
+	return true;
+}
+
+function CLTMGR_VisitStash(cubing){
+	var _stash;
+
+	CLTM_TownMove("stash");
+
+	_stash = CLC_FindUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH, 5);
+
+	if(_stash){
+		if(CLT_DoInteract(_stash)){
+			if(NTConfig_MakeRunewords)
+				CLRW_MakeRuneword();
+
+			CLT_ManageStash();
+			
+			if(cubing){
+				CLCU_DoCubing();
+
+				if(CLT_DoInteract(_stash))
+					CLT_ManageStash();
+
+				me.Cancel(1);
+				CLT_ClearInventory();
+			}
+			else			
+				me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitAkara(){
+	var _npc;
+	CLTM_TownMove("akara");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_AKARA, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			if(_NTTMGR_DoID || _NTTMGR_BuyPotsInt || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey){
+				if(CLT_DoTrade(_npc)){
+					if(_NTTMGR_BuyPotsInt)
+						CLT_FillBelt(_npc);
+						CLT_FillTome(_npc);
+						CLT_FillTome(_npc, 1);
+					if(_NTTMGR_BuyKey)
+						CLT_FillKey(_npc);
+					if(_NTTMGR_DoID)
+						CLTMGR_IDItems(_npc);
+				}
+			}
+
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitKashya(){
+	var _npc;
+
+	CLTM_TownMove("kashya");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_KASHYA, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			CLT_ReviveMerc();
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitCharsi(){
+	var _npc;
+
+	CLTM_TownMove("charsi");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_CHARSI, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			if(_NTTMGR_DoRepair || _NTTMGR_BuyArrows){
+				if(CLT_DoTrade(_npc)){
+					if(_NTTMGR_DoRepair)
+						CLT_RepairItems(_npc);
+					if(_NTTMGR_BuyArrows)
+						CLT_FillArrows(_npc);
+				}
+			me.Cancel(1);
+			}
+		}
+	}
+}
+
+function CLTMGR_VisitGheed(){
+	var _npc;
+
+	CLTM_TownMove("gheed");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_GHEED, 5);
+	if (me.classid == 6)
+		CLC_PutSkill(0, NTC_HAND_RIGHT);
+	if(_npc){
+		while(CLC_MyGold() > NTConfig_GambleStopGold){
+			if(CLT_DoInteract(_npc)){
+				if(CLT_DoTrade(_npc, 1))
+					CLT_GambleIt(_npc);
+
+				me.Cancel(1);
+			}
+			else
+				break;
+		}
+	}
+}
+
+function CLTMGR_VisitFara(){
+	var _npc;
+
+	CLTM_TownMove("fara");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_FARA, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			if(_NTTMGR_DoRepair || _NTTMGR_BuyArrows){
+				if(CLT_DoTrade(_npc))				{
+					if(_NTTMGR_DoRepair)
+						CLT_RepairItems(_npc);
+					if(_NTTMGR_BuyArrows)
+						CLT_FillArrows(_npc);
+				}
+			}
+
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitDrognan(){
+	var _npc;
+
+	CLTM_TownMove("drognan");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_DROGNAN, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			if(CLT_DoTrade(_npc)){
+				if(_NTTMGR_BuyPotsInt)
+					CLT_FillBelt(_npc);
+					CLT_FillTome(_npc);
+					CLT_FillTome(_npc, 1);
+				if(_NTTMGR_DoID)
+					CLTMGR_IDItems(_npc);
+			}
+
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitLysander(){
+	var _npc;
+
+	CLTM_TownMove("lysander");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_LYSANDER, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			if(CLT_DoTrade(_npc))
+				CLT_FillKey(_npc);
+
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitGreiz(){
+	var _npc;
+
+	CLTM_TownMove("greiz");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_GREIZ, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			CLT_ReviveMerc();
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitElzix(){
+	var _npc;
+
+	CLTM_TownMove("elzix");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ELZIX, 5);
+	if (me.classid == 6)
+		CLC_PutSkill(0, NTC_HAND_RIGHT);
+
+	if(_npc){
+		while(CLC_MyGold() > NTConfig_GambleStopGold){
+			if(CLT_DoInteract(_npc)){
+				if(CLT_DoTrade(_npc, 1))
+					CLT_GambleIt(_npc);
+
+				me.Cancel(1);
+			}
+			else
+				break;
+		}
+	}
+}
+
+function CLTMGR_VisitOrmus(){
+	var _npc;
+
+	CLTM_TownMove("ormus");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ORMUS, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			if(_NTTMGR_DoID || _NTTMGR_BuyPotsInt || _NTTMGR_BuyTP || _NTTMGR_BuyID){
+				if(CLT_DoTrade(_npc)){
+					if(_NTTMGR_BuyPotsInt)
+						CLT_FillBelt(_npc);
+						CLT_FillTome(_npc);
+						CLT_FillTome(_npc, 1);
+					if(_NTTMGR_DoID)
+						CLTMGR_IDItems(_npc);
+				}
+			}
+
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitAsheara(){
+	var _npc;
+
+	CLTM_TownMove("asheara");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ASHEARA, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			CLT_ReviveMerc();
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitHratli(){
+   var _npc;
+
+   CLTM_TownMove("hratli");
+
+   _npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_HRATLI, 5);
+
+   if(_npc){
+      if(CLT_DoInteract(_npc)){
+         if(CLT_DoTrade(_npc)){
+            if(_NTTMGR_DoRepair)
+               CLT_RepairItems(_npc);
+            if(_NTTMGR_BuyKey)
+               CLT_FillKey(_npc);
+            if(_NTTMGR_BuyArrows)
+               CLT_FillArrows(_npc);
+         }
+
+         me.Cancel(1);
+      }
+   }
+}
+
+function CLTMGR_VisitAlkor(){
+	var _npc;
+
+	CLTM_TownMove("alkor");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ALKOR, 5);
+	if (me.classid == 6)
+		CLC_PutSkill(0, NTC_HAND_RIGHT);
+
+	if(_npc){
+		while(CLC_MyGold() > NTConfig_GambleStopGold){
+			if(CLT_DoInteract(_npc)){
+				if(CLT_DoTrade(_npc, 1))
+					CLT_GambleIt(_npc);
+
+				me.Cancel(1);
+			}
+			else
+				break;
+		}
+	}
+}
+
+function CLTMGR_VisitJamella(gamble){
+	var _npc;
+	
+	var myy = me.y;
+	var myx = me.x;
+	if(myx > 5040 && myx < 5060 && myy < 5060 && myy > 5040){
+		CLM_MoveTo(me.areaid, 5041, 5036);
+	}
+	
+	CLTM_TownMove("jamella");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_JAMELLA, 5);
+	if (me.classid == 6)
+		CLC_PutSkill(0, NTC_HAND_RIGHT);
+
+	if(_npc){
+		if(gamble){
+			while(CLC_MyGold() > NTConfig_GambleStopGold){
+				if(CLT_DoInteract(_npc)){
+					if(CLT_DoTrade(_npc, 1))
+						CLT_GambleIt(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+		else{
+			if(CLT_DoInteract(_npc)){
+				if(_NTTMGR_DoID || _NTTMGR_BuyPotsInt || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey){
+					if(CLT_DoTrade(_npc)){
+						if(_NTTMGR_BuyPotsInt)
+							CLT_FillBelt(_npc);
+							CLT_FillTome(_npc);
+							CLT_FillTome(_npc, 1);
+						if(_NTTMGR_BuyKey)
+							CLT_FillKey(_npc);
+						if(_NTTMGR_DoID)
+							CLTMGR_IDItems(_npc);
+					}
+				}
+
+				me.Cancel(1);
+			}
+		}
+	}
+}
+
+function CLTMGR_VisitHalbu(){
+	var _npc;
+
+	CLTM_TownMove("halbu");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_HALBU, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			if(_NTTMGR_DoRepair || _NTTMGR_BuyArrows){
+				if(CLT_DoTrade(_npc)){
+					if(_NTTMGR_DoRepair)
+						CLT_RepairItems(_npc);
+					if(_NTTMGR_BuyArrows)
+						CLT_FillArrows(_npc);
+				}
+			me.Cancel(1);
+			}
+		}
+	}
+} 
+
+function CLTMGR_VisitTyrael(){
+	var _npc;
+
+	CLTM_TownMove("tyrael");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_TYRAEL_ACT_4, 5);
+
+	if(_npc){	
+		if(CLT_DoInteract(_npc)){
+			CLT_ReviveMerc();
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitMalah(){
+	var _npc;
+
+	CLTM_TownMove("malah");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_MALAH, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			if(_NTTMGR_DoID || _NTTMGR_BuyPotsInt || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey){
+				if(CLT_DoTrade(_npc)){
+					if(_NTTMGR_BuyPotsInt)
+						CLT_FillBelt(_npc);
+						CLT_FillTome(_npc);
+						CLT_FillTome(_npc, 1);
+					if(_NTTMGR_BuyKey)
+						CLT_FillKey(_npc);
+					if(_NTTMGR_DoID)
+						CLTMGR_IDItems(_npc);
+				}
+			}
+
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitLarzuk(){
+	var _npc;
+
+	CLTM_TownMove("larzuk");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_LARZUK, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			if(CLT_DoTrade(_npc)){
+				if(_NTTMGR_DoRepair || _NTTMGR_BuyArrows){
+					if(_NTTMGR_DoRepair)
+						CLT_RepairItems(_npc);
+					if(_NTTMGR_BuyArrows)
+						CLT_FillArrows(_npc);
+				}
+			}
+
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitQualKehk(){
+	var _npc;
+
+	CLTM_TownMove("qual-kehk");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_QUALKEHK, 5);
+
+	if(_npc){
+		if(CLT_DoInteract(_npc)){
+			CLT_ReviveMerc();
+			me.Cancel(1);
+		}
+	}
+}
+
+function CLTMGR_VisitAnya(){
+	var _npc;
+
+	CLTM_TownMove("anya");
+
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ANYA_TOWN, 5);
+	if (me.classid == 6)
+		CLC_PutSkill(0, NTC_HAND_RIGHT);
+
+	if(_npc){
+		while(CLC_MyGold() > NTConfig_GambleStopGold){
+			if(CLT_DoInteract(_npc)){
+				if(CLT_DoTrade(_npc, 1))
+					CLT_GambleIt(_npc);
+
+				me.Cancel(1);
+			}
+			else
+				break;
+		}
+	}
+}
+
+function CLTMGR_CheckScrolls(scrolltype){
+	var _tome = CLT_GetTome(scrolltype);
+
+	if(_tome)
+		return _tome.GetStat(70);
+
+	return 0;
+}
+
+function CLTMGR_CheckKeys(){
+	var _key;
+
+	if(me.classid == NTC_CHAR_CLASS_ASSASSIN)
+		return 12;
+
+	_key = CLT_GetKey();
+
+	if(_key)
+		return _key.GetStat(70);
+
+	return 0;
+}
+//depreciated now I believe
+function CLTMGR_CheckBow() {
+
+	CLC_SwapWeapons(0);
+	
+	var _range = false;
+	var _weapon = me.GetItems();
+	if(_weapon) {
+		
+		for(var i = 0 ; i < _weapon.length ; i++) {
+			if (_weapon[i].mode == 1 && (_weapon[i].itemloc == 4 || _weapon[i].itemloc == 5)) {
+
+				switch (_weapon[i].classid) {
+					case 68: //Short Bow
+					case 69: //Hunter's Bow
+					case 70: //Longbow
+					case 71: //Composite Bow
+					case 72: //Short Battle Bow
+					case 73: //Long Battle Bow
+					case 74: //short war bow
+					case 75: //Long War Bow
+					case 161: //Edge Bow
+					case 162: //Razor Bow
+					case 163: //Cedar Bow
+					case 164: //Double Bow
+					case 165: //Short Siege Bow
+					case 166: //Large Siege Bow
+					case 167: //Rune Bow
+					case 168: //Gothic Bow
+					case 264: //Spider Bow
+					case 265: //Blade Bow
+					case 266: //Shadow Bow
+					case 267: //Great Bow
+					case 268: //Diamond Bow
+					case 269: //Crusader Bow
+					case 270: //Ward Bow
+					case 271: //Hydra Bow
+					case 281: //Stag Bow
+					case 282: //Reflex Bow
+					case 291: //Ashwood Bow
+					case 292: //Cermonial Bow
+					case 301: //Matriarchal Bow
+					case 302: //Grand Matron Bow
+					case 76: //Light Crossbow
+					case 77: //Crossbow
+					case 78: //Heavy Crossbow
+					case 79: //Repeating Crossbow
+					case 169: //Arbalest
+					case 170: //Siege Crossbow
+					case 171: //Ballista
+					case 172: //Chu-Ko-Nu
+					case 272: //Pellet Bow
+					case 273: //Gorgon Crossbow
+					case 274: //Colossus Crossbow
+					case 275: //Demon Crossbow
+						_range = true;
+						break;
+				}
+			}
+		}  
+		if (_range) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	return false;
+}
+
+function CLTMGR_IDItems(npc){
+	Include("Common/Libs/CLItemlogger.ntl");
+	var _location;
+	
+	var _tome, _scroll;
+	var _result;
+	var _resultArray = new Array();
+	var _items = CLT_GetUnidItems();
+	var _keys;
+	var _npckeys;
+
+	if(!_items || _items.length < 1)
+		return;
+
+	_tome = CLT_GetTome();
+
+	if(_tome && _tome.GetStat(70) < _items.length)
+		CLT_FillTome(npc);
+	
+	for(var i = 0 ; i < _items.length ; i++){
+		
+		var _isEthereal = ((_items[i].itemflag & 0x400000) == 0x400000);
+		_location = CLC_GetLocation(_NTTMGR_Simple);
+		resultArray = CLSI_CheckItem(_items[i]);
+		result = resultArray[0];
+		switch(result){
+		case 1:
+			if(_items[i].itemflag & 0x10) {// second half of repeating item log fix
+				if(NTConfig_LogSoldItems && NTConfig_UseXMLItemlog) {
+					if(NTConfig_IndependantLog) {
+						CLIL_WriteILog(_items[i], me, _isEthereal, 12);
+					} else {
+						CLIL_WriteLog(_items[i], me, _isEthereal, 12);
+					}
+				}
+				CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + "Kept: " + NTC_ItemQualityToMGRColor[_items[i].quality] + _items[i].name.split("\n")[0]+ ";" + _items[i].itemdesc + COLOR_2 + "\n iLvl: " + _items[i].itemlevel + COLOR_2 + "\n Area: " + _location+ "\n" + COLOR_2 +resultArray[1]+", "+resultArray[2]);
+			}
+		case 2:
+			break;
+		case -1:
+			if(_tome)
+				_result = CLT_IdItem(_tome, _items[i]);
+			else{
+				_scroll = CLT_GetScroll();
+
+				if(!_scroll){
+					CLT_BuyScrolls(npc);
+					_scroll = CLT_GetScroll();
+				}
+
+				_result = CLT_IdItem(_scroll, _items[i]);
+			}
+
+			if(_result){
+				resultArray = CLSI_CheckItem(_items[i]);
+				result = resultArray[0];
+				switch(result){
+				case 1:
+					if(_items[i].itemflag & 0x10){ // second half of repeating item log fix
+						if(NTConfig_LogSoldItems && NTConfig_UseXMLItemlog && _items[i].quality >= NTConfig_LogItemQuality) {
+							if(NTConfig_IndependantLog) {
+								CLIL_WriteILog(_items[i], me, _isEthereal, 12);
+							} else {
+								CLIL_WriteLog(_items[i], me, _isEthereal, 12);
+							}
+						}
+
+						CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + "Kept: " + NTC_ItemQualityToMGRColor[_items[i].quality] + _items[i].name.split("\n")[0]+ ";" + _items[i].itemdesc + COLOR_2 + "\n iLvl: " + _items[i].itemlevel + COLOR_2 + "\n Area: " + _location+ "\n" + COLOR_2 +resultArray[1]+", "+resultArray[2]);
+					}	
+				case 2:
+					break;
+				default:
+					if(NTConfig_LogSoldItems && NTConfig_UseXMLItemlog && _items[i].quality >= NTConfig_LogItemQuality) {
+						if(NTConfig_IndependantLog) {
+							CLIL_WriteILog(_items[i], me, _isEthereal, 13);
+						} else {
+							CLIL_WriteLog(_items[i], me, _isEthereal, 13);
+						}
+					}
+
+					if(NTConfig_LogSoldItemQuality != 0 && _items[i].quality >= NTConfig_LogSoldItemQuality) {
+						CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_1 +"Sold: " + NTC_ItemQualityToMGRColor[_items[i].quality] + _items[i].name.split("\n")[0]+ ";" + _items[i].itemdesc + COLOR_2 + "\n iLvl: " + _items[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+					}
+					CLT_ShopItem(_items[i], npc, 1);
+					break;
+				}
+			}
+			else	
+			{
+				if(NTConfig_LogSoldItems && NTConfig_UseXMLItemlog && _items[i].quality >= NTConfig_LogItemQuality) {
+					if(NTConfig_IndependantLog) {
+						CLIL_WriteILog(_items[i], me, _isEthereal, 13);
+					} else {
+						CLIL_WriteLog(_items[i], me, _isEthereal, 13);
+					}
+				}
+					if(NTConfig_LogSoldItemQuality != 0 && _items[i].quality >= NTConfig_LogSoldItemQuality) {
+						CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_items[i].quality] + _items[i].name.split("\n")[0]+ ";" + _items[i].itemdesc + COLOR_2 + "\n iLvl: " + _items[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+					}
+				CLT_ShopItem(_items[i], npc, 1);
+			}
+
+			break;
+		}
+	}
+	if(NTConfig_UseKeysForPlaceHolder || NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests){
+		_npckeys = npc.GetItems(543);
+		_keys = me.GetItems(543);
+		if(_keys.length < 1 && _npckeys.length > 0) { 
+			CLT_ShopItem(_npckeys[0], npc, 2); 
+		}
+	}
+}
+
+// mask - 02=Poison. 04=Amplify Damage. 08=Weaken. 10=Iron Maiden, 20=Decrepify. 40=Lower Resist. 80=Blood Mana.
+function CLTMGR_CheckCurse(selfmask, mercmask, print){
+	if(arguments.length < 3) { var print = false }
+	if((selfmask.indexOf("02") != -1) && me.GetState(2)) {
+		if(print) { Print("I need to cure " + COLOR_1 + "Poison!") } 
+		return true; 
+	}
+	if((selfmask.indexOf("04") != -1) && me.GetState(9)) {
+		if(print) { Print("I need to cure " + COLOR_1 + "Amplify Damage!") } 
+		return true; 
+	}
+	if((selfmask.indexOf("08") != -1) && me.GetState(19)) {
+		if(print) { Print("I need to cure " + COLOR_1 + "Weaken!") } 
+		return true; 
+	}
+	if((selfmask.indexOf("10") != -1) && me.GetState(55)) {
+		if(print) { Print("I need to cure " + COLOR_1 + "Iron Maiden!") } 
+		return true; 
+	}
+	if((selfmask.indexOf("20") != -1) && me.GetState(60)) {
+		if(print) { Print("I need to cure " + COLOR_1 + "Decrepify") } 
+		return true; 
+	}
+	if((selfmask.indexOf("40") != -1) && me.GetState(61)) {
+		if(print) { Print("I need to cure " + COLOR_1 + "Lower Resists!") } 
+		return true; 
+	}
+	if((selfmask.indexOf("80") != -1) && me.GetState(114)) {
+		if(print) { Print("I need to cure " + COLOR_1 + "Blood Mana!") } 
+		return true; 
+	}
+	var _merc = CLC_GetMerc();
+	if(_merc) {
+		if((mercmask.indexOf("02") != -1) && _merc.GetState(2)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Poison!") } 
+			return true; 
+		}
+		if((mercmask.indexOf("04") != -1) && _merc.GetState(9)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Amplify Damage!") } 
+			return true; 
+		}
+		if((mercmask.indexOf("08") != -1) && _merc.GetState(19)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Weaken!") } 
+			return true; 
+		}
+		if((mercmask.indexOf("10") != -1) && _merc.GetState(55)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Iron Maiden!") } 
+			return true; 
+		}
+		if((mercmask.indexOf("20") != -1) && _merc.GetState(60)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Decrepify!") } 
+			return true; 
+		}
+		if((mercmask.indexOf("40") != -1) && _merc.GetState(61)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Lower Resists!") } 
+			return true; 
+		}
+	}
+	return false;
+}
+
+// self - 0x01 : Potion
+// merc - 0x01 : Death
+// common - 0x02 : Poison, 0x04 : Amplify Damage, 0x08 : Weaken, 0x10 : Iron Maiden, 0x20 : Decrepify, 0x40 : Lower Resist
+function CLTMGR_CheckSafe(selfmask, mercmask){
+	if((mercmask.indexOf("01") != -1) && CLT_CheckMerc()) {
+		Print("The Merc is dead!");
+		NTU_MercDeathLog();
+		//return CLTMGR_VisitTown();
+		return true;
+	}
+	else if((selfmask.indexOf("01") != -1) && CLT_NeedPots()) {
+		Print("I need some more potions!");
+		//return CLTMGR_VisitTown();
+		return true;
+	}
+	else if(CLTMGR_CheckCurse(selfmask, mercmask)) { 
+		//return CLTMGR_VisitTown();
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function CLTMGR_SkipCainAct(){
+	if(NTConfig_DontCainAct.indexOf(me.act) > -1)
+		return false;
+	else
+		return true;
+}
+
+function CLTMGR_CheckUnidsGotStashed(){
+	var _unidcount = 0;
+	var _items = me.GetItems();
+
+	if(!_items)
+		return _unidcount;
+
+	for(var i = 0 ; i < _items.length ; i++){
+		if(_items[i].mode == 0 && _items[i].itemloc == 0 && !(_items[i].itemflag&0x10))		
+			var _value = CLSI_CheckItem(_items[i])[0];
+		
+		if(_value == 1)
+			_unidcount++;
+	}
+	return _unidcount;
+}
+
+function CLTMGR_VisitCain(check){
+	
+	var _location;//edit for PickIt Location by Jinnay
+	var _npc;
+	var result;
+	var _items = me.GetItems();
+	var _uniditems = new Array(); 
+	var _dropitems = new Array(); 
+	var _itemlist  = new Array();
+	var resultArray  = new Array();
+	
+	for(var i = 0 ; i < _items.length ; i++){
+		
+		if(_items[i].mode == 0 && _items[i].itemloc == 0 && !(_items[i].itemflag&0x10)){
+			
+			var _value = CLSI_CheckItem(_items[i])[0];
+			var _isEthereal = ((_items[i].itemflag & 0x400000) == 0x400000);
+			
+			if(_value == 1){// checking for unid kept items here and stash it before we go to cain
+				if(_items[i].quality >= 4 && _items[i].itemtype != 4 && (_items[i].itemtype < 76 || _items[i].itemtype > 81)){
+					CLTM_TownMove("stash");
+					var _stash = CLC_FindUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH, 5);
+					if(_stash){
+						if(CLT_DoInteract(_stash)){
+							CLTMGR_StashGold(); // stashgold every time
+							CLT_ManageStash(_items[i]);
+							//if(NTConfig_UseXMLItemlog) { if(NTConfig_IndependantLog) { CLIL_WriteILog(_items[i], me, _isEthereal, 12); } else { CLIL_WriteLog(_items[i], me, _isEthereal, 12); } }
+						}
+					}
+				}
+				
+
+				
+				if(CLT_CheckInventory()){
+					if(CLT_DoInteract(_stash)){
+						CLTMGR_StashGold(); // stashgold every time
+						CLT_ManageStash();
+					}
+					me.Cancel(1);
+				}
+				
+				me.Cancel(1);
+			}
+			else // else push it into the to be id'd array
+				_uniditems.push(_items[i]);
+		}
+	}
+	
+	if(CLTMGR_CheckUnidsGotStashed() > 0 && !NTConfig_AlwaysUseCain){ // if we have something to be kept unid and it won't fit in stash, and not always use cain,  abort and do normal id function
+		Print(COLOR_1 + "That is not suppose to get identified...skipping cain.....");
+		return;
+	}
+
+ 	if(_uniditems.length > 0){ // if we have something to be id still, go to cain and id
+		
+		CLTM_TownMove("cain");
+		_npc = CLC_FindUnit(NTC_UNIT_NPC, GetLocaleString(2890), 5);
+
+		if(!_npc)
+			return false;
+
+		if(_npc){
+			CLM_MoveTo(me.areaid, _npc.x, _npc.y);
+			if(CLT_DoInteract(_npc)){
+				for(var i = 0 ; i < 4 ; i++){
+					if((i % 4) == 0)
+					me.SelectNPCMenu(0x0FB4);
+					CLC_Delay(250);
+				}
+				me.Cancel(1);
+			}
+
+		}
+
+		for(var i =0 ; i < _uniditems.length ; i++){ // now we check if the items, now id, are to be kept or sold and push them into the appropriate array
+
+			resultArray = CLSI_CheckItem(_uniditems[i]); 
+			result = resultArray[0];
+			switch(result){
+				case 1:
+					_itemlist.push(_uniditems[i]);
+					break;
+				case 2:
+					break;
+				case 0:
+					_dropitems.push(_uniditems[i]);
+					break;
+            }
+		}
+	}
+
+	if(CLTMGR_CheckToStash()){ 	// check to see if there is anything to stash and if there is stash them		
+		CLTM_TownMove("stash");
+		var _stash = CLC_FindUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH, 5);
+
+		if(_stash){
+			CLT_DoInteract(_stash);
+			CLTMGR_StashGold(); // stashgold every time
+		}
+
+		if(_itemlist.length > 0){
+			for(var i = 0; i < _itemlist.length; i++){ // this puts items into stash and logs them
+				if(_itemlist[i].quality >= 4){ 
+					_location = CLC_GetLocation(_NTTMGR_Simple);
+					if(NTConfig_UseXMLItemlog) {
+						if(NTConfig_IndependantLog) {
+							CLIL_WriteILog(_itemlist[i], me, _isEthereal, 12); } else { CLIL_WriteLog(_itemlist[i], me, _isEthereal, 12); }
+					}
+					CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + "Kept: " + NTC_ItemQualityToMGRColor[_itemlist[i].quality] + _itemlist[i].name.split("\n")[0]+ ";" + _itemlist[i].itemdesc + COLOR_2 + "\n iLvl: " + _itemlist[i].itemlevel + COLOR_2 + "\n Area: " + _location+ "\n" + COLOR_2 +resultArray[1]+", "+resultArray[2]);
+				}
+				CLT_ManageStash(_itemlist[i])
+			}
+		}
+
+		if(CLT_CheckInventory())
+			CLT_ManageStash();
+
+		me.Cancel(1);
+	}
+
+	if((_dropitems.length > 0 && !NTConfig_DropCainItems) || (_dropitems.length > 0 && CLC_MyGold() <= NTConfig_PocketChange)){ // this will sell instead of dropping items
+		switch(me.act){ 
+
+			case 1: // sell to akara
+				var _npc;
+
+				CLTM_TownMove("akara");
+				_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_AKARA, 5); 
+
+				if(_npc){
+					if(CLT_DoInteract(_npc)){
+						CLT_DoTrade(_npc, 1)
+						for(var i = 0; i < _dropitems.length; i++){ // going to sell here
+							if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality){ 
+								_location = CLC_GetLocation(_NTTMGR_Simple);
+								if(NTConfig_LogSoldItems && NTConfig_UseXMLItemlog && _dropitems[i].quality >= NTConfig_LogItemQuality) {
+									if(NTConfig_IndependantLog) {
+										CLIL_WriteILog(_dropitems[i], me, _isEthereal, 13);
+									} 
+									else{
+										CLIL_WriteLog(_dropitems[i], me, _isEthereal, 13);
+									}
+								}
+								CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+							}
+							CLT_ShopItem(_dropitems[i], _npc, 1); 
+						}
+						if(_NTTMGR_BuyPotsInt || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey){
+							if(_NTTMGR_BuyPotsInt)
+								CLT_FillBelt(_npc);
+								CLT_FillTome(_npc);
+								CLT_FillTome(_npc, 1);
+							if(_NTTMGR_BuyKey)
+								CLT_FillKey(_npc);
+						}
+						me.Cancel(1);
+					}
+				}
+				break;
+
+			case 2: //sell to farah or drognan
+				var _npc;					
+				var _buy = false;
+
+				if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_DoRepair || _NTTMGR_BuyArrows){ 
+					CLTM_TownMove("fara");		
+					_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_FARA, 5);  
+				}
+				else if((_NTTMGR_BuyPots || _NTTMGR_BuyTP) || _NTTMGR_BuyID){ 
+					CLTM_TownMove("drognan");
+					_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_DROGNAN, 5);
+					_buy = true;
+				}
+				else
+				{
+					CLTM_TownMove("fara");		
+					_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_FARA, 5);  
+				}
+				if(_npc){ 
+					if(CLT_DoInteract(_npc)){
+						CLT_DoTrade(_npc, 1)
+						for(var i = 0; i < _dropitems.length; i++){ // going to sell here
+							_location = CLC_GetLocation(_NTTMGR_Simple);
+
+							if(NTConfig_LogSoldItems && NTConfig_UseXMLItemlog && _dropitems[i].quality >= NTConfig_LogItemQuality) {
+								if(NTConfig_IndependantLog) {
+									CLIL_WriteILog(_dropitems[i], me, _isEthereal, 13);
+								} 
+								else {
+									CLIL_WriteLog(_dropitems[i], me, _isEthereal, 13);
+								}
+							}
+							if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality){
+								CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+							}
+							CLT_ShopItem(_dropitems[i], _npc, 1); 
+						}
+						if(_buy && (_NTTMGR_DoID || _NTTMGR_BuyPotsInt || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey)){
+							if(_NTTMGR_BuyPotsInt)
+								CLT_FillBelt(_npc);
+								CLT_FillTome(_npc);
+								CLT_FillTome(_npc, 1);
+						}
+						me.Cancel(1);
+					}
+				}
+				break;
+
+			case 3: // sell to ormus
+				var _npc;
+
+				CLTM_TownMove("ormus");
+				_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ORMUS, 5);
+
+				if(_npc){
+					if(CLT_DoInteract(_npc)){
+						CLT_DoTrade(_npc, 1)
+						for(var i = 0; i < _dropitems.length; i++){  
+							_location = CLC_GetLocation(_NTTMGR_Simple);
+							if(NTConfig_LogSoldItems && NTConfig_UseXMLItemlog && _dropitems[i].quality >= NTConfig_LogItemQuality) {
+								if(NTConfig_IndependantLog) {
+									CLIL_WriteILog(_dropitems[i], me, _isEthereal, 13);
+								} 
+								else {
+									CLIL_WriteLog(_dropitems[i], me, _isEthereal, 13);
+								}
+							}
+							if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality){
+								CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+							}
+							CLT_ShopItem(_dropitems[i], _npc, 1); 
+						}
+						if(_NTTMGR_BuyPotsInt || _NTTMGR_BuyTP || _NTTMGR_BuyID){
+							if(_NTTMGR_BuyPotsInt)
+								CLT_FillBelt(_npc);
+								CLT_FillTome(_npc);
+								CLT_FillTome(_npc, 1);
+						}
+						me.Cancel(1);
+					}
+				}
+				break;
+
+			case 4: 
+				var _npc;
+
+				CLTM_TownMove("jamella");
+				_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_JAMELLA, 5);
+
+				if(_npc){
+					if(CLT_DoInteract(_npc)) {
+						CLT_DoTrade(_npc)
+						for(var i = 0; i < _dropitems.length; i++) {
+							_location = CLC_GetLocation(_NTTMGR_Simple);
+
+							if(NTConfig_LogSoldItems && NTConfig_UseXMLItemlog && _dropitems[i].quality >= NTConfig_LogItemQuality) {
+								if(NTConfig_IndependantLog) {
+									CLIL_WriteILog(_dropitems[i], me, _isEthereal, 13);
+								} 
+								else {
+									CLIL_WriteLog(_dropitems[i], me, _isEthereal, 13);
+								}
+							}
+							if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality) {
+								CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+							}
+
+							CLT_ShopItem(_dropitems[i], _npc, 1); 
+						}
+						if(_NTTMGR_BuyPotsInt || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey) {
+							if(_NTTMGR_BuyPotsInt)
+								CLT_FillBelt(_npc);
+								CLT_FillTome(_npc);
+								CLT_FillTome(_npc, 1);
+							if(_NTTMGR_BuyKey)
+								CLT_FillKey(_npc);
+						}
+						me.Cancel(1);
+					}
+				}
+				break;
+
+			case 5: // sell to malah
+				var _npc;
+
+				CLTM_TownMove("malah");
+				_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_MALAH, 5);
+				
+				if(_npc){
+					if(CLT_DoInteract(_npc)){
+						CLT_DoTrade(_npc, 1)
+						for(var i = 0; i < _dropitems.length; i++) {
+
+							_location = CLC_GetLocation(_NTTMGR_Simple);
+
+							if(NTConfig_LogSoldItems && NTConfig_UseXMLItemlog && _dropitems[i].quality >= NTConfig_LogItemQuality) {
+								if(NTConfig_IndependantLog) {
+									CLIL_WriteILog(_dropitems[i], me, _isEthereal, 13);
+								} 
+								else {
+									CLIL_WriteLog(_dropitems[i], me, _isEthereal, 13);
+								}
+							}
+							if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality) {
+								CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+							}
+							CLT_ShopItem(_dropitems[i], _npc, 1); 
+						}
+						if(_NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey || _NTTMGR_BuyPotsInt) {
+							if(_NTTMGR_BuyPotsInt)
+								CLT_FillBelt(_npc);
+								CLT_FillTome(_npc);
+								CLT_FillTome(_npc, 1);
+							if(_NTTMGR_BuyKey)
+								CLT_FillKey(_npc);
+						}
+						me.Cancel(1);
+					}
+				}
+				break;
+		}	
+	}
+	else if(_dropitems.length > 0 && NTConfig_DropCainItems){ // defualt value will just drop
+		SetUIState(0x01, true);
+		for(var i = 0; i < _dropitems.length; i++){
+			_location = CLC_GetLocation(_NTTMGR_Simple);
+
+			if (NTConfig_LogIgnoredItems && _dropitems[i].quality >= NTConfig_LogItemQuality && NTConfig_UseXMLItemlog) {
+				if(NTConfig_IndependantLog) {
+					CLIL_WriteILog(_dropitems[i], me, _isEthereal, 14);
+				}
+				else {
+					CLIL_WriteLog(_dropitems[i], me, _isEthereal, 14);
+				}
+			}
+			if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality) {
+				CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Dropped: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+			}
+			if(NTConfig_AnnounceDroppedItems){ 
+				Say(NTC_RandomSelect(NTConfig_dropMessages)  + " " + _dropitems[i].name.split("\n")[0]);
+				Delay(100);
+			}
+			CLT_DropItem(_dropitems[i])
+		}
+	}
+	if(GetUIState(0x01))
+		me.Cancel(1);
+	
+	CLT_ClearInventory();
+	return;
+}
+
+function CLTMGR_StashGold(){
+	if(!CLC_StashGoldFull() && CLC_MyGoldCarry() > 0){
+        var _mygold = CLC_MyGoldCarry();
+        Gold(3, _mygold);
+        for(i = 0 ; i < 2 ; i++){
+            CLC_Delay(500);
+            if(_mygold > CLC_MyGoldCarry())
+                break;
+        }
+    }
+}
+
+function CLTMGR_CheckToStash(){
+	_checkItems = me.GetItems();
+	if(!_checkItems)
+		return false;
+	for(var i = 0 ; i < _checkItems.length ; i++){
+		if(_checkItems[i].mode == 0 && _checkItems[i].itemloc == 0 && NTConfig_Columns[_checkItems[i].y][_checkItems[i].x] > 0 
+		  && CLSI_CheckItem(_checkItems[i])[0])
+			return true;
+	}
+	return false;
+}
+
+function CLTMGR_GCCheckAmu(){
+	if(me.GetStat(12) < 88)
+		return;
+	if(!CLTMGR_GCHaveAmu() && CLC_MyGold() > NTConfig_GCAmuGold && CLTMGR_GCCheckIfCrafting() && NTConfig_GC){	
+		switch(me.act){
+			case 1: NTTM_GCVisitGheed();
+				break;
+			case 2: NTTM_GCVisitElzix();
+				break;
+			case 3: NTTM_GCVisitAlkor();
+				break;
+			case 4: NTTM_GCVisitJamella();
+				break;
+			case 5: NTTM_GCVisitAnya();
+				break;
+		}
+	}
+	
+	function NTTM_GCVisitGheed(){
+		var _npc;
+		
+		CLTM_TownMove("gheed");
+
+		_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_GHEED, 5);
+
+		if(_npc){
+			while(!CLTMGR_GCHaveAmu()){
+				if(CLT_DoInteract(_npc))
+				{
+					if(CLT_DoTrade(_npc, 1))
+						CLTMGR_GCGambleCraft(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	}
+
+	function NTTM_GCVisitElzix(){
+		var _npc;
+		
+		CLTM_TownMove("elzix");
+
+		_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ELZIX, 5);
+
+		if(_npc){
+			while(!CLTMGR_GCHaveAmu()){
+				if(CLT_DoInteract(_npc))
+				{
+					if(CLT_DoTrade(_npc, 1))
+						CLTMGR_GCGambleCraft(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	}
+
+	function NTTM_GCVisitAlkor(){
+		var _npc;
+		
+		CLTM_TownMove("alkor");
+
+		_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ALKOR, 5);
+
+		if(_npc){
+			while(!CLTMGR_GCHaveAmu()){
+				if(CLT_DoInteract(_npc)){
+					if(CLT_DoTrade(_npc, 1))
+						CLTMGR_GCGambleCraft(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	}
+
+
+	function NTTM_GCVisitJamella(){
+		var _npc;
+		
+		CLTM_TownMove("jamella");
+
+		_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_JAMELLA, 5);
+
+		if(_npc){
+			while(!CLTMGR_GCHaveAmu()){
+				if(CLT_DoInteract(_npc)){
+					if(CLT_DoTrade(_npc, 1))
+						CLTMGR_GCGambleCraft(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	}
+
+
+	function NTTM_GCVisitAnya(){
+		var _npc;
+		
+		CLTM_TownMove("anya");
+
+		_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ANYA_TOWN, 5);
+
+		if(_npc){
+			while(!CLTMGR_GCHaveAmu()){
+				if(CLT_DoInteract(_npc)){
+					if(CLT_DoTrade(_npc, 1))
+						CLTMGR_GCGambleCraft(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	}	
+}
+
+function CLTMGR_GCHaveAmu(){
+	var _items;
+	var i;
+		
+	_items = me.GetItems();
+
+	if(!_items)
+	 	return false;
+
+	for(i = 0 ; i < _items.length ; i++){
+		if(_items[i].itemlevel >= ammyreq){
+			if(_items[i].classid == 520 && _items[i].quality == 4 && _items[i].mode == 0)			
+				return true;
+		}
+	}
+	return false;
+}
+
+function CLTMGR_GCGambleCraft(npc){
+	var _items, _newitem;
+		
+	if(!npc)
+		return false;
+
+	if(!GetUIState(0x0C))
+		return false;
+
+	_items = npc.GetItems();
+
+	if(!_items)
+		return false;
+
+	for(var i = 0 ; i < _items.length ; i++){
+		
+		if(_items[i].classid == 520){
+			if(CLT_CheckSpace(_items[i].xsize, _items[i].ysize)){
+				CLT_GetOldItemsInt();
+
+				if(CLT_ShopItem(_items[i], npc, 2))
+					_newitem = CLT_GetGambledItemInt();
+				else
+					return false;
+
+				if(_newitem)	{
+					while(!(_newitem.itemflag&0x10))
+						CLC_Delay(100);
+					if(ammyreq < 90)
+						ammyreq = 90;
+					if(_newitem.itemlevel >= ammyreq && _newitem.quality == 4){
+						me.Cancel(1);
+						CLTM_TownMove("stash");
+						_stash = CLC_FindUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH, 5);
+						if(_stash)
+						{
+							if(CLT_DoInteract(_stash))
+								CLT_ManageStash(_newitem);
+						}
+						return false;
+					}else{
+						CLT_ShopItem(_newitem, npc, 1);
+					}
+				}
+			}
+		}
+	}
+	me.Cancel(1);
+	return true;
+}
+
+function CLTMGR_GCCheckIfCrafting(){	
+	for(i = 0 ; i < NTConfig_CubingItem.length ; i++){	
+		if(NTConfig_CubingItem[i][1] == 520)
+			return true;
+	}
+	return false;
+}
+
+function CLTMGR_CheckMuleStash() { 
+
+	var i, x, y;
+	var itemsStash;
+	var StashHeight = (me.gametype == 0) ? 4 : 8;
+	
+	if(arguments.length == 0) { PrintToScreen = false; }
+		
+	var _stashspace = new Array(StashHeight);
+
+	for(y = 0 ; y < StashHeight ; y++) {
+		_stashspace[y] = new Array(6);
+	}
+
+	for(y = 0 ; y < StashHeight ; y++) {	
+		for(x = 0 ; x < 6 ; x++) {
+			_stashspace[y][x] = 0;
+		}
+	}
+
+	itemsStash = me.GetItems();
+
+	if(!itemsStash) {
+		return false;
+	}
+	//var totalFreeSpace;
+	var totalUsedSpace = 0;
+	for(i = 0 ; i < itemsStash.length ; i++) {
+	
+		if(itemsStash[i].mode == 0 && itemsStash[i].itemloc == 4) {
+		
+			if(itemsStash[i].classid == 549) { // id's where the cube is
+				
+				for(y = 0 ; y < itemsStash[i].ysize ; y++) {
+					for(x = 0 ; x < itemsStash[i].xsize ; x++) {
+						_stashspace[y+itemsStash[i].y][x+itemsStash[i].x] = 2;
+						totalUsedSpace++
+					}
+				}
+			} else {
+				
+				for(y = 0 ; y < itemsStash[i].ysize ; y++) {
+					for(x = 0 ; x < itemsStash[i].xsize ; x++) {
+						_stashspace[y+itemsStash[i].y][x+itemsStash[i].x] = 1;
+						totalUsedSpace++						
+					}
+				}
+			}
+		}
+	}
+	var totalFreeSpace = (48 - totalUsedSpace);	
+	return totalFreeSpace;
+}
+
+function CLTMGR_CheckMuleInventory(){
+	var x, y;
+	var _items;
+
+	_itemlist = new Array();
+	_ignorestring = _NTT_IgnoredItems.join();
+
+	_invspace = new Array(4);
+	_invspace[0] = new Array(10);
+	_invspace[1] = new Array(10);
+	_invspace[2] = new Array(10);
+	_invspace[3] = new Array(10);
+
+	for(y = 0 ; y < 4 ; y++)
+	{
+		for(x = 0 ; x < 10 ; x++)
+			_invspace[y][x] = 0;
+	}
+
+	_items = me.GetItems();
+
+	if(!_items)
+		return false;
+
+	for(var i = 0 ; i < _items.length ; i++){
+		if(_items[i].mode == 0 && _items[i].itemloc == 0){
+			if(NTConfig_Columns[_items[i].y][_items[i].x] > 0)
+				_itemlist.push(_items[i].code);
+
+			for(y = 0 ; y < _items[i].ysize ; y++){
+				for(x = 0 ; x < _items[i].xsize ; x++)
+					_invspace[y+_items[i].y][x+_items[i].x] = 1;
+			}
+		}
+	}
+
+	_freecolss = new Array(10);
+
+	for(x = 0 ; x < 10 ; x++)
+		_freecolss[x] = 0; 
+
+	for(x = 0 ; x < 10 ; x++){
+		for(y = 0 ; y < 4 ; y++){
+			if(_invspace[y][x] == 1){
+				_freecolss[x] = 1;
+				break;
+			}
+		}
+	}
+
+	_numfreecolss = 0;
+
+	for(x = 0 ; x < 10 ; x++){ 
+		if(_freecolss[x] == 0)
+			_numfreecolss++;
+	}
+
+	return _numfreecolss;
+}
+
+function CLTMGR_MuleScriptRunning(){
+	for(var i = 0; i < muleScripts.length; i++) {
+		var _script = CLC_FindScript(muleScripts[i]);		
+		if(_script && _script.running) {
+			return true;
+		}
+	}
+}				
+
+function CLTMGR_StatusSet(){
+	var status = CLC_File("Configs/"+MyRealm+"/AMS/MuleStatus/" + me.account + "_mulingstatus.txt", 0);
+	if(status == "true") {
+		return true;
+	}
+	
+	return false;
+}

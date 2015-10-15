@@ -1,0 +1,344 @@
+function NTMain(){
+
+	Include("Common/Libs/CLCommon.ntl");
+	CLC_IncludeLibs();
+	CLC_IncludeConfig();
+
+	NT_LoadConfig();
+	CLSI_LoadNIPFiles();
+
+	CLA_Initialize();
+
+	if(!CLTM_CheckAct()){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_CheckAct()");
+		return;
+	}
+	CLTMGR_TownManager();
+	if(!CLTM_TownMove("waypoint")){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_TownMove()");
+		return;
+	}
+	if(NTConfig_ClearAllCatacombs > 0){
+		if(!CLM_TakeWaypoint(32)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeWaypoint()");
+			return;
+		}
+		CLP_DoPrecast(true);
+		if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+			CLC_OpenChestsInArea();
+		}
+		if(!CLM_MoveToPresetUnit(33, NTC_UNIT_TILE, 15)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+			return;
+		}
+		if(!CLM_TakeStair(34)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+			return;
+		}
+		CLP_DoPrecast();
+		if(NTConfig_ClearAllCatacombs > 0){
+			if(NTConfig_ClearAllCatacombs == 1){
+				NTConfig_SkipRegularMonsters = false;
+				CLP_DoPrecast();
+				if(!CLA_ClearLevel()){
+					CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+				}
+			}
+			if(NTConfig_ClearAllCatacombs == 2){
+				NTConfig_SkipRegularMonsters = true;
+				CLP_DoPrecast();
+				if(!CLA_ClearLevel()){
+					CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+				}
+			}
+		}
+		if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+			CLC_OpenChestsInArea();
+		}
+		if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_TILE, 18)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+			return;
+		}
+		if(!CLM_TakeStair(35)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+			return;
+		}
+		CLP_DoPrecast();
+		if(NTConfig_ClearAllCatacombs > 0){
+			if(NTConfig_ClearAllCatacombs == 1){
+				NTConfig_SkipRegularMonsters = false;
+				CLP_DoPrecast();
+				if(!CLA_ClearLevel()){
+					CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+				}
+			}
+			if(NTConfig_ClearAllCatacombs == 2){
+				NTConfig_SkipRegularMonsters = true;
+				CLP_DoPrecast();
+				if(!CLA_ClearLevel()){
+					CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+				}
+			}
+		}
+		if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+			CLC_OpenChestsInArea();
+		}
+		if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_TILE, 18)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+			return;
+		}
+		if(!CLM_TakeStair(36)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+			return;
+		}
+		CLP_DoPrecast();
+		if(NTConfig_ClearAllCatacombs > 0){
+			if(NTConfig_ClearAllCatacombs == 1){
+				NTConfig_SkipRegularMonsters = false;
+				CLP_DoPrecast();
+				if(!CLA_ClearLevel()){
+					CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+				}
+			}
+			if(NTConfig_ClearAllCatacombs == 2){
+				NTConfig_SkipRegularMonsters = true;
+				CLP_DoPrecast();
+				if(!CLA_ClearLevel()){
+					CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+				}
+			}
+		}
+		if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+			CLC_OpenChestsInArea();
+		}
+		if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_TILE, 18)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+			return;
+		}
+		if(!CLM_TakeStair(37)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+			return;
+		}
+		CLP_DoPrecast(true);
+		if(me.classid == NTC_CHAR_CLASS_SORCERESS){
+			DetermineAndyDeathStyleRightMeow();
+		}
+		else{
+			if(!CLM_MoveTo(me.areaid, 22532, 9553)){ // left wall
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+				return;
+			}
+			if(!CLA_KillMonster(156)){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLA_KillMonster()");
+				return;
+			}
+		}
+		CLC_PingDelay(200);
+		CLSI_PickItems();
+		if(NTConfig_ClearAndarielThrone){
+			var _attackpos = [22570, 9584, 22546, 9593, 22518, 9587, 22558, 9556, 22552, 9515, 22540, 9537, 22542, 9554, 22548, 9580];
+			for(var i = 0 ; i < _attackpos.length ; i += 2){
+				CLM_MoveTo(me.areaid, _attackpos[i], _attackpos[i+1]);
+				CLA_ClearPosition(30, 0x04);
+				CLA_ClearPosition(30);
+				CLSI_PickItems();
+			}
+			CLT_CleanPotions();
+		}
+		if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+			CLC_OpenChestsInArea();
+		}
+		if(NTConfig_ClearAllCatacombs > 0){
+			if(NTConfig_ClearAllCatacombs == 1){
+				NTConfig_SkipRegularMonsters = false;
+				CLP_DoPrecast();
+				if(!CLA_ClearLevel()){
+					CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+				}
+			}
+			if(NTConfig_ClearAllCatacombs == 2){
+				NTConfig_SkipRegularMonsters = true;
+				CLP_DoPrecast();
+				if(!CLA_ClearLevel()){
+					CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+				}
+			}
+		}
+	}
+	else{
+		if(!CLM_TakeWaypoint(35)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeWaypoint()");
+			return;
+		}
+		CLP_DoPrecast(true);
+		for(var i = 0 ; i < 2 ; i++){
+			if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+				CLC_OpenChestsInArea();
+			}
+			if(!CLM_MoveToStair(me.areaid, 36+i)){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToStair()");
+				return;
+			}
+			if(!CLM_TakeStair(36+i)){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+				return;
+			}
+		}
+		CLP_DoPrecast(true);
+		if(me.classid == NTC_CHAR_CLASS_SORCERESS){
+			DetermineAndyDeathStyleRightMeow();
+		}
+		else{
+			if(!CLM_MoveTo(me.areaid, 22532, 9553)){ // left wall
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+				return;
+			}
+			if(!CLA_KillMonster(156)){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLA_KillMonster()");
+				return;
+			}
+		}
+		CLC_PingDelay(200);
+		CLSI_PickItems();
+		if(NTConfig_ClearAndarielThrone){
+			var _attackpos = [22570, 9584, 22546, 9593, 22518, 9587, 22558, 9556, 22552, 9515, 22540, 9537, 22542, 9554, 22548, 9580];
+			for(var i = 0 ; i < _attackpos.length ; i += 2){
+				CLM_MoveTo(me.areaid, _attackpos[i], _attackpos[i+1]);
+				CLA_ClearPosition(30, 0x04);
+				CLA_ClearPosition(30);
+				CLSI_PickItems();
+			}
+			CLT_CleanPotions();
+		}
+		if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+			CLC_OpenChestsInArea();
+		}
+	}
+	CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+}
+
+function DetermineAndyDeathStyleRightMeow()
+{
+    switch (NTConfig_PositionAndy)
+    {
+		case 0: // right wall
+			if(!CLM_MoveTo(me.areaid, 22563, 9556)){ //right wall
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+				return;
+			}
+			if(!CLA_KillMonster(156)){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLA_KillMonster()");
+				return;
+			}
+			break;
+
+		case 1: // left wall
+			if(!CLM_MoveTo(me.areaid, 22532, 9553)){ // left wall
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+				return;
+			}
+			if(!CLA_KillMonster(156)){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLA_KillMonster()");
+				return;
+			}
+			break;
+
+		case 2: // veeery close to her
+			if(!CLM_MoveTo(me.areaid, 22547, 9547)){ // left wall
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+				return;
+			}
+			if(!CLA_KillMonster(156)){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLA_KillMonster()");
+				return;
+			}
+			break;
+
+		case 3: // "dance" left/right in case she's coming close
+			if(!CLM_MoveTo(me.areaid, 22561, 9555)){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+				return;
+			}
+			if (!MyAnd_KillAndariel2())
+				return "MyAnd_KillAndariel2()";
+			break;
+
+		case 4: // don't trigger her
+			if(!CLM_MoveTo(me.areaid, 22566, 9587)){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+				return;
+			}
+			CLA_ClearPosition(22);
+			if (me.x != 22566 || me.y != 9587)
+				CLM_MoveTo(me.areaid, 22562, 9583);
+			if (!MyAnd_KillAndariel3())
+				return "MyAnd_KillAndariel3()";
+			break;
+	}
+	return;
+}
+
+function MyAnd_KillAndariel2()
+{
+    var _iAttack, _targetHp;
+    var _target = CLC_FindUnit(NTC_UNIT_MONSTER, 156, 5);
+    if (!_target)
+        return false;
+    _iAttack  = 0;
+    _targetHp = _target.hp;
+    while (_target.hp > 0 && _target.mode != 0 && _target.mode != 12) {
+        CLC_CastSkill(NTConfig_AttackSkill[1], NTC_HAND_RIGHT, _target);
+        while (_target.hp > 0 && _target.mode != 0 && _target.mode != 12 && me.GetSkillStatus(NTConfig_AttackSkill[1]) == 8){
+            if (GetDistance(me, _target) <= 10)
+                CLM_MoveTo(me.areaid, (me.x > 22548) ? 22534 : 22561, 9555);
+			if (me.GetSkillStatus(NTConfig_AttackSkill[2]) != 8)
+				CLC_CastSkill(NTConfig_AttackSkill[2], NTC_HAND_LEFT, _target);
+			else
+				Delay(NTC_DELAY_FRAME);
+        }
+        if (GetDistance(me, _target) <= 10)
+            CLM_MoveTo(me.areaid, (me.x > 22548) ? 22534 : 22561, 9555);
+        if ((++_iAttack % 7) == 0) {
+            if (_target.hp < _targetHp)
+                _targetHp = _target.hp;
+            else
+                return false;
+        }
+    }
+    return true;
+}
+
+function MyAnd_KillAndariel3()
+{
+    var _iAttack, _targetHp, _preX, _preY;
+    var _target = CLC_FindUnit(NTC_UNIT_MONSTER, 156, 5);
+    if (!_target)
+        return false;
+    _iAttack  = 0;
+    _targetHp = _target.hp;
+    while (_target.hp > 0 && _target.mode != 0 && _target.mode != 12) {
+        CLC_CastSkill(NTConfig_AttackSkill[1], NTC_HAND_RIGHT, _target);
+        if (GetDistance(me, _target) <= 30) {
+            while (_target.hp > 0 && _target.mode != 0 && _target.mode != 12 && me.GetSkillStatus(NTConfig_AttackSkill[1]) == 8)
+                CLC_CastSkill(NTConfig_AttackSkill[2], NTC_HAND_LEFT, _target);
+        }
+        else {
+            while (_target.hp > 0 && _target.mode != 0 && _target.mode != 12 && me.GetSkillStatus(NTConfig_AttackSkill[1]) == 8)
+                Delay(NTC_DELAY_FRAME);
+        }
+        if (GetDistance(me, _target) > 23) {
+            _preX = me.x;
+            _preY = me.y;
+            if (CLA_ClearPosition(18))
+                CLM_MoveTo(me.areaid, _preX, _preY);
+        }
+        if ((++_iAttack % 4) == 0) {
+            if (_target.hp < _targetHp)
+                _targetHp = _target.hp;
+            else
+                CLM_MoveTo(me.areaid, me.x - 4, me.y - 4);
+        }
+    }
+    CLM_MoveTo(_target.areaid, _target.x, _target.y + 15);
+    return true;
+}

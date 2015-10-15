@@ -1,0 +1,1397 @@
+//////////////////////////////////
+//    Chanter script by Ned     //
+//          Version 2           //
+//////////////////////////////////
+
+var _waypy = [3, 4, 5, 6, 27, 29, 32, 35, 48, 42, 57, 43, 44, 52, 74, 46, 76, 77, 78, 79, 80, 81, 83, 101, 106, 107, 111, 112, 113, 115, 123, 117, 118, 129];
+var _waypx = ["cold", "stony", "dark", "black", "outer", "jail", "inner", "cat", "sewer", "dry", "halls", "far", "lost", "palace", "arcane", "canyon", "spider", "great", "flayer", "lower", "kurast", "upper", "travincal", "durance", "city", "river", "frigid", "arreat", "cryst", "glacial", "pain", "frozen", "ancient", "world"];
+var busy = true;
+const _ENCHANT_RANGE = 25;
+var timex = Math.round(GetTickCount() / 1000);
+var gameEnding = false;
+
+function NTMain()
+{
+
+	Include("Common/Libs/CLCommon.ntl");
+	CLC_IncludeLibs();
+	CLC_IncludeConfig();
+	
+	NT_LoadConfig();
+	CLSI_LoadNIPFiles();
+	
+	CLA_Initialize();
+	
+	RegisterEvent(EVENT_GAMEMSG, CH_GameMsgEvents);
+	
+	Print(COLOR_1 + "Chanter Script Started");
+	var rectime = 120+(CLC_GetSkillLevel(52)*24);
+	Print("Suggested maxgametime = " + rectime);
+	
+	if(me.areaid != NTConfig_ChantLocation){CLTM_CheckAct();}
+	
+	CH_CheckMyLocation();
+
+	CH_MyLocation();
+
+	while (me.ingame) {
+		CH_DoEnchant();
+		Delay(998);
+		EndingGame();
+		if(!busy && NTConfig_DisplayTime && me.areaid == NTConfig_ChantLocation){Say("!" + CH_Time());}
+	}
+
+
+	CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+}
+
+function CH_GameMsgEvents(msg, type){
+
+   	if(type == 4 && (msg.indexOf("stronger") != -1))
+		{	
+			Say("/m " + msg.split("(")[0] + " I'm at " + GetArea(NTConfig_ChantLocation).name + " to get chant");
+			Say("/m " + msg.split("(")[0] + " My commands : commands : chant : timeleft : wp " + "\"" + "name" + "\"" + " : makecows");
+			Say("/m " + msg.split("(")[0] + " Rush commands : .andariel .cube .amulet .diablo .duriel .ancients");
+		}
+	
+	if(type == 4 && (msg.indexOf("slain") != -1))
+		{	Say("A moments silence for the fallen hero");}
+	
+	if(msg.indexOf(me.name) != -1 || type != 0 )// eliminates useless msg's
+		{return;}
+	
+	if((msg.indexOf("timeleft") != -1))
+		{Say(CH_Time());return}
+			
+	if((msg.indexOf("commands") != -1))
+		{
+			Say("My commands : commands : chant : timeleft : wp " + "\"" + "name" + "\"" + " : makecows");
+		}
+
+	if((msg.indexOf("chant") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true; CH_Chant(msg); busy = false; return;
+			}
+			
+	if((msg.indexOf("wp") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_MakeWpTp(msg);busy = false; return;
+			}
+		
+	if((msg.indexOf(".makecows") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_MakeCows(msg); busy = false; return;
+			}
+	
+		if((msg.indexOf(".and") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_AndarielQuest(msg);return;
+			}
+			
+	if((msg.indexOf(".cube") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_CubeQuest(msg);
+			}
+			
+	if((msg.indexOf(".amulet") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_AmuletQuest(msg);
+			}
+			
+	if((msg.indexOf(".staff") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_StaffQuest(msg);
+			}
+			
+	if((msg.indexOf(".summoner") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_SumonerQuest(msg);
+			}
+		
+	if((msg.indexOf(".duriel") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_DurielQuest(msg);
+			}
+			
+	if((msg.indexOf(".travincal") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_TravQuest(msg);
+			}
+
+	if((msg.indexOf(".mephisto") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_MephistoQuest(msg);return;
+			}
+
+	if((msg.indexOf(".izual") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_IzualQuest(msg);return;
+			}
+
+	if((msg.indexOf(".diablo") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_DiabloQuest(msg);return;
+			}
+
+	if((msg.indexOf(".shenk") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_ShenkQuest(msg);return;
+			}
+	
+	if((msg.indexOf(".anya") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_Anya(msg);return;
+			}
+	
+	if((msg.indexOf(".ancients") != -1))
+			{	if(busy){ Say("Busy - retry in a moment"); return;}
+				busy = true;CH_AncientsQuest(msg);return;
+			}
+
+	return;
+}
+
+function CH_CheckMyLocation()
+{
+	switch(NTConfig_ChantLocation)
+			{
+			case 1:
+			case 40:
+			case 75:
+			case 103:
+			case 109:Print("Invalid location set - setting to 35")
+					NTConfig_ChantLocation = 35
+					break;
+			}
+	return;
+}
+
+function CH_MyLocation()
+{
+	if(CLTMGR_CheckScrolls(1) < 8){CLTM_CheckAct();CLTMGR_TownManager();}
+	if(me.areaid == NTConfig_ChantLocation){busy = false; return;}
+	if(me.areaid == 1 || me.areaid == 40 || me.areaid == 75 || me.areaid == 103 || me.areaid == 109)
+		{CLTMGR_TownManager(); CLTM_TownMove("waypoint");}
+	if(NTConfig_ChantLocation == 2)
+		{
+		if(me.areaid != 1){CLM_TakeWaypoint(1);}
+		CLTMGR_TownManager();
+		CLTM_TownMove("exit");
+		CLTM_OutOfAct1();
+		busy = false;
+		return;
+		}
+
+	CLM_TakeWaypoint(NTConfig_ChantLocation);
+	if(me.areaid != NTConfig_ChantLocation){CLTM_CheckAct();return CH_MyLocation();}
+	CLM_MoveTo(me.areaid, me.x-5, me.y-5);
+	var xx = me.x, yy = me.y
+	CLA_ClearPosition(40, false);
+	CLM_MoveTo(me.areaid, xx, yy);
+	busy = false;
+	return;
+}
+
+function CH_GetPlayer(msg)
+{
+	var _player = GetPlayerUnit();
+
+		while(_player.GetNext())
+			{	
+				if(msg.indexOf(_player.name) != -1)
+					{return _player;}
+		}
+
+	return;
+}
+
+	
+function CH_MakeWpTp(msg)
+{
+		_playerx =	CH_GetPlayer(msg);
+		if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+
+		msg = msg.split(":")[1];
+		
+		for(var i = 0 ; i < _waypx.length ; i++)
+			{	if(msg.indexOf(_waypx[i]) != -1)
+					{
+						Say( "Creating portal at " + GetArea(_waypy[i]).name);
+						if(me.areaid == 2)
+							{
+								CLTM_CheckAct();
+								CLTMGR_TownManager();
+								CLTM_TownMove("waypoint");
+							}
+						CLM_TakeWaypoint(_waypy[i]);
+						CLM_MoveTo(me.areaid, me.x-5, me.y-5);
+						CLM_MakeTP();
+						Say("Portal at " + GetArea(_waypy[i]).name + " for " + _playerx.name);
+
+						Delay(2000);
+						return CH_MyLocation();
+					}
+			}
+
+	return CH_MyLocation();
+}
+
+function CH_Chant(msg)
+{
+	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	
+	if((_playerx.areaid) != me.areaid)
+		{
+			Say(_playerx.name +" Git YO ASS to " + GetArea(NTConfig_ChantLocation).name + " to get chant")
+			Say("If you dont have waypoint ask for portal eg. wp cat")
+			return;
+		}
+	if (CLC_InTown())
+			{Say("Cant chant in town");return;}
+	
+    var _iEnchant;
+    var _unit;
+
+    _unit = CLC_FindUnit(NTC_UNIT_PLAYER);
+    if (_unit)
+    {
+        do
+        {
+            if (_unit.name != me.name && _unit.name == _playerx.name && GetDistance(me, _unit) < _ENCHANT_RANGE && _unit.mode != 0)
+            {
+				CLP_DoPrecastCTA(true);
+ 				CLC_CastSkill(52, NTC_HAND_RIGHT, _unit);
+
+            }
+        } while (_unit.GetNext());
+    }
+
+    _unit = CLC_FindUnit(NTC_UNIT_MERC);
+    if (_unit)
+    {
+        do
+        {	_parent = _unit.GetParent();
+			if(_parent)
+				{
+				if (GetDistance(me, _unit) < _ENCHANT_RANGE && CLC_InMyParty(_parent.name) && _parent.name != me.name  && _unit.mode != 0)
+                CLC_CastSkill(52, NTC_HAND_RIGHT, _unit);
+				}
+        } while (_unit.GetNext());
+    }
+	busy = false;
+	return;
+}
+
+function CH_DoEnchant()
+{
+	if (CLC_InTown())
+			return;
+	
+	var _iEnchant, _unit, _parent;
+    _unit = CLC_FindUnit(NTC_UNIT_PLAYER);
+    if (_unit)
+    {
+        do
+        {
+            if (_unit.name != me.name && GetDistance(me, _unit) < _ENCHANT_RANGE && CLC_InMyParty(_unit.name) && _unit.mode != 0)
+            {
+ 
+                if (!_unit.GetState(16))
+					{
+					CLP_DoPrecast(true);
+					CLC_CastSkill(52, NTC_HAND_RIGHT, _unit);
+
+					}
+            }
+        } while (_unit.GetNext());
+    }
+
+    _unit = CLC_FindUnit(NTC_UNIT_MERC);
+    if (_unit)
+    {
+        do
+        {	_parent = _unit.GetParent();
+			if(_parent)
+				{
+				if (GetDistance(me, _unit) < _ENCHANT_RANGE && !_unit.GetState(16) && CLC_InMyParty(_parent.name) && _unit.mode != 0)
+                CLC_CastSkill(52, NTC_HAND_RIGHT, _unit);
+				}
+        } while (_unit.GetNext());
+    }
+}
+
+function CH_Time()
+{
+	if(me.maxgametime == 0){
+		Say("Indefinite");
+		Print("Maxgametime set to 0")
+		return;
+	}
+	_countInGame = Math.round(GetTickCount() / 1000) - timex
+	timermin = Math.floor((me.maxgametime - Math.floor((GetTickCount() / 1000)-timex))/60, 0)
+	timersec = (me.maxgametime - Math.floor((GetTickCount() / 1000)-timex))-(timermin*60)
+	timemsg = ("Time left " + timermin + " mins " + timersec + " secs")
+		
+	return timemsg;
+
+}
+
+function CH_QuesterCheck()
+{
+		_player = GetPlayerUnit();
+		while(_player.GetNext()){
+			if(_player.areaid == me.areaid)
+				{return true;}
+				}
+		return false;		
+		
+}
+
+function CH_WaitForQuestor()
+{
+	var timerstart; var timerend
+	timerstart = Math.round(GetTickCount() / 1000);
+	while(!CH_QuesterCheck())
+	{		
+		CH_Guard(20);
+		Delay(350)
+		timerend = Math.round(GetTickCount() / 1000);
+		if(timerend > timerstart + NTConfig_PortalWait){return false;}
+	}
+
+	return true;
+}
+
+function CH_MakeCows(msg)
+{
+	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+
+	Say("Request to make cow portal accepted - on my way");
+	if(me.areaid == 2){CLTM_CheckAct();CLTM_TownMove("waypoint");}
+	
+	var _wirtbody, _cube, _leg, _portal, _stash, _items, i, _npc, prearea;
+	for (i = 0; i < 10; i++){//need to add a check for leg with me.getitems also
+		_leg = CLC_FindUnit(NTC_UNIT_ITEM, 88);
+		if (_leg)
+		break;
+	}
+	//Checks If you already have the leg
+	_items = me.GetItems();
+	for (i = 0; i < _items.length;i++){
+		if (_items[i].classid == 88) {
+			Print (COLOR_4 + "Already Got Leg");
+			_leg = _items[i];
+		}
+	}
+	if (!_leg){
+		_leg = CH_GetWirtsLeg();
+			if(!_leg){
+				Say(COLOR_1 + "Leg already taken cannot make cows");
+				CLTM_CheckAct();
+				CH_MyLocation();
+				return;
+			}
+		}
+	else{
+		CLM_TakeWaypoint(1);
+	}
+	if(CH_AlreadyTombs()){	
+
+		CLTM_TownMove("akara");
+		for(var i = 0 ; i < 10 ; i++){
+			_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_AKARA);
+			if(_npc)
+			break;
+		}
+		if(_npc){	
+			if(CLT_DoInteract(_npc)){
+				if(CLT_DoTrade(_npc)){
+					_NTR_DoID = CLT_CheckUnids();
+					if(_NTR_DoID)
+					CLTMGR_IDItems(_npc);
+					CLT_FillTome(_npc, 1);
+					CLT_FillTome(_npc, 0);
+					CH_SecondTomeTP(_npc, "tbk", 1);
+					_portal = CH_GetTP();
+					if(!_portal){
+						Say("No extra tome of townportal found.");
+						CLTM_CheckAct();
+						CH_MyLocation();
+						return;
+					}
+				}
+			}
+			me.Cancel(1);
+		}
+	}
+	else
+	_portal = CH_GetTP();
+	CLTM_TownMove("stash");
+	for(var i = 0 ; i < 10 ; i++){
+		_stash = CLC_FindUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH);
+		if(_stash)
+		break;
+	}
+	if(_stash){
+		if(CLM_GetCloserInt(_stash)){
+			if(CLT_DoInteract(_stash)){
+				_items = me.GetItems(NTC_UNIT_CUBE);
+				_cube = _items[0];
+				if(!_cube){
+					Say("No cube found.");
+					CLTM_CheckAct();
+					CH_MyLocation();
+					return;
+				}
+				if(CLCU_CheckCubeInventoryInt() > 0){	
+					CLCU_OpenCubeInt(_cube)
+					if(CLCU_ClearCubeInt() < 1){
+						Say("Cube cannot be emptied.");
+						CLTM_CheckAct();
+						CH_MyLocation();
+						return;
+					}
+					CLCU_CloseCubeInt();
+				}
+				CLCU_MoveItemToCubeInt(_cube,_leg)
+				CLCU_MoveItemToCubeInt(_cube,_portal)
+				CLCU_OpenCubeInt(_cube);
+				if(Transmute()){ 
+					CLC_PingDelay(NTConfig_CubingDelaysCows);
+					CLCU_CloseCubeInt();
+					CLC_PingDelay(NTConfig_CubingDelaysCows);
+					CLC_CancelMenus();// added this for testing
+					CLC_PingDelay(parseInt((NTConfig_CubingDelaysCows / 2), 10));
+				}
+				else{
+					CLC_PingDelay(NTConfig_CubingDelaysCows);
+					CLCU_CloseCubeInt();
+					CLC_PingDelay(NTConfig_CubingDelaysCows);
+					CLC_CancelMenus();// added this for testing
+					CLC_PingDelay(parseInt((NTConfig_CubingDelaysCows / 2), 10));
+				}
+			}
+		}
+	}
+
+	CH_MyLocation();
+	
+	return;
+}
+
+function CH_GetWirtsLeg()
+{
+		var _wirtbody, _leg;
+		CLM_TakeWaypoint(4);
+		
+		CLP_DoPrecast(true);
+		if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_MONSTER, 737, 10, 10)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+			return;
+		}
+		
+		if(CLTMGR_CheckSafe(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe)){
+				CLTMGR_VisitTown();
+			}
+		if(CLA_KillMonster(GetLocaleString(2872))){	
+				CLA_ClearPosition();
+			}
+
+		if(!CLM_UsePortal("Portal", 38)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_UsePortal()");
+			return;
+		}
+
+		CLM_MoveTo(me.areaid, 25047, 5178);
+		
+		CLA_ClearPosition(10, false);
+		
+		_wirtbody = CLC_FindUnit(NTC_UNIT_OBJECT, 268);
+		if(!_wirtbody){
+			CLC_SendMsgToScript("CScriptControl.ntj", "Wirt's body not found.");
+			CLTM_CheckAct();
+			CH_MyLocation();
+			return;
+		}
+		if(CLM_MoveTo(_wirtbody.areaid, _wirtbody.x+3, _wirtbody.y)){	
+			if(CLC_OpenChest(_wirtbody)){
+				CLC_PingDelay(500);
+				for (i = 0; i < 10; i++){
+					_leg = CLC_FindUnit(NTC_UNIT_ITEM, 88);
+					if (_leg)
+					break;
+				}
+				if(!CLT_CheckSpace(_leg.xsize, _leg.ysize)){
+					_prearea = me.areaid	
+					if(CLTM_CheckAct()){
+						CLTMGR_TownManager(true);
+						CLTM_TownMove("portalspot")
+						CLM_UsePortal("BluePortal", _prearea)
+					}
+				}
+				for (i = 0; i < 20; i++){	
+					if ((i % 5) == 0){
+						if (_leg.mode == 3 || _leg.mode == 5){
+							if (CLC_ClearCursor())
+							CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _leg);
+						}
+					}
+					CLC_PingDelay(100);
+					if (_leg.mode != 3 && _leg.mode != 5){
+						Print(COLOR_4 + "Got Leg");
+						CLC_PingDelay(200);
+						break;
+					}
+				}
+			}
+		}
+		if(!_leg){
+			Say("Wirts leg has been taken.");
+
+			return;
+		}
+		
+	CLTM_CheckAct();
+
+	return _leg;
+}
+
+function CH_SecondTomeTP(npc, type, amount)
+{
+   var _items;
+   var _counter = 0;
+
+   if(arguments.length < 1)
+      return false;
+   if(arguments.length < 2)
+      type = 0;
+   if(arguments.length < 0)
+      amount = 1;
+   if(amount == 0)
+      return false;
+   if(type)
+      _items = npc.GetItems("tbk");
+   if(_items)
+   {
+      if(_items.length > 0)
+      {
+         for(var i = 0 ; i < amount ; i++)
+         {
+            if(CLT_ShopItem(_items[0], npc, 2))
+               _counter++;
+         }
+      }
+   }
+   return (_counter > 0);
+}
+
+function CH_GetTP()
+{
+	var _portals = me.GetItems("tbk");
+	if (_portals){
+		for (var i = 0; i < _portals.length; i++){
+			if (_portals[i].mode == 0 && (_portals[i].itemloc != 0 || NTConfig_Columns[_portals[i].y][_portals[i].x] > 0)){
+				return _portals[i];
+			}
+		}
+	}
+	return false;
+}
+
+function CH_AlreadyTombs()
+{
+	var portalbook = me.GetItems("tbk");
+	if(portalbook && portalbook.length <= 1)
+		return true;
+
+	return false;
+}
+
+function CH_Guard(range){
+	var posx = me.x, posy = me.y
+	CLA_ClearPosition(range);
+	CLM_MoveTo(me.areaid, posx, posy);
+	return;
+}
+
+function EndingGame(){
+
+	if(me.maxgametime == 0)
+		return;
+
+	if((Math.round(GetTickCount() / 1000) - timex) > me.maxgametime -30 && gameEnding == false){
+		Say("Game ending in 30 seconds");
+		Say("Create next game if you need a Quest, I will attempt to join");
+		gameEnding = true;
+	}
+}
+
+function CH_MonsterRanged(area, monsterid, range)
+{
+	var _monst = GetPresetUnits(area, NTC_UNIT_MONSTER, monsterid);
+	if(_monst.length < 1){Print("Error finding Monster");CLTM_CheckAct();return false;}
+	var posx = _monst[0].roomx*5+_monst[0].x;
+	var posy = _monst[0].roomy*5+_monst[0].y;
+	var dis = GetDistance(me.x, me.y, posx, posy)
+	if(dis < 65 ){CLA_KillMonster(monsterid);CLA_ClearPosition(30, true);return true;}
+	var _pathb = GetPath(area, posx, posy, me.x, me.y, true);
+	if(!_pathb){Print("Error finding Monster");CLTM_CheckAct();return false;}
+			
+	for(i = _pathb.length-1 ; i > -1 ; i--)
+		{
+			var dis = GetDistance(_pathb[i][0], _pathb[i][1], posx, posy)
+			if(dis < 65){Print("Distance = " + dis);break;}
+		}			
+
+	CLP_DoPrecast();
+	CLM_MoveTo(me.areaid, _pathb[i][0], _pathb[i][1]);
+	CH_Guard(20);
+	return true;
+}
+
+function CH_AndarielQuest(msg)
+{
+	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request to kill Andariel accepted - on my way")
+	if(me.areaid == 2){CH_AreaTwo(35);}
+	if(me.areaid != 35){CLM_TakeWaypoint(35);}
+	CLP_DoPrecast(true);
+		
+	for(var i = 0 ; i < 2 ; i++)
+	{
+		if(!CLM_MoveToStair(me.areaid, 36+i))
+		{
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToStair()");
+			return;
+		}
+
+		if(!CLM_TakeStair(36+i))
+		{
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+			return;
+		}
+	}
+			
+		CLC_PingDelay(100);
+		var xx = me.x; var yy = me.y
+		
+		var _clearpos = [22593, 9639, 22594, 9618, 22594, 9618];
+		
+		for(i = 0; i < _clearpos.length; i+=2)
+		{
+			if(!CLM_MoveTo(me.areaid, _clearpos[i], _clearpos[i+1]))
+			{
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+				return;
+			}	
+			CLA_ClearPosition(20, false);
+				CLC_PingDelay(200);
+		}
+
+		CLM_MoveTo(me.areaid, xx, yy);
+					
+		CLM_MakeTP();
+		Say(_playerx.name + " use my TP now for Andariel");
+
+		if(!CH_WaitForQuestor())
+			{Say("Your too damn slow - returning to chanting"); CLM_UsePortal("BluePortal", 1, me.name); CH_MyLocation();return;}
+		
+		CLP_DoPrecast(true);
+		
+		CLA_KillMonster(156);
+	
+		Say("Andariel has been killed - returning to chanting");
+		CLM_MoveTo(me.areaid, xx, yy);
+		CLM_UsePortal("BluePortal", 1, me.name);
+		CH_MyLocation();
+	return;
+}
+
+function CH_CubeQuest(msg)
+{
+	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request to get Cube accepted - on my way")
+	
+		CLM_TakeWaypoint(57);
+
+		CLP_DoPrecast();
+	
+		CLM_MoveToStair(me.areaid, 60);
+
+		CLM_TakeStair(60);
+
+		CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 354, -5, -5);
+
+		var posx = me.x
+		var posy = me.y
+
+		CLA_ClearPosition(30, false);
+		CLM_MoveTo(me.areaid, posx, posy);
+		CLM_MakeTP();
+		Say(_playerx.name + " use my TP to get Cube");
+
+		Delay(2000);
+	Say("Returning to chanting")	
+	CLM_UsePortal("BluePortal", 40, me.name);
+	CH_MyLocation();
+	
+	return;
+}
+
+function CH_StaffQuest(msg)
+{
+	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request to get Staff accepted - on my way")
+	if(me.areaid == 2){CLTM_CheckAct();CLTM_TownMove("waypoint");}
+	
+		CLM_TakeWaypoint(43);
+
+		CLP_DoPrecast(true);
+		
+		for(i=0; i<3; i++)
+		{		
+			if(!CLM_MoveToStair(me.areaid, 62+i))
+			{ 
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToStair()"); 
+				return; 
+			} 
+
+			if(!CLM_TakeStair(62+i)) 
+			{ 
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()"); 
+				return; 
+			} 
+		}
+
+		CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 356);
+
+		CLA_ClearPosition(25, false);
+
+		CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 356, -5, -5);
+
+		Delay(3000);
+
+		CLM_MakeTP();
+		Say(_playerx.name + " use my TP now for staff")
+
+		Delay(2000)
+	Say("Returning to chanting")
+	CLM_UsePortal("BluePortal", 40, me.name);
+	CH_MyLocation();
+	
+	return;
+}
+
+function CH_AmuletQuest(msg)
+{	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request to get Amulet accepted - on my way")
+	if(me.areaid == 2){CLTM_CheckAct();CLTM_TownMove("waypoint");}
+	
+		!CLM_TakeWaypoint(44);
+
+		CLP_DoPrecast(true);		
+			
+		CLM_MoveToStair(45, 58);
+
+		CLM_TakeStair(58);
+			
+		CLM_MoveToStair(me.areaid, 61); 
+
+		CLM_TakeStair(61)
+		
+		CLA_ClearLevel();
+		
+		CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 149, +4, -8);
+
+		CLM_MakeTP();
+		Say(_playerx.name + " use my TP now for Amulet")
+
+		Delay(2000);
+
+	Say("Remember to talk to Drognan - returning to chanting")
+	Delay(1000);
+	CLM_UsePortal("BluePortal", 40, me.name);
+	CH_MyLocation();
+	
+	return;
+}
+
+function CH_SumonerQuest(msg)
+{	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request to do Sumoner accepted - on my way")
+
+	CLM_TakeWaypoint(74);
+
+	CLP_DoPrecast(true);
+		
+	var _unit = GetPresetUnits(me.areaid, 2);
+		
+	for(i=0;i < _unit.length; i++)
+		{
+		if(_unit[i].id == 357)
+			{
+				var _journalx = _unit[i].roomx*5+_unit[i].x;
+				var	_journaly = _unit[i].roomy*5+_unit[i].y;
+			}
+		}
+
+	if(_journalx < 25300)
+			CLM_MoveTo(me.areaid, _journalx+55, _journaly);
+	if(_journaly < 5300)
+			CLM_MoveTo(me.areaid, _journalx+15, _journaly+55);
+	if(_journalx > 25500)
+			CLM_MoveTo(me.areaid, _journalx-40, _journaly+15);
+	if(_journaly > 5500)
+		CLM_MoveTo(me.areaid, _journalx+15, _journaly-40);
+
+		var posx = me.x
+	var posy = me.y
+
+	for(i=0; i<5; i++){	CH_Guard(20);}
+
+	CLM_MakeTP();
+		
+	Say("Come Now for Sumoner")
+
+	if(!CH_WaitForQuestor())
+		{Say("Your too damn slow - returning to chanting"); CLM_UsePortal("BluePortal", 40, me.name); CH_MyLocation();return}
+					
+	CLA_ClearPosition(30, false);	
+		
+	CLM_MoveToPresetUnit(me.areaid, 2, 357, 0, 0, true);
+
+	CLM_MoveToPresetUnit(me.areaid, 2, 357, +10, +10);
+		
+	Say("READ JOURNAL then talk to Cain - returning to chanting");
+	Delay(2000);
+	CLTM_CheckAct();
+	CH_MyLocation();
+	
+	return;
+}
+
+function CH_DurielQuest(msg)
+{	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request to kill Duriel accepted - on my way")
+	if(me.areaid == 2){CH_AreaTwo(46);}
+	if(me.areaid != 46){CLM_TakeWaypoint(46);}
+
+	CLP_DoPrecast(true);
+		
+	_tombs = GetRoom();
+
+	if(!_tombs)
+		{
+			CLC_SendMsgToScript("CScriptControl.ntj", "GetRoom()");
+			return;
+		}
+
+	CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_TILE, _tombs.correcttomb-28)
+
+	_tileunit = CLC_FindUnit(NTC_UNIT_TILE, _tombs.correcttomb-28);
+
+	if(!_tileunit)
+		{
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLC_FindUnit()");
+			return;
+		}
+
+	CLM_TakeStair(_tileunit.subareaid)
+
+	CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 152, -2, 2)
+	var xx = me.x; var yy = me.y
+		
+	CLA_ClearPosition(30, false);
+					
+	CLC_Delay(150);
+	CLM_MoveTo(me.areaid, xx, yy);
+		
+	CLM_MakeTP();
+
+	Say(_playerx.name + " bring Completed Staff for Duriel Quest")
+
+	if(!CH_WaitForQuestor())
+		{Say("Your too damn slow - returning to chanting"); CLM_UsePortal("BluePortal", 40, me.name); CH_MyLocation();return}
+			
+	timerstart = Math.round(GetTickCount() / 1000);	
+		while(!CLC_FindUnit(NTC_UNIT_OBJECT, 100))
+		{
+			CLA_ClearPosition(20, false);
+			CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 152, -2, 2);
+			CLC_Delay(500);
+			timerend = Math.round(GetTickCount() / 1000);
+				if(timerend >= timerstart + 25){
+					CLM_UsePortal("BluePortal", 40, me.name); CH_MyLocation(); return;}
+		}
+
+	Delay(2000);
+
+	while(me.areaid != 73){
+		CLM_TakeUnit(NTC_UNIT_OBJECT, 100)
+		Delay(200);
+		if(me.areaid == 73) { break;}
+		}
+
+	CLA_KillMonster(211)
+								
+	Say("Go Through and talk to Tyreal - returning to chanting")
+
+	CLTM_CheckAct();
+	CH_MyLocation();
+	return;
+}
+
+
+function CH_TravQuest(msg)
+{	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request to do Council Quest accepted - on my way")
+
+	if(me.areaid == 2){CLTM_CheckAct();CLTM_TownMove("waypoint");}
+	
+	CLM_TakeWaypoint(83);
+	_posx = me.x
+	_posy = me.y
+	var trav = [28, 30, 0, 45, 0, 75, 0, 95, 23, 110, 23 ,75 , 23, 90]
+	for(p = 0; p < trav.length; p += 2)
+		{
+			CLM_MoveTo(me.areaid, _posx+trav[p], _posy-trav[p+1], 2);
+			CH_Guard(25);
+		}
+	CH_Guard(30);
+	_posx = me.x
+	_posy = me.y
+	CLM_MakeTP();
+
+	Say(_playerx.name + " use my TP now for Council quest")
+
+	var timerstart; var timerend
+	timerstart = Math.round(GetTickCount() / 1000);
+	if(!CH_WaitForQuestor())
+		{Say("Your too damn slow - returning to chanting"); CLM_UsePortal("BluePortal", 75, me.name); CH_MyLocation();return}
+	
+	var travfail = 0;
+	CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 404);
+	if(!CLA_KillMonster(GetLocaleString(2862)))
+		travfail=travfail+1;//Print("Failed on Geleb");
+	if(!CLA_KillMonster(GetLocaleString(2860)))
+		travfail=travfail+1;//Print("Failed on Toorc");
+	if(!CLA_KillMonster(GetLocaleString(2863)))
+		travfail=travfail+1;//Print("Failed on Ismail");
+	
+	CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 404);
+	CLA_ClearPosition(40);
+	
+	CLM_MoveTo(me.areaid, _posx, _posy, 0, true);
+	CH_Guard(20);
+	if(travfail == 3)
+		Say("failed quest Council already killed - returning to chanting")
+	else
+		Say("Council has been killed - returning to chanting")
+		
+	Say("Talk to Cain in Town")
+	Delay(2000);
+
+	CLM_UsePortal("BluePortal", 75, me.name);
+	CH_MyLocation();
+	
+	return;
+}
+
+function CH_MephistoQuest(msg)
+{	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+
+	Say("Request to kill Mephisto accepted - on my way")
+
+	if(me.areaid == 2){CH_AreaTwo(101);}
+	if(me.areaid != 101){CLM_TakeWaypoint(101);}
+	CLP_DoPrecast(true);
+		
+	CLM_MoveToStair(me.areaid, 102)
+
+	CLM_TakeStair(102)
+
+	CLM_MoveTo(me.areaid, 17640, 8068)
+
+	CLA_ClearPosition(40, false);
+
+	CLM_MoveTo(me.areaid, 17589, 8068)
+
+	CLM_MakeTP();
+
+	Say(_playerx.name + " use my TP now for Mephisto")
+
+	if(!CH_WaitForQuestor())
+		{Say("Your too damn slow - returning to chanting"); CLM_UsePortal("BluePortal", 75, me.name); CH_MyLocation();return}
+
+	CLA_KillMonster(242)
+		
+	CLA_ClearPosition(25, false);
+
+	Say("Use red Portal to get to Act 4")
+	Delay(500);
+	CLA_ClearPosition(40, false);
+	CLM_MoveTo(me.areaid, 17597, 8068);
+	CLA_ClearPosition(40, false);
+	CLM_MoveTo(me.areaid, 17597, 8068);
+	Delay(2000);
+	Say("Mephisto has been killed - returning to chanting")
+	CLM_TakeUnit(NTC_UNIT_OBJECT, 342);
+	CH_MyLocation();
+	
+	return;
+}
+
+function CH_IzualQuest(msg)
+{	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+
+	Say("Request to kill Izual accepted - on my way")
+	if(me.areaid == 2){CH_AreaTwo(106);}
+	if(me.areaid != 101){CLM_TakeWaypoint(106);}
+	CLP_DoPrecast(true);
+		
+	CH_MonsterRanged(105, 256, 20)			
+	CLM_MakeTP();
+
+	Say(_playerx.name + " use my TP now for Izual")	
+	posx = me.x; posy = me.y
+	
+	if(!CH_WaitForQuestor())
+		{Say("Your too damn slow - returning to chanting"); CLM_UsePortal("BluePortal", 103, me.name); CH_MyLocation();return}
+
+				
+	if(!CLA_KillMonster(256))
+		{
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLA_KillMonster()");
+			return;
+		}
+				
+	CLA_ClearPosition(20);
+	CLM_UsePortal("BluePortal", 103, me.name);
+	CH_MyLocation();
+	
+	return;
+}
+
+
+function CH_DiabloQuest(msg){
+
+	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request to kill Diablo accepted - on my way")
+	if(me.areaid == 2){CH_AreaTwo(107);}
+	if(me.areaid != 107){CLM_TakeWaypoint(107);}
+	CLP_DoPrecast(true);
+		
+	var _sanc = [7797, 5600, 7797, 5560, 7771, 5318];
+		
+	for(i = 0; i < _sanc.length; i += 2){
+		if(!CLM_MoveTo(108, _sanc[i], _sanc[i+1])){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+			return;
+		}
+			
+			CLC_PingDelay(100)
+	}
+
+	var _seal = [395, 396, 394, 393, 392];
+	var _sealboss = [2851, 2851, 2852, 2853, 2853];
+	var _clearpath;
+	
+		
+	for(f = 0; f < _seal.length; f++)
+	{
+		if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, _seal[f], 0, 0))
+		{
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+			return;
+		}
+   
+		CH_OpenSeal(_seal[f])
+		
+		if(f == 1)
+		{
+			if(me.y > 5265 && me.y <= 5275)
+				CLM_MoveTo(me.areaid, 7677, 5287, 3);
+			else
+				CLM_MoveTo(me.areaid, 7675, 5321, 3)
+		}	
+		
+	if(f == 2)
+	{
+		if(me.x > 7810 && me.x <= 7825)
+			CLM_MoveTo(me.areaid, 7777, 5160, 3);
+		else
+			CLM_MoveTo(me.areaid, 7777, 5200, 3);
+	}
+		
+	if(f != 0 && f != 3)
+	{
+		for(n = 0 ; n < 20 ; n++)
+		{
+			CLC_Delay(250);
+			if(CLC_FindUnit(NTC_UNIT_MONSTER, GetLocaleString(_sealboss[f])))
+			break;
+		}
+
+		if(CLA_KillMonster(GetLocaleString(_sealboss[f])))
+		{
+			CLSI_PickItems();
+			if(CLC_PutSkill(124, NTC_HAND_RIGHT))
+			CLC_Delay(1600);
+		}
+	}
+			
+	
+		CLSI_PickItems();
+	}
+
+
+	if(!CLM_MoveTo(me.areaid, 7767, 5253))
+		{
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+			return;
+		}
+
+			
+	CLM_MakeTP();
+	Say(_playerx.name + " use my TP now for Diablo");
+
+
+	if(!CH_WaitForQuestor())
+		{Say("Your too damn slow - returning to chanting"); CLM_UsePortal("BluePortal", 103, me.name); CH_MyLocation();return}
+
+	CLP_DoPrecast(true);
+
+
+	if(!CLM_MoveTo(me.areaid, 7788, 5288))
+	{
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+		return;
+	}
+
+	CLT_CleanPotions();
+
+	for(n = 0 ; n < 30 ; n++)
+	{
+		if(CLC_FindUnit(NTC_UNIT_MONSTER, "Diablo"))
+            break;
+		CLC_Delay(500);
+	}
+
+	CLA_KillMonster("Diablo");
+
+	if(!CLM_MoveTo(me.areaid, 7775, 5259))
+	{
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveTo()");
+		return;
+	}
+
+	Delay(2000);
+		
+	Say("Diablo has been killed - returning to chanting")
+
+	CLM_UsePortal("BluePortal", 103, me.name);
+
+	CLTM_CheckAct();
+	CH_MyLocation();
+	return;
+}
+
+
+
+function CH_OpenSeal(sealID)
+{
+	_seal = CLC_FindUnit(NTC_UNIT_OBJECT, sealID);
+	for(var i = 0 ; i < 4 ; i++)
+	{
+		if((i % 2) == 0)
+		{
+			if(GetDistance(me, _seal) > 2)
+			CLM_MoveTo(_seal.areaid, _seal.x+1, _seal.y);
+
+			CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _seal);
+		}
+
+		CLC_Delay(200);
+
+		if(_seal.mode > 0)
+		return true;
+	}
+ 	return;
+}
+
+function CH_ShenkQuest(msg)
+{
+
+	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request for Shenk accepted - on my way")
+
+	if(me.areaid == 2){CH_AreaTwo(113);}
+	if(me.areaid != 111){CLM_TakeWaypoint(111);}
+	CLP_DoPrecast(true);
+	CLM_MoveTo(110, 3853, 5147, 2);CH_Guard(20);
+	CLM_MoveTo(110, 3855, 5092, 2);CH_Guard(20);
+	CLM_MoveTo(110, 3843, 5118, 2);CH_Guard(20);
+
+	CLM_MakeTP();
+	Say("Come now for Shenk");
+
+	if(!CH_WaitForQuestor())
+		{Say("Your too damn slow - returning to chanting"); CLM_UsePortal("BluePortal", 109, me.name); CH_MyLocation();return}
+
+	CLA_KillMonster("Shenk");
+	Say("Shenk has been killed - Returning to chanting")
+
+	CLM_UsePortal("BluePortal", 109, me.name);
+	CH_MyLocation();
+	return;
+
+}
+
+function CH_Anya(msg)
+{
+	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request to Save Anya accepted - on my way")
+
+	if(me.areaid == 2){CH_AreaTwo(113);}
+	if(me.areaid != 113){CLM_TakeWaypoint(113);}
+	CLP_DoPrecast(true);	
+
+	if(!CLM_MoveToStair(me.areaid, 114))
+	{
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToObject()");
+		return;
+	}
+
+	if(!CLM_TakeStair(114))
+	{
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+		return;
+	}
+
+	if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 460, -8, -8))
+	{
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+		return;
+	}
+
+	if(CLTMGR_CheckSafe(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe)){
+			CLTMGR_VisitTown();
+	}
+		
+	CLA_ClearPosition(40, false);
+				
+	CLSI_PickItems();
+
+	var _Anya;		
+			
+	if(CLM_MoveToPresetUnit(me.areaid, 558))
+	{
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+		return;
+	}
+				
+	CLA_ClearPosition(25, false);
+				
+	CLSI_PickItems();
+					
+	_Anya = CLC_FindUnit(NTC_UNIT_OBJECT, 558);
+				
+	if(_Anya)
+	{	
+		if(CLM_MoveTo(_Anya.areaid, _Anya.x+3, _Anya.y))
+		{
+			CH_Guard(20);
+			CLSI_PickItems();
+		}
+					
+		CLC_OpenChest(_Anya);
+		CLC_Delay(100);
+		me.Cancel(0);
+		me.Cancel(0);
+	}
+
+	CLM_MakeTP();
+				
+
+	Say(_playerx.name + " use my TP to save Anya");
+
+	CH_WaitForQuestor();
+	
+	Say("Returning to chanting")
+
+	CLM_UsePortal("BluePortal", 109, me.name);
+	CH_MyLocation();
+	return;
+}
+
+function CH_AncientsQuest(msg)
+{
+	_playerx =	CH_GetPlayer(msg);
+	if(!CLC_InMyParty(_playerx.name)){Say("Party up " + _playerx.name); return}
+	Say("Request to kill ancients accepted - on my way")
+	if(me.areaid == 2){CH_AreaTwo(118);}
+	if(me.areaid != 118){CLM_TakeWaypoint(118);}
+	CLP_DoPrecast(true);
+		
+	CLM_MoveToStair(me.areaid, 120);
+
+	CLM_TakeStair(120);
+		
+	CLM_MoveTo(me.areaid, 10057, 12645);
+
+	CLM_MakeTP();
+	Say("Come now for Ancients Quest if level 20+");
+
+	if(!CH_WaitForQuestor())
+		{Say("Your too damn slow - returning to chanting"); CLM_UsePortal("BluePortal", 109, me.name); CH_MyLocation();return}
+			
+	Say("DO NOT TOUCH ALTAR - you may not get quest");
+	Delay(5000);
+
+	CLP_DoPrecast(true);
+
+	var _Altar;	
+		
+	_Altar = CLC_FindUnit(NTC_UNIT_OBJECT, 546);
+			
+	if(_Altar)
+	{
+		CLM_MoveTo(_Altar.areaid, _Altar.x+3, _Altar.y+3)
+		CLC_OpenChest(_Altar);
+	}
+
+	Delay(120)
+	me.Cancel(0);
+	Delay(300)
+	me.Cancel(0);
+				
+	var _Korlic = CLC_FindUnit(NTC_UNIT_OBJECT, 474);
+	var _Talic = CLC_FindUnit(NTC_UNIT_OBJECT, 475);
+	var _Madawc = CLC_FindUnit(NTC_UNIT_OBJECT, 476);
+		
+	while(_Korlic.mode == 4 || _Talic.mode == 4 || _Madawc.mode == 4)
+	{
+		CLA_ClearPosition(40, false);
+		CLC_PingDelay(200);
+	}
+		
+	Say("Ancients have been killed - returning to chanting");
+	CLM_MoveTo(me.areaid, 10057, 12645);
+	CLTM_CheckAct();
+	CH_MyLocation();
+	return;
+}

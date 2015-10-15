@@ -1,0 +1,1897 @@
+
+var DebugNTV = false;
+function CLV_GetWPs(all){
+	if(arguments.length < 1)
+		all = false;
+
+	switch(me.areaid)
+	{
+		case 1: 	CLV_RogueEncampment(true, all);
+		case 2: 	CLV_BloodMoor(true);
+		case 3: 	CLV_ColdPlain(true, all);
+		case 4: 	CLV_StonyField(true, all);
+		case 10: CLV_UnderGroundPassage1(true);
+		case 5:	CLV_DarkWood(true, all);
+		case 6:	CLV_BlackMarsh(true, all);
+		case 7:	CLV_TamoeHighland(true);
+		case 26: CLV_MonasteryGate(true);
+		case 27: CLV_OuterCloister(true, all);
+		case 28: CLV_Barracks(true);
+		case 29: CLV_JailLevel1(true, all);
+		case 30:	 CLV_JailLevel2(true);
+		case 31: CLV_JailLevel3(true);
+		case 32: CLV_InnerCloister(true, all);
+		case 33: CLV_Cathedral(true);
+		case 34: CLV_CatacombsLevel1(true);
+		case 35: CLV_CatacombsLevel2(true);
+
+		case 40: CLV_LutGholein(true);
+		case 47: CLV_SewersLevel1(true);
+		case 48: CLV_SewersLevel2(true);
+		case 41: CLV_RockyWaste(true);
+		case 42: CLV_DryHills(true);
+		case 56: CLV_HallsOfTheDeadLevel1(true);
+		case 57: CLV_HallsOfTheDeadLevel2(true);
+		case 43: CLV_FarOasis(true);
+		case 44: CLV_LostCity(true);
+		case 50: CLV_HaremLevel1(true);
+		case 51: CLV_HaremLevel2(true);
+		case 52: CLV_PalaceCellarLevel1(true);
+		case 53: CLV_PalaceCellarLevel2(true);
+		case 54: CLV_PalaceCellarLevel3(true);
+		case 74: CLV_ArcaneSanctuary(true);
+		case 46: CLV_CanyonOfTheMagi(true);
+
+		case 75: CLV_KurastDocks(true);
+		case 76: CLV_SpiderForest(true);
+		case 77: CLV_GreatMarsh(true);
+		case 78: CLV_FlayerJungle(true);
+		case 79: CLV_LowerKurast(true);
+		case 80: CLV_KurastBazaar(true);
+		case 81: CLV_UpperKurast(true);
+		case 83: CLV_Travincal(true);
+		case 100: CLV_DuranceOfHateLevel1(true);
+		case 101: CLV_DuranceOfHateLevel2(true);
+
+		case 103: CLV_PandemoniumFortress(true);
+		case 104: CLV_OuterStepps(true);
+		case 105: CLV_PlainsOfDespair(true);
+		case 106: CLV_CityOfTheDamned(true);
+		case 107: CLV_RiverOfFlame(true);
+
+		case 109: CLV_Harrogath(true);
+		case 110: CLV_BloodyFoothills(true);
+		case 111: CLV_FrigidHighlands(true);
+		case 112: CLV_ArreatPlateau(true);
+		case 113: CLV_CrystallinePassage(true);
+		case 115: CLV_GlacialTrail(true);
+		case 117: CLV_FrozenTundra(true);
+		case 118: CLV_AncientsWay(true);
+		case 120: CLV_ArreatSummit(true);
+		case 128: CLV_WorldstoneKeepLevel1(true);
+		case 129: CLV_WorldstoneKeepLevel2(true);
+
+		case 121: CLV_NihlathaksTemple(true);
+		case 122: CLV_HallsOfAnguish(true);
+		case 123: CLV_HallsOfPain(true);
+		case 124: CLV_HallsOfVaught(true);
+	}
+}
+
+function CLV_RogueEncampment(isgrabber, checknext){
+	if(checknext){
+		CLTM_CheckAct;
+		CLTM_TownMove("waypoint");
+		if(DebugNTV){ Print(COLOR_8 + "Trying to take wp 3 instead of pathing to it"); Delay(1e3);}
+		if(CLM_TakeWaypoint(3)){ // this is to check to see if we have next wp if so take it instead of pathing to it not working atm
+			if(DebugNTV){ Print(COLOR_2 + "Took wp 3 successfully"); Delay(1e3);}
+			return;
+		}
+		if(DebugNTV){ Print(COLOR_1 + "couldn't take wp 3 pathing to it"); Delay(1e3);}
+	}
+	if(!CLTM_TownMove("exit")){
+		return CLV_Error(isgrabber);
+	}
+	CLTM_OutOfAct1(); // need to change this function a bit so it returns true or false and put an error return here
+	CLP_DoPrecast(true);
+}
+
+var triedDen = false;
+function CLV_BloodMoor(isgrabber){
+	CLP_DoPrecast();
+	if(NTConfig_DoQuests.indexOf("Den Of Evil") != -1 && !triedDen){ // not doing the quest check here to make the functions more modular...may change though
+		triedDen = true;
+		if(!CLV_DenOfEvilQuest()){
+			CLV_DenOfEvilError();
+		}
+	}
+	if(!CLM_MoveToPresetUnit(3, NTC_UNIT_OBJECT, 119)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_ColdPlain(isgrabber, checknext){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(3)){
+		return CLV_Error(isgrabber);
+	}
+	if(checknext){
+		if(DebugNTV){ Print(COLOR_8 + "Trying to take wp 4 instead of pathing to it"); Delay(1e3);}
+		if(CLM_TakeWaypoint(4)){
+			if(DebugNTV){ Print(COLOR_2 + "Took wp 4 successfully"); Delay(1e3);}
+			return;
+		}
+		if(DebugNTV){ Print(COLOR_8 + "couldn't take wp 4 pathing to it"); Delay(1e3);}
+	}
+	if(!CLM_MoveToPresetUnit(4, NTC_UNIT_OBJECT, 119)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_StonyField(isgrabber, checknext){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(4)){
+		return CLV_Error(isgrabber);
+	}
+	if(checknext){
+		if(DebugNTV){ Print(COLOR_8 + "Trying to take wp 5 instead of pathing to it"); Delay(1e3);}
+		if(CLM_TakeWaypoint(5)){
+			if(DebugNTV){ Print(COLOR_2 + "Took wp 5 successfully"); Delay(1e3);}
+			return;
+		}
+		if(DebugNTV){ Print(COLOR_1 + "couldn't take wp 5 pathing to it"); Delay(1e3);}
+	}
+	if(!CLM_MoveToStair(4, 10)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(10)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_UnderGroundPassage1(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(10, 5)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(5)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+var triedCain = false;
+function CLV_DarkWood(isgrabber, checknext){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(5)){
+		return CLV_Error(isgrabber);
+	}
+	if(NTConfig_DoQuests.indexOf("The Search For Cain") != -1 && !triedCain){ // not doing the quest check here to make the functions more modular...may change though
+		triedCain = true;
+		if(!CLV_SearchForCainQuest()){
+			CLV_SearchForCainError();
+		}
+	}
+	if(checknext){
+		//Delay(500);
+		CLM_MoveTo(me.areaid, me.x+2, me.y)
+		if(DebugNTV){ Print(COLOR_8 + "Trying to take wp 6 instead of pathing to it"); Delay(1e3);}
+		if(CLM_TakeWaypoint(6)){
+			if(DebugNTV){ Print(COLOR_2 + "Took wp 6 successfully"); Delay(1e3);}
+			return;
+		}
+		if(DebugNTV){ Print(COLOR_1 + "couldn't take wp 6 pathing to it"); Delay(1e3);}
+	}
+	if(!CLM_MoveToPresetUnit(6, NTC_UNIT_OBJECT, 119)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_BlackMarsh(isgrabber, checknext){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(6)){
+		return CLV_Error(isgrabber);
+	}
+	if(checknext){
+		CLM_MoveTo(me.areaid, me.x+2, me.y)
+		if(DebugNTV){ Print(COLOR_8 + "Trying to take wp 27 instead of pathing to it"); Delay(1e3);}
+		if(CLM_TakeWaypoint(27)){
+			if(DebugNTV){ Print(COLOR_2 + "Took wp 27 successfully"); Delay(1e3);}
+			return;
+		}
+		if(DebugNTV){ Print(COLOR_1 + "couldn't take wp 27 pathing to it"); Delay(1e3);}
+	}
+	if(!CLM_MoveToStair(7, 12)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_TamoeHighland(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(7, 12)){
+		return CLV_Error(isgrabber);
+	}
+	if (!CLM_MoveTo(26, 15139, 5051)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_MonasteryGate(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(27, NTC_UNIT_OBJECT, 119)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_OuterCloister(isgrabber, checknext){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(27)){
+		return CLV_Error(isgrabber);
+	}
+	if(checknext){
+		if(DebugNTV){ Print(COLOR_8 + "Trying to take wp 29 instead of pathing to it"); Delay(1e3);}
+		if(CLM_TakeWaypoint(29)){
+			if(DebugNTV){ Print(COLOR_2 + "Took wp 29 successfully"); Delay(1e3);}
+			return;
+		}
+		if(DebugNTV){ Print(COLOR_1 + "couldn't take wp 29 pathing to it"); Delay(1e3);}
+	}
+	if(!CLM_MoveToStair(28, 29)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_Barracks(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(28, 29)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(29)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_JailLevel1(isgrabber, checknext){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(29, NTC_UNIT_OBJECT, 157)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(29)){
+		return CLV_Error(isgrabber);
+	}
+	if(checknext){
+		if(DebugNTV){ Print(COLOR_8 + "Trying to take wp 32 instead of pathing to it"); Delay(1e3);}
+		if(CLM_TakeWaypoint(32)){
+			if(DebugNTV){  Print(COLOR_2 + "Took wp 32 successfully"); Delay(1e3);}
+			return;
+		}
+		if(DebugNTV){  Print(COLOR_1 + "couldn't take wp 32 pathing to it"); Delay(1e3);}
+	}
+	if(!CLM_MoveToStair(29, 30)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(30)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_JailLevel2(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(30, 31)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(31)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_JailLevel3(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(31, 32)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(32)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_InnerCloister(isgrabber, checknext){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(32, NTC_UNIT_OBJECT, 119)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(32)){
+		return CLV_Error(isgrabber);
+	}
+	if(checknext){
+		if(DebugNTV){ Print(COLOR_8 + "Trying to take wp 35 instead of pathing to it"); Delay(1e3);}
+		if(CLM_TakeWaypoint(35)){
+			if(DebugNTV){  Print(COLOR_2 + "Took wp 35 successfully"); Delay(1e3);}
+			return;
+		}
+		if(DebugNTV){  Print(COLOR_1 + "couldn't take wp 35 pathing to it"); Delay(1e3);}
+	}
+	return;
+}
+
+function CLV_Cathedral(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(33, 34)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(34)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_CatacombsLevel1(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(34, 35)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(35)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_CatacombsLevel2(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(35, NTC_UNIT_OBJECT, 157)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(35)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeWaypoint(40)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_LutGholein(isgrabber){
+	if(!CLTM_Act2SewerTrapDoor()){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_SewersLevel1(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(47, 48)){
+		if(DebugNTV){  Print(COLOR_1 + "couldn't path to stairs 47, 48"); Delay(1e3);}
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(48)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+var triedRadament = false;
+function CLV_SewersLevel2(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(48, NTC_UNIT_OBJECT, 323)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(48)){
+		return CLV_Error(isgrabber);
+	}
+	if(NTConfig_DoQuests.indexOf("Radament's Lair") != -1 && !triedRadament){
+		triedRadament = true;
+		if(!CLV_RadamentsLair()){
+			CLV_RadamentsLairError();
+		}
+	}
+	if(me.areaid == 48){ // so if we are not in 49 need to add a tp to town for the error
+		CLM_MoveToPresetUnit(48, NTC_UNIT_OBJECT, 323)
+		if(!CLM_TakeWaypoint(40)){
+			return CLV_Error(isgrabber);
+		}
+	}
+
+	if(me.areaid != 40){
+		CLTM_CheckAct(2);
+	}
+	if(!CLTM_OutOfTown2(true)){
+		return CLV_Error(isgrabber);
+	}
+	CLP_DoPrecast();
+	return;
+}
+
+function CLV_RockyWaste(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(42, NTC_UNIT_OBJECT, 156)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_DryHills(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(42)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToStair(42, 56)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(56)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_HallsOfTheDeadLevel1(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(56, 57)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(57)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+var triedCube = false;
+function CLV_HallsOfTheDeadLevel2(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(57, NTC_UNIT_OBJECT, 156)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(57)){
+		return CLV_Error(isgrabber);
+	}
+	if(NTConfig_DoQuests.indexOf("Horadric cube") != -1 && !triedCube){
+		triedCube = true;
+		if(!CLV_HoradricCubeQuest()){
+			CLV_HoradricCubeError();
+		}
+	}
+	if(!CLM_TakeWaypoint(42)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToPresetUnit(43, NTC_UNIT_OBJECT, 156)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_FarOasis(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(43)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToPresetUnit(44, NTC_UNIT_OBJECT, 156)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_LostCity(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(44)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeWaypoint(40)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLTM_TownMoveXY(5061, 5144)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_HaremLvl1Stairs()){
+		return CLV_Error(isgrabber);
+	}
+	CLP_DoPrecast();
+	return;
+}
+
+function CLV_HaremLvl1Stairs(){
+	while(me.areaid == 40){
+		_unit = CLM_GetStairInt(50);
+		if(!_unit)
+			return false;
+		if(_unit){
+			Print(_unit.name);
+			CLM_MoveTo(_unit.areaid, _unit.x+4, _unit.y);
+			if(GetDistance(me, _unit) > 3)
+				CLM_MoveTo(_unit.areaid, _unit.x+2, _unit.y);
+			CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _unit);
+			CLC_PingDelay(1000);
+		}
+	}
+	if(me.areaid == 50){
+		return true;
+	}
+	return false;
+}
+
+function CLV_HaremLevel1(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(50, 51)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(51)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_HaremLevel2(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(51, 52)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(52)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_PalaceCellarLevel1(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(52, NTC_UNIT_OBJECT, 288)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(52)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToStair(52, 53)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(53)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_PalaceCellarLevel2(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(53, 54)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(54)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_PalaceCellarLevel3(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(54, NTC_UNIT_OBJECT, 298, 4, 4)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeUnit(NTC_UNIT_OBJECT, 298)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_ArcaneSanctuary(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(74, NTC_UNIT_OBJECT, 402)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(74)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 357, 2, 2)){
+		return CLV_Error(isgrabber);
+	}
+	var _journal = CLC_FindUnit(NTC_UNIT_OBJECT, 357); // this needs to change to CLV_ActivateQuestChest(id, TK)
+	if(!CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _journal)){
+		return CLV_Error(isgrabber);
+	}
+	CLC_CancelOut(10);
+	if(!CLM_TakeUnit(NTC_UNIT_OBJECT, 60)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_CanyonOfTheMagi(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(46, NTC_UNIT_OBJECT, 402)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(46)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeWaypoint(75)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_KurastDocks(isgrabber){
+	if(!CLTM_TownMove("exit")){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveTo(76, 5143, 4964, 5)){
+		return CLV_Error(isgrabber);
+	}
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(76, NTC_UNIT_OBJECT, 237)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_SpiderForest(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(76)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToPresetUnit(77, NTC_UNIT_OBJECT, 237)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_GreatMarsh(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(77)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToPresetUnit(78, NTC_UNIT_OBJECT, 237)){// should change this so if the path is missed take wp back to 76 instead of pathing..quicker
+		if(!CLM_MoveToPresetUnit(76, NTC_UNIT_OBJECT, 237)){
+			return CLV_Error(isgrabber);
+		}
+	}
+	return;
+}
+
+function CLV_FlayerJungle(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(78)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToPresetUnit(79, NTC_UNIT_OBJECT, 237)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_LowerKurast(isgrabber){CLV_KurastBazaar
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(79)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToPresetUnit(80, NTC_UNIT_OBJECT, 237)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+var triedLamsTome = false; // these actually are not needed but going to leave them for now
+function CLV_KurastBazaar(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(80)){
+		return CLV_Error(isgrabber);
+	}
+	if(NTConfig_DoQuests.indexOf("Lam Esen's Tome") != -1 && !triedLamsTome){
+		triedLamsTome = true;
+		if(!CLV_LamEsensTomeQuest()){
+			CLV_LamEsensTomeError();
+		}
+	}
+	if(!CLM_MoveToPresetUnit(81, NTC_UNIT_OBJECT, 237)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_UpperKurast(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(81)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToStair(82, 98)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToPresetUnit(83, NTC_UNIT_OBJECT, 237)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+var triedBirdTrav = false;
+function CLV_Travincal(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(83)){
+		return CLV_Error(isgrabber);
+	}
+	if(NTConfig_DoQuests.indexOf("Golden Bird Travincal") != -1 && !triedBirdTrav){
+		triedBirdTrav = true;
+		if(!CLV_GoldenBirdTravincalQuest()){
+			CLV_GoldenBirdTravincalError();
+		}
+	}
+
+	if(!CLM_MoveToStair(83, 100)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(100)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_DuranceOfHateLevel1(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(100, 101)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(101)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_DuranceOfHateLevel2(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(101, NTC_UNIT_OBJECT, 324)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(101)){
+		return CLV_Error(isgrabber);
+	}
+	Delay(500);
+	if(!CLM_TakeWaypoint(103)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_PandemoniumFortress(isgrabber){
+	if(!CLTM_TownMove("exit")){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveTo(104, 5170, 5090, 5)){
+		return CLV_Error(isgrabber);
+	}
+	CLP_DoPrecast();
+	return;
+}
+
+var triedIzzy = false;
+function CLV_OuterStepps(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(105, NTC_UNIT_MONSTER, 256, 0, -25)){
+		return CLV_Error(isgrabber);
+	}
+	if(NTConfig_DoQuests.indexOf("Fallen Angel") != -1 && !triedIzzy){
+		triedIzzy = true;
+		if(!CLV_FallenAngelQuest()){
+			CLV_FallenAngelError();
+		}
+	}
+	return;
+}
+
+function CLV_PlainsOfDespair(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(106, NTC_UNIT_OBJECT, 238)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_CityOfTheDamned(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(106)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToStair(106, 107)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(107)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_RiverOfFlame(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(107, NTC_UNIT_OBJECT, 238)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(107)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeWaypoint(109)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_Harrogath(isgrabber){
+	if(!CLTM_TownMove("exit")){
+		return CLV_Error(isgrabber);
+	}
+	_unit = CLC_FindUnit(NTC_UNIT_OBJECT, 449, 5); // this should be changed to CLV_ActivateQuestChest(id, TK)
+	if(!_unit){
+		return CLV_Error(isgrabber);
+	}
+	if(_unit){ // this could probably be changed to CLV_ActivateQuestChest(id, TK)
+		while(_unit.mode < 1){
+			if(_unit){
+				CLM_MoveTo(_unit.areaid, _unit.x+4, _unit.y);
+				if(GetDistance(me, _unit) > 3)
+					CLM_MoveTo(_unit.areaid, _unit.x+2, _unit.y);
+				CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _unit);
+				CLC_PingDelay(1000);
+			}
+		}
+	}
+	if(!CLM_MoveTo(110, 4986, 5087, 5)){
+		return CLV_Error(isgrabber);
+	}
+	CLP_DoPrecast();
+	if(!CLM_MoveTo(110, 3876, 5120, 5)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_BloodyFoothills(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveTo(110, 3876, 5120, 5)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToPresetUnit(111, NTC_UNIT_OBJECT, 496)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+var triedSocketQuest = false;
+function CLV_FrigidHighlands(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(111)){
+		return CLV_Error(isgrabber);
+	}
+	if(NTConfig_DoQuests.indexOf("Siege on Harrogath") != -1 && !triedSocketQuest){
+		triedSocketQuest = true;
+		if(!CLV_SiegeOnHarrogathQuest()){
+			CLV_SiegeOnHarrogathError();
+		}
+	}
+	if(!CLM_MoveToPresetUnit(112, NTC_UNIT_OBJECT, 496)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_ArreatPlateau(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(112)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToStair(112, 113)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(113)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+var triedAnyaQuest = false;
+function CLV_CrystallinePassage(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(113, NTC_UNIT_OBJECT, 511)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(113)){
+		return CLV_Error(isgrabber);
+	}
+	if(NTConfig_DoQuests.indexOf("Prison Of Ice") != -1 && !triedAnyaQuest){
+		triedAnyaQuest = true;
+		if(!CLV_PrisonOfIceQuest()){
+			CLV_PrisonOfIceError();
+		}
+	}
+	if(!CLM_MoveToStair(113, 115)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(115)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_GlacialTrail(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(115, NTC_UNIT_OBJECT, 511)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(115)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToStair(115, 117)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(117)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_FrozenTundra(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(117, NTC_UNIT_OBJECT, 496)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(117)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_MoveToStair(117, 118)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(118)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_AncientsWay(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(118, NTC_UNIT_OBJECT, 511)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(118)){
+		return CLV_Error(isgrabber);
+	}
+	if(NTConfig_DoQuests.indexOf("Rite Of Passage") == -1 && !me.GetQuest(39, 0)){
+		if(!CLM_TakeWaypoint(109)){
+			while(1){
+				Say("!All Done!!!");
+				Delay(1e3);
+				Say("! ");
+				Delay(1e3);
+				Say("!You don't have ancients!!!");
+				Delay(1e3);
+				Say("! ");
+				Say("!and don't have the bot set to do the quest!!!");
+				Delay(1e3);
+				Say("! ");
+				Delay(1e3);
+				Say("!So skipped WS2 wp!!!");
+				Delay(1e3);
+				Say("! ");
+				Delay(1e3);
+
+			}
+		}
+	}
+	if(!CLM_MoveToStair(118, 120)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(120)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+var triedAncients = false; // leaving these in for later use
+function CLV_ArreatSummit(isgrabber){
+	CLP_DoPrecast();
+	if(NTConfig_DoQuests.indexOf("Rite Of Passage") != -1 && !triedAncients){
+		triedAncients = true
+		if(!CLV_RiteOfPassageQuest()){
+			CLV_RiteOfPassageError();
+		}
+	}
+
+	if(!CLM_MoveToStair(120, 128)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(128)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_WorldstoneKeepLevel1(isgrabber){
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(128, 129)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(129)){
+		return CLV_Error(isgrabber);
+	}
+	return;
+}
+
+function CLV_WorldstoneKeepLevel2(isgrabber){
+	CLP_DoPrecast();
+	if(!CLV_GrabWayPoint(129)){// need to take the extra pathing to wp's out
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeWaypoint(109)){
+		return CLV_Error(isgrabber);
+	}
+	while(1){
+		Say("!All Done!");
+		Delay(1e3);
+		Say("! ");
+		Delay(1e3);
+		Say("!If you want Nihl WP");
+		Delay(1e3);
+		Say("!Please go through Red portal");
+		Delay(1e3);
+		Say("!And unpause me so I can continue!");
+		Delay(1e3);
+	} return;
+}
+
+function CLV_NihlathaksTemple(isgrabber) {
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(121, 122)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(122)){
+		return CLV_Error(isgrabber);
+	} return;
+}
+
+function CLV_HallsOfAnguish(isgrabber) {
+	CLP_DoPrecast();
+	if(!CLM_MoveToStair(122, 123)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeStair(123)){
+		return CLV_Error(isgrabber);
+	} return;
+}
+
+function CLV_HallsOfPain(isgrabber) {
+	CLP_DoPrecast();
+	if(!CLM_MoveToPresetUnit(123, NTC_UNIT_OBJECT, 496)){
+		return CLV_Error(isgrabber);
+	}
+	if(!CLV_GrabWayPoint(123)) {
+		return CLV_Error(isgrabber);
+	}
+	if(!CLM_TakeWaypoint(109)) {
+		return CLV_Error(isgrabber);
+	}
+	while(1){
+		Say("!All Done!");
+		Delay(1e3);
+		Say("! ");
+		Delay(1e3);
+	}
+}
+
+function CLV_HallsOfVaught(isgrabber){
+	return;
+}
+
+function CLV_GrabWayPoint(_areaid){  // interesting might be possible to use if(!CLV_GrabWayPoint()) then call a function that moves to next level
+	var _isTelekinesis = CLC_GetSkillLevel(43);
+	_open = true;
+	var _unit;
+	var _wp;
+	switch(_areaid)
+	{
+		case 3: _wp = 119; break;
+		case 4: _wp = 119; break;
+		case 5: _wp = 119; break;
+		case 6: _wp = 119; break;
+		case 27: _wp = 119; break;
+		case 29: _wp = 157; break;
+		case 32: _wp = 119; break;
+		case 35: _wp = 157; break;
+		case 42: _wp = 156; break;
+		case 43: _wp = 156; break;
+		case 44: _wp = 156; break;
+		case 46: _wp = 402; break;
+		case 48: _wp = 323; break;
+		case 52: _wp = 288; break;
+		case 57: _wp = 156; break;
+		case 74: _wp = 402; break;
+		case 76: _wp = 237; break;
+		case 77: _wp = 237; break;
+		case 78: _wp = 237; break;
+		case 79: _wp = 237; break;
+		case 80: _wp = 237; break;
+		case 81: _wp = 237; break;
+		case 83: _wp = 237; break;
+		case 101: _wp = 324; break;
+		case 106: _wp = 238; break;
+		case 107: _wp = 238; break;
+		case 111: _wp = 496; break;
+		case 112: _wp = 496; break;
+		case 113: _wp = 511; break;
+		case 115: _wp = 511; break;
+		case 117: _wp = 496; break;
+		case 118: _wp = 511; break;
+		case 123: _wp = 496; break;
+		case 129: _wp = 494; break;
+	}
+	CLM_MoveToPresetUnit(_areaid, NTC_UNIT_OBJECT, _wp, 1, 1);
+	if(_open){
+		_unit = CLC_FindUnit(NTC_UNIT_OBJECT, _wp); // this also could probably use CLV_ActivateQuestChest(id, TK)
+		if(_unit){
+			if(GetDistance(me, _unit) > 2)
+				CLM_MoveTo(_unit.areaid, _unit.x+1, _unit.y);
+			CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _unit);
+			CLC_PingDelay(1000);
+			me.Cancel(1);
+			CLT_CheckNeedTown(3, 3);
+			CLP_DoPrecast();
+			return true;
+		}
+	}
+	return false;
+}
+
+function CLV_Error(grabber){ // maybe put the arguement here as to whether or not this is wp grabber or for simon says type switch
+	var _Myarea = GetArea();
+	if(arguments.length == 0)
+		grabber = false;
+
+	if(!grabber)
+		return;
+	if(grabber){
+		CLTM_CheckAct();
+		CLC_PutSkill(54, NTC_HAND_RIGHT);
+		switch(_Myarea.name)// switch is for later use
+		{
+			default:
+				while(1){
+					Say("!FAILED TO MOVE IN");
+					Delay(2e3);
+					Print(_Myarea.name);
+					Say("!" + _Myarea.name.toUpperCase());
+					Delay(2e3);
+					Say("!IF YOUR IN JAIL LEVELS ");
+					Delay(2e3);
+					Say("!MOVE ME OUT FROM");
+					Delay(2e3);
+					Say("!WHERE I GOT STUCK");
+					Delay(2e3);
+					Say("!AND HIT PAUSE");
+					Delay(2e3);
+					Say("!TO CONTINUE");
+					Delay(2e3);
+					Say("!ANYPLACE ELSE YOU");
+					Delay(2e3);
+					Say("!MANUALLY PATH TO NEXT LVL OR WP ");
+					Delay(2e3);
+					Say("!OR MAKE A NEW GAME");
+					Delay(2e3);
+
+				}
+		}
+	}
+}
+
+function CLV_DenOfEvilQuest(){
+	if(me.GetQuest(1, 0)){
+		Print(COLOR_2 + "The Den Of Evil Quest Is Already Completed");
+		return me.GetQuest(1, 0);
+	}
+	if(me.GetQuest(1, 4) && me.GetQuest(1, 1)){
+		Print(COLOR_2 + "The Den Of Evil has already been cleared");
+		Print(COLOR_2 + "Just need to talk to Akara");
+		CLTM_CheckAct(1);
+		CLV_TalkToNPC("akara", true, 1, 0);
+		return me.GetQuest(1, 0);
+	}
+	if(!me.GetQuest(1, 0)){
+		if(!CLM_MoveToStair(2, 8)){
+			return me.GetQuest(1, 0);
+		}
+		if(!CLM_TakeStair(8)){
+			return me.GetQuest(1, 0);
+		}
+		CLP_DoPrecast();
+		//if(!CLTMGR_CheckSafe(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe)){
+			//return me.GetQuest(1, 0);
+		//}
+		while(!me.GetQuest(1, 4) || !me.GetQuest(1, 1)){
+			CLA_ClearLevel();
+		}
+		if(!CLM_MoveToStair(8, 2)){
+			return me.GetQuest(1, 0);
+		}
+		if(!CLM_TakeStair(2)){
+			return me.GetQuest(1, 0);
+		}
+		if(!CLTM_CheckAct(1)){
+			return me.GetQuest(1, 0);
+		}
+		CLV_TalkToNPC("akara", true, 1, 0);
+		CLTM_TownMove("portalspot");
+		CLM_UsePortal("BluePortal", 2);
+	}
+	return me.GetQuest(1, 0);
+}
+
+function CLV_DenOfEvilError(){
+	Print(COLOR_1 + "Failed on den of evil quest");
+	Print(COLOR_1 + "Resuming grabbing wp's");
+	if(me.areaid != 2){
+		CLTM_CheckAct(1);
+	}
+	return;
+}
+
+function CLV_SearchForCainQuest() {
+	var _isTelekinesis = CLC_GetSkillLevel(43);
+	if(me.GetQuest(4, 0)){
+		Print(COLOR_2 + "The The Search For Cain Quest Is Already Completed");
+		return me.GetQuest(4, 0);
+	}
+	CLV_ActivateQuestChest(30); //infius tree
+	CLV_PickQuestItems(524); // scroll of infius
+	var _cairnKey = me.GetItems(524);
+	if(_cairnKey){
+		if(!CLTM_CheckAct(1))	{
+			return me.GetQuest(4, 0);
+		}
+		CLV_TalkToNPC("akara");
+		if(!CLTM_TownMove("waypoint")){
+			return me.GetQuest(4, 0);
+		}
+		if(!CLM_TakeWaypoint(4)){
+			return me.GetQuest(4, 0);
+		}
+		if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_MONSTER, 737, 2, 2)){
+			return me.GetQuest(4, 0);
+		}
+		var thisx = me.x;
+		var thisy = me.y
+		CLA_ClearPos(4, 20, 500, true);
+
+		CLV_ActivateCairnStones(thisx, thisy);
+
+		Delay(6000);
+
+		if(!CLM_UsePortal("Portal", 38)){
+			return me.GetQuest(4, 0);
+		}
+		CLV_ActivateQuestChest(26, true);
+		CLTM_CheckAct(1);
+		CLV_TalkToNPC("akara", true, 4, 0);
+		CLT_ClearInventory();
+		if(!CLTM_TownMove("waypoint")){
+			return me.GetQuest(4, 0);
+		}
+		if(!CLM_TakeWaypoint(5)){
+			return me.GetQuest(4, 0);
+		}
+	}
+	return me.GetQuest(4, 0);
+}
+
+function CLV_SearchForCainError(){
+	Print(COLOR_1 + "Failed on cain quest");
+	Print(COLOR_1 + "Returning to the dark woods");
+	Print(COLOR_1 + "To resume grabbing wp's");
+	CLTM_CheckAct();
+	CLTM_TownMove("waypoint");
+	CLM_TakeWaypoint(5);
+	return;
+}
+
+
+function CLV_ActivateCairnStones(cenX, cenY){
+
+	var _isTelekinesis = CLC_GetSkillLevel(43);
+	var _cairnStoneIds = [17, 18, 19, 20, 21]; // cairn stone id's
+
+	if(NTC_CHAR_CLASS_SORCERESS && _isTelekinesis){
+		CLM_MoveTo(me.areaid, cenX, cenY);
+	}
+	while(_cairnStoneIds.length){
+		for(var i = 0; i <  _cairnStoneIds.length ; i++){
+			var _toBeClicked = CLC_FindUnit(NTC_UNIT_OBJECT, _cairnStoneIds[i], 5);
+			if(_toBeClicked){
+				if(NTC_CHAR_CLASS_SORCERESS && _isTelekinesis){
+					CLC_CastSkill(43, NTC_HAND_RIGHT, _toBeClicked);
+				}
+				else{
+					if(CLM_GetCloserIntS(_toBeClicked)){
+						CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _toBeClicked);
+					}
+				}
+				CLC_Delay(100);
+				if(_toBeClicked.mode){
+					Print(COLOR_2 + _cairnStoneIds[i]);
+					_cairnStoneIds.splice(i--, 1);
+				}
+			}
+		}
+	}
+	return;
+}
+
+function CLV_RadamentsLair(){
+	if(me.GetQuest(9, 0)){
+		Print(COLOR_2 + "The Radament's Lair Is Already Completed");
+		return me.GetQuest(9, 0);
+	}
+	var _skillBook = me.GetItems(552);
+	if(_skillBook.length > 0){
+		Print(COLOR_2 + "We already have the book of skill skipping to Atma");
+		CLTM_CheckAct(2);
+		CLV_ClickQuestItem(552);
+		CLV_TalkToNPC("atma", true, 9, 0);
+		return me.GetQuest(9, 0);
+	}
+	if(!CLM_MoveToStair(me.areaid, 49)){
+		return me.GetQuest(9, 0);
+	}
+	if(!CLM_TakeStair(49)){
+		return me.GetQuest(9, 0);
+	}
+	if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 355)){
+		return me.GetQuest(9, 0);
+	}
+	if(!CLA_KillMonster(GetLocaleString(2879))){
+		return me.GetQuest(9, 0);
+	}
+	CLV_PickQuestItems(552);
+	var _skillBook = me.GetItems(552);
+	if(_skillBook){
+		CLTM_CheckAct(2);
+		CLV_ClickQuestItem(552);
+		CLV_TalkToNPC("atma", true, 9, 0);
+	}
+	Delay(2000);
+	return me.GetQuest(9, 0);
+}
+
+function CLV_RadamentsLairError(){
+	Print(COLOR_1 + "Failed on Radament's Lair quest");
+	Print(COLOR_1 + "Returning to town");
+	Print(COLOR_1 + "To resume grabbing wp's");
+	CLTM_CheckAct();
+	return;
+}
+
+function CLV_HoradricCubeQuest() {
+	var _cube = me.GetItems(549);
+	if(_cube.length > 0){
+		Print(COLOR_2 + "Already have cube....");
+	}
+	if(!_cube.length){
+		if(!CLM_MoveToStair(me.areaid, 60)) {
+			return false;
+		}
+		if(!CLM_TakeStair(60)) {
+			return false;
+		}
+		if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 354)){
+			return false;
+		}
+		if(!CLV_ActivateQuestChest(354, true)){
+			return false;
+		}
+		CLV_PickQuestItems(549);
+		CLTM_CheckAct();
+		CLV_StashQuestItem(549);
+		CLTM_TownMove("waypoint");
+	}
+	var _cube = me.GetItems(549);
+	return (_cube.length > 0);
+}
+
+function CLV_HoradricCubeError() {
+	Print(COLOR_1 + "Failed in getting your cube");
+	Print(COLOR_1 + "Going to Dry Hills");
+	Print(COLOR_1 + "To resume grabbing wp's");
+	CLTM_CheckAct();
+	CLTM_TownMove("waypoint");
+	CLM_TakeWaypoint(42);
+	CLM_MoveToPresetUnit(43, NTC_UNIT_OBJECT, 156)
+	return;
+}
+
+function CLV_LamEsensTomeQuest(){ // KurastBazaar
+	if(me.GetQuest(17, 0)){
+		Print(COLOR_2 + "Lam Esen's Tome Quest Is Already Completed");
+		return me.GetQuest(17, 0);
+	}
+	if(!CLM_MoveToStair(me.areaid, 94)){
+		return false;
+	}
+	if(!CLM_TakeStair(94)){
+		return false;
+	}
+	if(!CLV_ActivateQuestChest(193, true)){
+		return false;
+	}
+	CLV_PickQuestItems(548);
+	if(NTConfig_DoQuests.indexOf("Golden Bird") != -1){
+		if(!CLV_PickQuestItems(546)){
+			CLA_ClearLevel();
+		}
+	}
+	CLTM_CheckAct();
+	_bird = me.GetItems(546);
+	if(_bird.length > 0){
+		CLV_TalkToNPC("meshif");
+		CLV_TalkToHratli();
+	}
+	CLV_TalkToNPC("alkor");
+	CLV_ClickQuestItem(545)
+	CLTM_CheckAct();
+	CLTM_TownMove("waypoint");
+	CLM_TakeWaypoint(80);
+	return me.GetQuest(17, 0);
+}
+
+function CLV_LamEsensTomeError(){
+	Print(COLOR_1 + "Failed in getting Lam Esen's Tome");
+	Print(COLOR_1 + "Going to Kurast_Bazaar");
+	Print(COLOR_1 + "To resume grabbing wp's");
+	CLTM_CheckAct();
+	CLTM_TownMove("waypoint");
+	CLM_TakeWaypoint(80);
+	return;
+}
+
+function CLV_GoldenBirdTravincalQuest(){
+	if(me.GetQuest(20, 0)){
+		Print(COLOR_2 + "The Golden Bird Quest Is Already Completed");
+		return me.GetQuest(20, 0);
+	}
+	_bird = me.GetItems(546);
+	if(_bird.length < 1){
+		var _waypoint;
+		var _deltax, _deltay;
+		var _attackpos = [5800, 1554, 5799, 1534, 5799, 1526, 5797, 1514, 5795, 1490, 5787, 1491, 5797, 1514, 5781, 1514];
+		_waypoint = CLC_FindUnit(NTC_UNIT_OBJECT, GetLocaleString(22526), 5);
+		if(!_waypoint){
+			return false;
+		}
+		_deltax = _waypoint.x - 5699;
+		_deltay = _waypoint.y - 1584;
+		CLP_DoPrecast(true);
+		if(!CLM_MoveTo(me.areaid, 5780+_deltax, 1555+_deltay)){
+			return false;
+		}
+		for(var i = 0 ; i < _attackpos.length ; i += 2){
+			CLM_MoveTo(me.areaid, _attackpos[i]+_deltax, _attackpos[i+1]+_deltay);
+			CLA_ClearPosition(25, true, 2);
+		}
+		CLV_PickQuestItems(546)
+	}
+	_bird = me.GetItems(546);
+	if(_bird.length > 0){
+		CLTM_CheckAct();
+		CLV_TalkToNPC("meshif");
+		CLV_TalkToHratli();
+		CLV_TalkToNPC("alkor", true, 20, 0);
+		Delay(500);
+		CLC_CancelMenus();
+		CLV_ClickQuestItem(545);
+		CLTM_TownMove("waypoint");
+		CLM_TakeWaypoint(83);
+	}
+	return me.GetQuest(20, 0);
+}
+
+function CLV_GoldenBirdTravincalError(){
+	Print(COLOR_1 + "Failed getting  the Golden Bird in Travincal");
+	Print(COLOR_1 + "Going to Travincal");
+	Print(COLOR_1 + "To resume grabbing wp's");
+	Print(COLOR_2 + "blah blaha blahahaha");
+	if(me.areaid == 83){
+		return;
+	}
+	else {
+		CLTM_CheckAct();
+		CLTM_TownMove("waypoint");
+		CLM_TakeWaypoint(83);
+		return;
+	}
+}
+
+function CLV_FallenAngelQuest(){
+	if(me.GetQuest(25, 0)){
+		Print(COLOR_2 + "The Fallen Angel Quest Is Already Completed");
+		return me.GetQuest(25, 0);
+	}
+	if(!CLM_MoveToPresetUnit(105, NTC_UNIT_MONSTER, 256, 4, 4)){
+		return me.GetQuest(25, 0);
+	}
+	if(!CLA_KillMonster(256)){
+		return me.GetQuest(25, 0);
+	}
+	CLTM_CheckAct();
+	CLV_TalkToNPC("tyrael", true, 25, 0);
+	CLTM_TownMove("portalspot");
+	CLM_UsePortal("BluePortal", 105);
+	return me.GetQuest(25, 0);
+}
+
+function CLV_FallenAngelError(){
+	Print(COLOR_1 + "Failed Fallen Angel Quest");
+	Print(COLOR_1 + "Going to the City of The Damned");
+	Print(COLOR_1 + "To resume grabbing wp's");
+	if(me.areaid == 105){
+		return;
+	}
+	if(me.areaid == 103){
+		CLTM_TownMove("waypoint");
+		CLM_TakeWaypoint(105);
+		return;
+	}
+
+}
+
+function CLV_SiegeOnHarrogathQuest(){
+	if(me.GetQuest(35, 0) || me.GetQuest(35, 5)){
+		Print(COLOR_2 + "The Siege on Harrogath Quest Is Already Completed");
+		return me.GetQuest(35, 5);
+	}
+	if(me.GetQuest(35, 3)){
+		Print(COLOR_2 + "Already killed Shenk.  Going to talk to Larzuk");
+	}
+	else{
+		CLP_DoPrecast(true);
+		if(!CLM_MoveTo(110, 3876, 5120)){
+			return me.GetQuest(35, 5);
+		}
+		if(!CLA_KillMonster(GetLocaleString(22435))){
+			return me.GetQuest(35, 5);
+		}
+	}
+	CLTM_CheckAct();
+	CLV_TalkToNPC("larzuk", true, 35, 5);
+	CLTM_TownMove("waypoint");
+	CLM_TakeWaypoint(111);
+	return me.GetQuest(35, 5);
+}
+
+function CLV_SiegeOnHarrogathError(){
+	Print(COLOR_1 + "Failed Siege on Harrogath Quest");
+	Print(COLOR_1 + "Going back to Frigid Highlands");
+	Print(COLOR_1 + "To resume grabbing wp's");
+	if(me.areaid == 111){
+		return;
+	}
+	else{
+		CLTM_CheckAct();
+		CLTM_TownMove("waypoint");
+		CLM_TakeWaypoint(111);
+		return;
+	}
+}
+
+function CLV_PrisonOfIceQuest() {
+	if(me.GetQuest(37, 0)){
+		Print(COLOR_2 + "The Prison of Ice Quest Is Already Completed");
+		return me.GetQuest(37, 0);
+	}
+	if(!me.GetQuest(37, 8)){
+		if(!CLM_MoveToStair(me.areaid, 114)){
+			return me.GetQuest(37, 0);
+		}
+		if(!CLM_TakeStair(114)){
+			return me.GetQuest(37, 0);
+		}
+		if(!CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, 460, -1, -1)){
+			return me.GetQuest(37, 0);
+		}
+		CLA_ClearPos(3, 25, 250, true)
+		CLV_TalkToFrozenAnya();
+		CLTM_CheckAct();
+		CLC_CancelOut(0);
+		CLV_TalkToNPC("malah");
+		if(!CLTM_TownMove("portalspot")){
+			return me.GetQuest(37, 0);
+		}
+		if(!CLM_UsePortal("BluePortal", 114)){
+			return me.GetQuest(37, 0);
+		}
+		CLA_ClearPos(3, 25, 250, true)
+		CLV_TalkToFrozenAnya();
+		CLTM_CheckAct();
+		CLV_TalkToNPC("malah");
+		CLV_ClickQuestItem(646);
+	}
+	else if(me.GetQuest(37, 8)){
+		Print(COLOR_2 + "Only need to talk to anya to complete the Prison of Ice Quest");
+	}
+	CLTM_CheckAct();
+	CLV_TalkToNPC("anya", true, 37, 0);
+	CLT_ClearInventory();
+	if(!CLTM_TownMove("waypoint")){
+		return me.GetQuest(37, 0);
+	}
+	if(!CLM_TakeWaypoint(113)){
+		return me.GetQuest(37, 0);
+	}
+	return me.GetQuest(37, 0);
+}
+
+function CLV_PrisonOfIceError() {
+	Print(COLOR_1 + "Failed Prison of Ice Quest");
+	Print(COLOR_1 + "Going back to Crystalized Cavern");
+	Print(COLOR_1 + "To resume grabbing wp's");
+	if(me.areaid != 109){
+		CLTM_CheckAct();
+	}
+	CLTM_TownMove("waypoint");
+	CLM_TakeWaypoint(113);
+	return;
+}
+
+function CLV_RiteOfPassageQuest(){
+	if(me.GetQuest(39, 0)){
+		Print(COLOR_2 + "The Rite of Passage Quest Is Already Completed");
+		return me.GetQuest(39, 0);
+	}
+	if(!CLM_MoveTo(me.areaid, 10057, 12645)){
+		return me.GetQuest(39, 0);
+	}
+	_altar = CLC_FindUnit(NTC_UNIT_OBJECT, 546);
+	if(_altar){
+		if(CLM_MoveTo(_altar.areaid, _altar.x+3, _altar.y+3)){
+			CLC_OpenChest(_altar);
+			CLM_MoveTo(me.areaid, 10033, 12673);
+			CLC_CancelOut(10);
+			CLM_MoveTo(me.areaid, 10052, 12654);
+		}
+		while(!me.GetQuest(39, 0)){
+			CLA_ClearPosition(40);
+			Delay(250);
+		}
+		Delay(1000);
+		CLC_CancelOut(10);
+		_worldstoneGate = CLC_FindUnit(NTC_UNIT_OBJECT, 547, 5);
+		if(_worldstoneGate){
+			while(_worldstoneGate.mode < 1){
+				if(_worldstoneGate){
+					CLM_MoveTo(_worldstoneGate.areaid, _worldstoneGate.x+4, _worldstoneGate.y);
+					if(GetDistance(me, _worldstoneGate) > 3)
+						CLM_MoveTo(_worldstoneGate.areaid, _worldstoneGate.x+2, _worldstoneGate.y);
+					CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _worldstoneGate);
+					CLC_PingDelay(1000);
+				}
+			}
+		}
+	}
+	return me.GetQuest(39, 0);
+}
+
+function CLV_RiteOfPassageError(){
+	CLTM_CheckAct();
+	while(1){
+		Say("!Seem to have had!!!");
+		Delay(1e3);
+		Say("! ");
+		Delay(1e3);
+		Say("!A problem doing anciets!!!");
+		Delay(1e3);
+		Say("! ");
+		Say("!So skipped WS2 wp!!!");
+		Delay(1e3);
+		Say("! ");
+		Delay(1e3);
+	}
+}
+
+function CLV_PickQuestItems(_item) {
+	var _alreadyHave = me.GetItems(_item);
+	if(_alreadyHave.length > 0){
+		return true;
+	}
+	var _grounditem = CLC_FindUnit(NTC_UNIT_ITEM, _item);
+	if(_grounditem){
+		if(_grounditem.mode == 3 || _grounditem.mode == 5){
+			if(CLSI_PickUpItemInt(_grounditem)){
+				Print(COLOR_4 + "Picked Quest Item " + COLOR_17 + _grounditem.name.split("\n")[0]);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+function CLV_ClickQuestItem(item){ // for clicking items in invenetory/stash, book of skill, anya scroll etc
+    var _items = me.GetItems(item);
+    if (_items && _items.length > 0){
+		if(_items[0].mode == 0 && _items[0].itemloc == 0){
+			SetUIState(0x01, true);
+			me.ClickItem(1, _items[0]);
+			CLC_PingDelay(800);
+			CLC_CancelMenus();
+		}
+		else if(_items[0].mode == 0 && _items[0].itemloc == 4){
+			CLU_MoveToStash();
+			me.ClickItem(1, _items[0]);
+			CLC_PingDelay(800);
+			CLC_CancelMenus();
+		}
+    }
+    return;
+}
+
+function CLV_TalkToNPC(NPCs, CloseQuest, QNum, QLevel){ // which npc, menu cycle bool, quest #, completion level
+	if(arguments.length == 0){
+		CloseQuest = false;
+	}
+	var _npc;
+	CLTM_TownMove(NPCs);
+	switch(NPCs) // added cases here that are not used, but figured would need them if I or someone else writes a passive rush leech script
+	{
+		case "akara":
+			_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_AKARA, 5);
+			break;
+		case "cain":
+			_npc = CLC_FindUnit(NTC_UNIT_NPC, GetLocaleString(2890), 5);
+			break;
+		case "atma":
+			_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ATMA, 5);
+			break;
+		case "alkor":"larzuk"
+			_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ALKOR, 5);
+			break;
+		case "meshif":
+			if(me.act == 2){
+				_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_MESHIF_ACT_2, 5);
+			}
+			if(me.act == 3){
+				_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_MESHIF_ACT_3, 5);
+			}
+			break;
+		case "tyrael":
+			if(me.act == 2){
+				_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_TYRAEL_ACT_2, 5);
+			}
+			if(me.act == 4){
+				_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_TYRAEL_ACT_4, 5);
+			}
+			break;
+		case "larzuk":
+			_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_LARZUK, 5);
+			break;
+		case "malah":
+			_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_MALAH, 5);
+			break;
+		case "anya":
+			_npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ANYA_TOWN, 5);
+			break;
+	}
+	if(_npc){
+		if(CLT_VisitNpc(_npc)){
+			CLC_CancelMenus();
+		}
+	}
+	if(CloseQuest){
+		while(!me.GetQuest(QNum, QLevel)){
+			CLT_DoInteract(_npc);
+			CLC_CancelMenus();
+			Delay(500);
+		}
+	}
+}
+
+function CLV_TalkToCain(){
+	var _npc;
+	CLTM_TownMove("cain");
+	_npc = CLC_FindUnit(NTC_UNIT_NPC, GetLocaleString(2890), 5);
+	if(_npc){
+		if(CLT_VisitNpc(_npc)){
+			CLC_CancelMenus();
+		}
+	}
+}
+function CLV_TalkToFrozenAnya(){
+	var _npc;
+	_npc = CLC_FindUnit(NTC_UNIT_OBJECT, 558, 5);
+	if(_npc){
+		CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _npc);
+	}
+}
+
+function CLV_TalkToAtma(){
+	var _npc;
+	CLTM_TownMove("atma");
+	 _npc = CLC_FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ATMA, 5);
+	if(_npc){
+		if(CLT_VisitNpc(_npc)){
+			CLC_CancelMenus();
+		}
+	}
+}
+
+function CLV_TalkToHratli(){
+	var _npc;
+	 _npc = CLC_FindUnit(NTC_UNIT_MONSTER, 253, 5);
+	if(_npc){
+		if(CLT_VisitNpc(_npc)){
+			CLC_CancelMenus();
+		}
+	}
+}
+
+function CLV_ActivateQuestChest(id, TK, disX, disY) { // objectId, UseTelek(bool)
+	if (arguments.length < 2) {
+		TK = false;
+	}
+	if (arguments.length < 3) {
+		disX = 10;
+		disY = 10;
+	}
+	var _tkFailed = false;
+	var _isTelekinesis = CLC_GetSkillLevel(43); // may want to move these to the top and add a config option to it
+	var _object = CLC_FindUnit(NTC_UNIT_OBJECT, id, 5);
+	if(TK){
+		if(_object){
+			if(NTC_CHAR_CLASS_SORCERESS && _isTelekinesis && _object){
+				CLM_MoveCloseInt(_object, 20)
+					CLC_CastSkill(43, NTC_HAND_RIGHT, _object);
+			}
+		}
+		else if(!_object){
+			CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, id, disX, disY) // disX, disY for fine tunning distance from object
+			var _object = CLC_FindUnit(NTC_UNIT_OBJECT, id, 10);
+			if(_object){
+				CLC_CastSkill(43, NTC_HAND_RIGHT, _object);
+			}
+		}
+		if(!_object || !_object.mode){
+			_tkFailed = true;
+		}
+		else if(_object.mode){
+			return true;
+		}
+	}
+	if(!TK || _tkFailed) {
+		CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_OBJECT, id)
+		var _object = CLC_FindUnit(NTC_UNIT_OBJECT, id, 10);
+		while(!_object.mode){ // might want to make this a for loop so we don't get stuck here in an endless loop
+			if(GetDistance(me, _object) > 3)
+				CLM_MoveTo(_object.areaid, _object.x+2, _object.y);
+			CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _object);
+			CLC_PingDelay(500);
+		}
+		if(_object.mode){
+			return true;
+		}
+	}
+	return false;
+}
+
+function CLV_StashQuestItem(questItem){
+	var _items = me.GetItems(questItem);
+	CLTM_TownMove("stash");
+	var _stash = CLC_FindUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH, 5);
+	if(_stash){
+		if(CLT_DoInteract(_stash)){
+			CLT_ManageStash(_items[0]);
+		}
+	}
+	CLC_CancelMenus();
+}
+
+function CLV_checkQuestState(questnumber){ // tool to check what parts of quests are complete
+	for(i = 0 ; i < 13 ; i++){
+		var questcheck = me.GetQuest(questnumber, i);
+		Print(COLOR_2 + i + "= " + questcheck);
+		Delay(500);
+	}
+	while(1) Delay(500);
+}

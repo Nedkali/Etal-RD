@@ -1,0 +1,89 @@
+function NTMain() {
+
+	Include("Common/Libs/CLCommon.ntl");
+	CLC_IncludeLibs();
+	CLC_IncludeConfig();
+
+	NT_LoadConfig();
+	CLSI_LoadNIPFiles();
+
+	CLA_Initialize();
+
+	if(!CLTM_CheckAct()) {
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_CheckAct()");
+		return;
+	}
+	CLTMGR_TownManager();
+	if (!CLTM_TownMove("waypoint")) {
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_TownMove()");
+		return;
+	}
+	if (!CLM_TakeWaypoint(118)) {
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeWaypoint()");
+		return;
+	}
+	CLP_DoPrecast(true);
+	if(NTConfig_ClearAncientWay == 1){
+		NTConfig_SkipRegularMonsters = false;
+		CLP_DoPrecast();
+		if(!CLA_ClearLevel()){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLA_ClearLevel()");
+			return;
+		}
+	}
+	if(NTConfig_ClearAncientWay == 2){
+		NTConfig_SkipRegularMonsters = true;
+		CLP_DoPrecast();
+		if(!CLA_ClearLevel()){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLA_ClearLevel()");
+			return;
+		}
+	}
+	if (NTConfig_OpenChestsInArea && NTU_DontOpenAreas()) {
+		CLC_OpenChestsInArea();
+	}
+	if(NTConfig_ClearIcyCellar > -1){
+		if(!CLM_MoveToStair(me.areaid, 119)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToStair()");
+			return;
+		}
+		if(!CLM_TakeStair(119)){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeStair()");
+			return;
+		}
+		if(NTConfig_ClearIcyCellar == 0){
+			if(!CLM_MoveToPresetUnit(119, NTC_UNIT_MONSTER, 787, -5, 5)) {
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+				return;
+			}
+			if(CLA_KillMonster(GetLocaleString(22496))){
+				if(NTConfig_ClearPosition)
+				CLA_ClearPosition();
+				CLSI_PickItems();
+				if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+					CLC_OpenChestsInArea();
+				}
+			}
+		}
+		if(NTConfig_ClearIcyCellar == 1){
+			NTConfig_SkipRegularMonsters = false;
+			CLP_DoPrecast();
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLA_ClearLevel()");
+				return;
+			}
+		}
+		if(NTConfig_ClearIcyCellar == 2){
+			NTConfig_SkipRegularMonsters = true;
+			CLP_DoPrecast();
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "CLA_ClearLevel()");
+				return;
+			}
+		}
+	}
+	if (NTConfig_OpenChestsInArea && NTU_DontOpenAreas()) {
+		CLC_OpenChestsInArea();
+	}
+	CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+}

@@ -1,0 +1,63 @@
+function NTMain()
+{
+	Include("Common/Libs/CLCommon.ntl");
+	CLC_IncludeLibs();
+	CLC_IncludeConfig();
+
+	NT_LoadConfig();
+	CLSI_LoadNIPFiles();
+
+	CLA_Initialize();
+
+	if(!CLTM_CheckAct()){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_CheckAct()");
+		return;
+	}
+	CLTMGR_TownManager();
+	if(!CLTM_TownMove("waypoint")){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_TownMove()");
+		return;
+	}
+	if(!CLM_TakeWaypoint(27)){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeWaypoint()");
+		return;
+	}
+	CLP_DoPrecast(true);
+	if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+		CLC_OpenChestsInArea();
+	}
+	if(!CLM_MoveToPresetUnit(28, NTC_UNIT_MONSTER, 754, -5, 5)){
+		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
+		return;
+	}
+	if(NTConfig_ClearBarracks == 0){
+		if(!CLA_KillMonster(GetLocaleString(2889))){
+			CLC_SendMsgToScript("CScriptControl.ntj", "CLA_KillMonster()");
+			return;
+		}
+		CLSI_PickItems();
+		if(NTConfig_ClearPosition)
+			CLA_ClearPosition();
+	}
+	if(NTConfig_OpenChestsInArea && NTU_DontOpenAreas()){
+		CLC_OpenChestsInArea();
+	}
+	if(NTConfig_ClearBarracks > 0){
+		CLP_DoPrecast();
+		if(NTConfig_ClearBarracks == 1){
+			NTConfig_SkipRegularMonsters = false;
+			CLP_DoPrecast();
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+			}
+		}
+		if(NTConfig_ClearBarracks == 2){
+			NTConfig_SkipRegularMonsters = true;
+			CLP_DoPrecast();
+			if(!CLA_ClearLevel()){
+				CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+			}
+		}
+	}
+	CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+}
