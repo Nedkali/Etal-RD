@@ -741,7 +741,7 @@ var Extras =  {
 						CLC_Delay(500);
 					}
 
-					TPCheck();
+					this.TPCheck();
 				}
 			}
 		}
