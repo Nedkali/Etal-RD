@@ -8,26 +8,26 @@ Include("Common/Libs/CLCommon.ntl");
 var _CLL_LogList = new Array();
 
 // Logger Message Types
-const CLL_TYPE_LOG = 0;
-const CLL_TYPE_ITEM = 1;
+const NTLG_TYPE_LOG = 0;
+const NTLG_TYPE_ITEM = 1;
 
 // Message Levels
-const CLL_LEVEL_DEBUG = 0;
-const CLL_LEVEL_INFO = 1;
-const CLL_LEVEL_WARN = 2;
-const CLL_LEVEL_ERROR = 3;
-const CLL_LEVEL_ITEM_WHITE = 0;
-const CLL_LEVEL_ITEM_MAGIC = 1;
-const CLL_LEVEL_ITEM_RARE = 2;
-const CLL_LEVEL_ITEM_CRAFT = 3;
-const CLL_LEVEL_ITEM_UNIQUE = 4;
+const NTLG_LEVEL_DEBUG = 0;
+const NTLG_LEVEL_INFO = 1;
+const NTLG_LEVEL_WARN = 2;
+const NTLG_LEVEL_ERROR = 3;
+const NTLG_LEVEL_ITEM_WHITE = 0;
+const NTLG_LEVEL_ITEM_MAGIC = 1;
+const NTLG_LEVEL_ITEM_RARE = 2;
+const NTLG_LEVEL_ITEM_CRAFT = 3;
+const NTLG_LEVEL_ITEM_UNIQUE = 4;
 
-// Delimeter - log msgs are of the format: scriptname, ticks, type, level, msg separated by CLL_DELIM
-const CLL_DELIM = "%"
-const CLL_DELIM_REPLACE = "percent"
+// Delimeter - log msgs are of the format: scriptname, ticks, type, level, msg separated by NTLG_DELIM
+const NTLG_DELIM = "%"
+const NTLG_DELIM_REPLACE = "percent"
 
 // Log Queue size to never exceed
-const CLL_LOGLIMIT = 1000;
+const NTLG_LOGLIMIT = 1000;
 
 // Internal send to script buffer size
 const maxbufferlength = 63;
@@ -40,9 +40,9 @@ function CLL_Log (scriptname, type, level, msg) {
 	ticks = GetTickCount();
 	msg = scriptname + ": " + msg;
 	if (arguments.length == 3) msg = "";
-	regex = new RegExp(CLL_DELIM, "g");
-	msg = msg.replace(regex, CLL_DELIM_REPLACE);
-	maxmsglength = maxbufferlength - (3 * String(CLL_DELIM).length) - String(ticks).length - String(type).length - String(level).length;
+	regex = new RegExp(NTLG_DELIM, "g");
+	msg = msg.replace(regex, NTLG_DELIM_REPLACE);
+	maxmsglength = maxbufferlength - (3 * String(NTLG_DELIM).length) - String(ticks).length - String(type).length - String(level).length;
 	while (msg.length > maxmsglength) {
 		msgTrunc = msg.substr(0,maxmsglength);
 		msgTrunc = msgTrunc.replace(/^\s+|\s+$/g, "");
@@ -54,7 +54,7 @@ function CLL_Log (scriptname, type, level, msg) {
 }
 
 function CLL_LogEvent(scriptname, ticks, type, level, msg) {
-	logged = CLC_SendMsgToScript("NTLogHandler.ntj", ticks + CLL_DELIM + type + CLL_DELIM + level + CLL_DELIM + msg);
+	logged = CLC_SendMsgToScript("NTLogHandler.ntj", ticks + NTLG_DELIM + type + NTLG_DELIM + level + NTLG_DELIM + msg);
 	if (!logged) CLL_QueueLogEvent(scriptname, ticks, type, level, msg);
 }
 
@@ -69,7 +69,7 @@ function CLL_QueueLogEvent(scriptname, ticks, type, level, msg) {
 }
 
 function CLL_FlushLogQueue() {
-	if (_CLL_LogList.length > CLL_LOGLIMIT) {
+	if (_CLL_LogList.length > NTLG_LOGLIMIT) {
 		CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "CLL_FlushLogQueue: buffered length exceeds limit, flushing "+ _CLL_LogList.length +" messages");
 		CLL_EmergencyFlushLogQueue();
 	}
