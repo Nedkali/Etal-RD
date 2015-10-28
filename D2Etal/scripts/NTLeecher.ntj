@@ -175,7 +175,7 @@ function NTMain(){
                 RunGC(); // run garbage collector between each game
 
                 if(Load("Common/CScriptControl.ntj")){
-                    if(!reEnterSameGame) { NT_File("logs/messagecomands/"+me.charname+"-lastgame.txt", 1, me.gamename); }	// writes current game for comparing to new game to join next time in lobby	
+                    if(!reEnterSameGame) { NT_File("Configs/"+MyRealm+"/logs/messagecomands/"+me.charname+"-lastgame.txt", 1, me.gamename); }	// writes current game for comparing to new game to join next time in lobby	
 									
 					retryFL = 0; // sets the counter back to 0 upon game entry.
 					_ingame = true;
@@ -448,7 +448,7 @@ function locationAction(location){
 			Delay(100);
 		}
 		if(tryLeaderGame1x && retryLeaderGame <= 0) {	
-			NT_File("logs/messagecomands/"+me.charname+"-lastgame.txt", 1, game); // writes current game for comparing to new game to join next time in lobby	
+			NT_File("Configs/"+MyRealm+"/logs/messagecomands/"+me.charname+"-lastgame.txt", 1, game); // writes current game for comparing to new game to join next time in lobby	
 			game = "";
 		}
 		if(retryLeaderGame > 0 && !tryLeaderGame1x && retryLeaderGameCount < retryLeaderGame) { // increases the leadergamecount
@@ -793,9 +793,9 @@ function NT_File(path, mode, msg, delay) { //big thanks to all the koreans out t
 }
 
 function NT_RetrieveLastGame() {
-	var grabLastGame = FileOpen("logs/messagecomands/"+me.charname+"-lastgame.txt", 0); // open file in read only
+	var grabLastGame = FileOpen("Configs/"+MyRealm+"/logs/messagecomands/"+me.charname+"-lastgame.txt", 0); // open file in read only
 	if(!grabLastGame){
-		var grabLastGame = FileOpen("logs/messagecomands/"+me.charname+"-lastgame.txt", 1); // because the file doesn't exist create it
+		var grabLastGame = FileOpen("Configs/"+MyRealm+"/logs/messagecomands/"+me.charname+"-lastgame.txt", 1); // because the file doesn't exist create it
 	}
 	if(grabLastGame){ 
 		lastGame = grabLastGame.ReadLine(); //retrieve the line and set the lastGame variable to it so we can check it against the game we may want to join
@@ -806,9 +806,9 @@ function NT_RetrieveLastGame() {
 
 function NT_RetrievenextGame() { // to retrieve game and pw
 	var grabLine;
-	var grabNextGame = FileOpen("logs/messagecomands/"+leaderName+"-nextgame.txt", 0); // open file in read only
+	var grabNextGame = FileOpen("Configs/"+MyRealm+"/logs/messagecomands/"+leaderName+"-nextgame.txt", 0); // open file in read only
 	if(!grabNextGame){
-		var grabNextGame = FileOpen("logs/messagecomands/"+leaderName+"-nextgame.txt", 1); // because the file doesn't exist create it
+		var grabNextGame = FileOpen("Configs/"+MyRealm+"/logs/messagecomands/"+leaderName+"-nextgame.txt", 1); // because the file doesn't exist create it
 	}
 	if(grabNextGame){ 
 		grabLine = grabNextGame.ReadLine(); //retrieve the line and set the nextGame variable to it so we can check it against the game we may want to join
