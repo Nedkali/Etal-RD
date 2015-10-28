@@ -1076,7 +1076,7 @@ function CLTMGR_CheckCurse(selfmask, mercmask, print){
 function CLTMGR_CheckSafe(selfmask, mercmask){
 	if((mercmask.indexOf("01") != -1) && CLT_CheckMerc()) {
 		Print("The Merc is dead!");
-		NTU_MercDeathLog();
+		CLU_MercDeathLog();
 		//return CLTMGR_VisitTown();
 		return true;
 	}

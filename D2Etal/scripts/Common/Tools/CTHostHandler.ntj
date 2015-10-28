@@ -43,11 +43,12 @@ function NTMain()
 	Print(COLOR_4 + "HostHandler " + COLOR_2 + Ver + COLOR_4 + " Loaded");
 
 	while(1){ Delay(100); MyTime();
-		if(KillHostiler & !RunFromHostiles){ var _dumbass = CLC_FindUnit(NTC_UNIT_PLAYER);
+		if(KillHostiler & !RunFromHostiles){
+			var _dumbass = CLC_FindUnit(NTC_UNIT_PLAYER);
 			if(_dumbass){
 				do{
 					if(!HH_CampStairs || me.areaid != 131){
-						if(GetPlayerFlag(me.gid, _dumbass.gid, 9) && /*GetDistance(me.x, me.y, _dumbass.x, _dumbass.y) < 60*/ me.areaid == _dumbass.areaid && !NTC_InTown() && NTA_IsValidTarget(_dumbass)){
+						if(GetPlayerFlag(me.gid, _dumbass.gid, 9) && me.areaid == _dumbass.areaid && !CLC_InTown() && NTA_IsValidTarget(_dumbass)){
 							CLC_SendMsgToScript("CScriptControl.ntj", "HOSTILE");
 							if(CLA_KillDumbass(_dumbass.gid) && TauntHostile){
 								t = Random(0,(GotWreckedTaunt.length-1));
@@ -69,7 +70,8 @@ function NTMain()
 							if(CLA_KillDumbass(_dumbass.gid) && TauntHostile){
 								t = Random(0,(GotWreckedTaunt.length-1));
 								Say(_dumbass.name + GotWreckedTaunt[t]);
-							} CLC_SendMsgToScript("CScriptControl.ntj", "HOSTILE");
+							}
+							CLC_SendMsgToScript("CScriptControl.ntj", "HOSTILE");
 						}
 					}
 				} while(_dumbass.GetNext());
@@ -138,8 +140,8 @@ function DumbassCity(msg, type)
 						if(GetPlayerFlag(me.gid, _dumbass.gid, 9)){
 							_dumbass = stripColorCodes(_dumbass.name);
 
-							HostLog = FileOpen("logs/HostileLogs/" + me.charname + ".txt", 2);
-							if(!HostLog) HostLog = FileOpen("logs/HostileLogs/" + me.charname + ".txt", 2);
+							HostLog = FileOpen("Configs/"+MyRealm+"/logs/HostileLogs/" + me.charname + ".txt", 2);
+							if(!HostLog) HostLog = FileOpen("Configs/"+MyRealm+"/logs/HostileLogs/" + me.charname + ".txt", 2);
 								HostLog.WriteLine("---------" + Area.name + "---------");
 								HostLog.WriteLine("Date - Time: " + Today + " - " + TheTime);
 								HostLog.WriteLine("Character: " + Names[Names.indexOf(_dumbass)]);
@@ -224,7 +226,7 @@ function CLA_KillDumbass(id)
 	if(_target.IsAttackable()){
 		var _attackcount = 0;
 		while(_attackcount < 600 && NTA_IsValidTarget(_target)){
-			if(NTA_Attack(_target, (_attackcount%30) == 0) < 2)
+			if(CLA_Attack(_target, (_attackcount%30) == 0) < 2)
 				return false;
 			if(me.classid == 1 && GetDistance(me.x, me.y, _target.x, _target.y) < 10)
 			{
@@ -234,13 +236,13 @@ function CLA_KillDumbass(id)
 			} _attackcount++;
 		}
 	}
-	NTSI_PickItems();
+	CLSI_PickItems();
 	return (_target.hp <= 0 || _target.mode == 0 || _target.mode == 17);
 }
 
 function NTA_IsValidTarget(target)
 {
-	if(target.mode == 17 || target.mode == 0 || NTC_InTown(target)){ return false; }
+	if(target.mode == 17 || target.mode == 0 || CLC_InTown(target)){ return false; }
 	else{ return true; }
 }
 
