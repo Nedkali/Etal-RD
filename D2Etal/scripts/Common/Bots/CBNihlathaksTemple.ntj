@@ -172,7 +172,6 @@ function NT_TempPortal()
 		}
 		if(NTConfig_CheckVipers && CLC_FindUnit(NTC_UNIT_MONSTER, GetLocaleString(2956))) {
 			CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Tomb Vipers found.");
-			CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
 			return;
 		}
 		if(!CLA_KillMonster(526)) {
@@ -275,7 +274,6 @@ function NT_TempWP()
 		}
 		if(NTConfig_CheckVipers && CLC_FindUnit(NTC_UNIT_MONSTER, GetLocaleString(2956))) {
 			CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Tomb Vipers found.");
-			CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
 			return;
 		}
 		if(!CLA_KillMonster(526)) {
