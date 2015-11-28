@@ -204,7 +204,7 @@ function CLRW_MakeRuneword(){
 function CLRW_MiniCLIP_CheckItem(item, ntip){
     var _result     = 0;
     var _identified = item.itemflag & _NTIPAliasFlag["identified"];
-    var _ntip       = NTIPParseLineInt(ntip);
+    var _ntip       = CLIP_ParseLineInt(ntip);
 	try {
 		if (_ntip){
 			if (_ntip[0].length > 0){
