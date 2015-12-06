@@ -27,6 +27,9 @@ function CLVT_VoyageToArea(areaID) { // 5
 				CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Couldn't take wp not in that act");
 				Print(COLOR_1 + "You haven't completed the quests to be in that act");
 				Print(COLOR_1 + "Aborting this script");
+				if (GetUIState(0x14)) {
+					me.Cancel(0);
+				}
 				return false;
 			} else {
 				if(debugVoyageTo) { Print(COLOR_9 + "Don't have wp " + checkNextPrev + " checking next previous"); }
