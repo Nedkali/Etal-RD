@@ -1,6 +1,6 @@
 var CurScriptIndex = 0;
 var LastScript = false;
-var Rev = "14-RD";
+var Rev = "15-RD";
 
 var SoJNotify = false;
 var CloneDiabloString = GetLocaleString(11005);
@@ -170,7 +170,10 @@ function NTMain(){
 			}
 		}
 	}
+	
+	
 	CLE_ComputeStats(false);
+	
 	if(NTConfig_PublicMode && NTConfig_PropsForEtal > 0) {
 		Include("Common/Globals/EtalPR.ntl");
 		for(var i = 0 ; i < NTConfig_PropsForEtal ; i++) {
@@ -191,7 +194,7 @@ function NTMain(){
     }
 
 	ExitGame();
-	Delay(3000);// testing to avoid repetive stats sent to manager log
+	Delay(5000);// testing to avoid repetive stats sent to manager log
 }
 var WhoDatIs; // Needed for spam catcher addition, DO NOT remove
 
@@ -260,7 +263,7 @@ function CSC_GameMsgEvents(msg, type){
 
                     CLTM_CheckAct();
 					
-					if(NTConfig_KillDclone){Load("Common/bots/NTClone.ntj");}
+					if(NTConfig_KillDclone){Load("Common/Bots/CBClone.ntj");}
                 }
             }
 			else if(msg.indexOf(SoJString) != -1 && !CloneDiabloNotify && NTConfig_SoJWaitTime > 0) { // part of soj addon. !CloneDiabloNotify was added to prevent timer start on oversales after Diablo walks.
