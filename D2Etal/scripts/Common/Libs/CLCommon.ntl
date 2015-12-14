@@ -611,8 +611,12 @@ function CLC_OpenChest(chest){
 
 		CLC_Delay(200);
 
-		if(chest.mode > 0)
+		if(chest.mode > 0){
+			if(NTConfig_CheckChestid){
+				Print(COLOR_17 + chest.name + " = " + chest.classid);
+			}
 			return true;
+		}
 	}
 
 	return false;
