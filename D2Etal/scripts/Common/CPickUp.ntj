@@ -1,4 +1,4 @@
-// Written By nullard and revised by Diabolic
+// DiaBase Vers 1.0
 
 Include('Common/Libs/CLCommon.ntl');
 Include('Common/Globals/NTConfig.ntl');

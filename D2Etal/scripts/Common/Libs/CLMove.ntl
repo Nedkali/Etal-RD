@@ -342,6 +342,7 @@ function CLM_UsePortal(how, dest, ownername, portal){
 	if(CLM_ChangeAreaInt(how, dest, ownername, portal)){
 		CLC_PingDelay(NTConfig_AreaDelay);
 		if(me.areaid == 103){ Delay(250);CLM_MoveTo(103, 5046, 5037);}// wall bug fix
+		if(me.areaid == 1){ Delay(250);CLM_MoveTo(1, me.x -5, me.y-5);Delay(250);}// wall bug fix
 		return true;
 	}
 
