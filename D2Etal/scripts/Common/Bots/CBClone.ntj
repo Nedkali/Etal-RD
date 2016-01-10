@@ -14,36 +14,63 @@ function NTMain()
 	CLSI_LoadNIPFiles();
 
 	CLA_Initialize();
-	Print(COLOR_1 + "D Clone Script Started");
-	
 	NTConfig_Leader = me.name;// reset leaders name so this script completes if leader leaves game
-	SendCopyData('EtalHelper', null, 3333, me.realm+" - "+me.account); 
-	CLTM_CheckAct();
 
-	CLTMGR_TownManager();
-	
-		
+	Print(COLOR_1 + "D Clone Script Started");
+	SendCopyData('EtalHelper', null, 3333, me.realm+" - "+me.account + " - IP:"+ me.gameserverip.split(".")[3]);
+	SendCopyData('EtalHelper', null, 1000, "DClone");
+	//SendCopyData('EtalHelper', null, 1000, me.name);
+	var MuleAnni = NTCL_PreAnniCheck();
+
+	_target = CLC_FindUnit(NTC_UNIT_MONSTER, 333, 5);
+	if(_target){//checks if dclone in immediate area
+		if(!CLA_KillMonster(333)){
+		CLA_KillMonster(333);
+		}
+	}
+
+	if(!_target){
+		CLTM_CheckAct();
+		CLTMGR_TownManager();
 		switch(clonearea){
-
 			case 2: NTCL_Stoney();
 					break;
 			case 3: NTCL_Arcane();
 					break;
 			case 4: NTCL_Frigid();
 					break;
-			case 5: NTCL_Throne();//not sure what to do here here - was used once when spawned in throne room
-					break;
 			default: NTCL_Stoney();
 					break;
 		}
+	}
+	if(MuleAnni){
+		NTCL_PickAnni();
+		CLTM_CheckAct();
+		CLTMGR_TownManager();
+		if(NTCL_CheckForAnni()){Delay(3000); ExitGame();}
+	}
 
 	CLTM_CheckAct();
 	CLTMGR_TownManager();
-	if(NTCL_CheckForAnni()){Delay(3000); ExitGame();}
-	
+	//Delay(30000);
+	//ExitGame();
 	//intentionally left out endscript incase of errors - manual salvage?
-	Delay(30000);
-	ExitGame();
+	CLC_SendMsgToScript("CScriptControl.ntj", "SCRIPT_END");
+}
+
+function NTCL_PreAnniCheck(){
+
+	var _items = me.GetItems(603);//603
+	if(_items){
+		for (var i = 0; i< _items.length; i++){
+			if(_items[i].quality == 7){
+				Print(COLOR_1 + "Pickup disabled");
+				return false;
+			}
+		}
+	}
+	Print(COLOR_2 + "Char set to Pickup & Mule");
+	return true;
 }
 
 function NTCL_CheckForAnni(){
@@ -56,13 +83,13 @@ function NTCL_CheckForAnni(){
 				CLC_File("Configs/"+MyRealm+"/AMS/MuleStatus/" + me.account + "_charstatus.txt", 1, "Main");
 				CLC_File("Configs/"+MyRealm+"/AMS/MuleStatus/" + me.account + "_mulingstatus.txt", 1, "true");
 				CLC_SendLogToOOG(NTC_LOG_COMMON, 'Automuling triggered.' + COLOR_2 + 'Picked up anni');
-				Say("!Yeehaa Got Meself an Annihilus");								
+				Say("!Yeehaa Got Meself an Annihilus");
 				return true;
 			}
 		}
 	}
-	
-	Print("Anni not found");
+
+	Print(COLOR_1 + "No Anni found");
 	return false;
 }
 
@@ -82,24 +109,13 @@ function NTCL_PickAnni() {
 	return;
 }
 
-function NTCL_Throne(){
-	CLTM_CheckAct(5);
-	CLTM_TownMove("portalspot")
-	CLM_UsePortal("BluePortal", 131, NTConfig_Leader);
-	CLP_DoPrecast(true, true);
-	if(!CLA_KillMonster(333)){
-		CLA_KillMonster(333);
-	}
-	NTCL_PickAnni();
-}
-
 function NTCL_Stoney(){
 
 	if(!CLTM_TownMove("waypoint")){
 		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_TownMove()");
 		return;
 	}
-	
+
 	if(!CLM_TakeWaypoint(4)){
 		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeWaypoint()");
 		return;
@@ -110,12 +126,11 @@ function NTCL_Stoney(){
 			CLC_SendMsgToScript("CScriptControl.ntj", "CLM_MoveToPresetUnit()");
 			return;
 	}
-	
+
 	if(!CLA_KillMonster(333)){
 		CLA_KillMonster(333);
 	}
-	NTCL_PickAnni();
-	
+
 	return;
 }
 
@@ -125,7 +140,7 @@ function NTCL_Arcane(){
 		CLC_SendMsgToScript("CScriptControl.ntj", "CLTM_TownMove()");
 		return;
 	}
-	
+
 	if(!CLM_TakeWaypoint(74)){
 		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeWaypoint()");
 		return;
@@ -136,7 +151,6 @@ function NTCL_Arcane(){
 	if(!CLA_KillMonster(333)){
 		CLA_KillMonster(333);
 	}
-	NTCL_PickAnni();
 
 	return;
 }
@@ -151,11 +165,11 @@ function NTCL_Frigid(){
 		CLC_SendMsgToScript("CScriptControl.ntj", "CLM_TakeWaypoint()");
 		return;
 	}
-	
+
 	CLP_DoPrecast(true,true);
-	
+
 	CLM_MoveTo(111, 3752, 5094);
-	
+
 	CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_MONSTER, 333, 15, 5);
 	/////////////////////////////////////////////////////
 	// code below here was to try to get him to shenk
@@ -170,16 +184,13 @@ function NTCL_Frigid(){
 	//	if(GetDistance(me, DiabloC) > 25)// try to keep him close
 	//		Delay(2000);
 	//}
-
-
 	//CLA_KillMonster(GetLocaleString(22435));// kill shenk
 	//}
-	
+
 	if(!CLA_KillMonster(333)){
 		CLA_KillMonster(333);
 	}
-	NTCL_PickAnni();
-	
+
 	return;
 }
 
