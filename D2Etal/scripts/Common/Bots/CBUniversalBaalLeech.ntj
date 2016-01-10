@@ -319,10 +319,12 @@ function NT_LeechBaalFighter(){
 			return false;
 		}
 		CLM_MoveTo(me.areaid, 15138, 5916);
-		if(!CLA_KillMonster(544)){
-			return false;
+		if(NTConfig_SetBaal > 0){
+			CLA_SetMonster(544, NTConfig_SetBaal);
+		}else{
+			CLA_KillMonster(544);
+			CLSI_PickItems();
 		}
-		CLSI_PickItems();
 	}
 	return true;
 }

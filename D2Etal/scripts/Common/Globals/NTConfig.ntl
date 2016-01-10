@@ -446,7 +446,8 @@ var NTConfig_Script = [];
 	var NTConfig_AttackingThis;
 	var NTConfig_CheckSelfSafe = new Array();
 	var NTConfig_CheckMercSafe = new Array();
-
+	var NTConfig_SetDiablo;
+	var NTConfig_SetBaal;
 
 // NTConfig_Global Variables
 	var Do_PauseBot;
@@ -467,40 +468,6 @@ var NTConfig_Script = [];
 	var Do_CheckBPs;
 	var Do_ExitGame;
 
-// Unknown variables
-//var	NTConfig_KillBaalWalking; not founf in area scripts
-//var _walkfightertp;
-//var NTConfig_RunScriptAfterDiablo;
-//var NTConfig_LeechKillBaal;
-//var NTConfig_LeechWalkAround;
-//var NTConfig_RunScriptAfterBaal;
-//var NTConfig_Blocker;
-//var DebugInGame;
-//var LogHostiles;
-//var channelName;
-//var hostile_GetThenQuit;
-//var KillHostilePlayer;
-//var NTConfig_PsnW2;
-//var NTConfig_ClearWSK;
-//var NTConfig_TeleEachWave;
-//var NTConfig_NihlathakExtension;
-//var NTConfig_PindleskinExtension;
-//var NTConfig_ShenkExtension;
-//var NTConfig_OpenEvilUrn;
-//var NTConfig_FTEvilUrnExtension;
-//var NTConfig_Wave3;
-//var NTConfig_TownBeforeDiablo;
-//var NTConfig_MakeHelpTPBeforeThrone;
-//var Diablo_TpUpMessage;
-//var Diablo_KillDiabloMessage;
-//var Diablo_NextGameMessage;
-//var	Diablo_FreeSpaceMessage;
-//var Baal_WSlvl3tpMSG;
-//var NTConfig_CaveLevel1;
-//var NTConfig_CaveLevel2;
-//var NTConfig_ClearPlainsOfDespair;
-//var NTConfig_ClearRiverOfFlames;
-//var NTConfig_DNextGameSay;
 
 // Level Announce vars
 var NTConfig_Announcer;

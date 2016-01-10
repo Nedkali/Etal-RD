@@ -802,6 +802,9 @@ function NT_LoadConfig()
 
 	prewavespot = [15092, 5040];						// Pre-Wave standing (X,Y) coordinates. (For Baal Scripts.)
 
+	NTConfig_SetDiablo = 0;			// leechers (only) stop attacking Diablo after x% - valid values 0 to 100
+	NTConfig_SetBaal = 0;			// leechers (only) stop attacking Baal after x% - valid values 0 to 100
+
 	NTconfig_HighMaxAttack = false;						// Use HighMaxAttacks? (False = LowMaxAttacks.) High/Low are below.
 	NTConfig_HighMaxAttackAreas = [131];				// If above is set false (you're using LowMaxAttacks), add areas to bypass LowMaxAttacks and use HighMaxAttacks instead. (Recommended in Baal's Throne Room.)
 
