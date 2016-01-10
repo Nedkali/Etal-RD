@@ -1,5 +1,4 @@
-//////////////////////////////////////
-//       Mule Account Info:         //
+// DiaBase Vers 1.0
 //////////////////////////////////////
 
 
@@ -73,6 +72,7 @@ var relog = false;
 var retoon = false;
 var done = false;
 var ftjcount = 0;
+var MyRealm;
 
 function NTMain(){
 	Delay(1000);
@@ -83,7 +83,7 @@ function NTMain(){
 	controlData.textDelay = textDelay;
 	controlData.clickDelayRandom = clickDelayRandom;
 	controlData.textDelayRandom = textDelayRandom;
-
+	GateWayToName();// setup MyRealm based on managers realm settings
 
 	while(!done){
 		if(me.ingame){
@@ -283,6 +283,8 @@ function locationAction(location){
 			break;
 		}
 		
+		StoreLadderType(_info);
+		
 		sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name, 0);
 		
 		if(_time < characterScreenTimeout){
@@ -398,6 +400,22 @@ function locationAction(location){
 	}
 }
 
+function GateWayToName(){
+	if(me.playtype == 0){
+		MyRealm = "SinglePlayer";
+		return;
+	}
+	switch(me.gatewayid){
+		case 0: MyRealm = "USWest"; return;
+		case 1: MyRealm = "USEast"; return;
+		case 2: MyRealm = "Asia"; return;
+		case 3: MyRealm = "Europe"; return;
+	}
+	
+	SendCopyData("D2NT Manager", null, 9<<16, COLOR_1 + "Cant identify realm");
+	return;
+}
+
 function sendEventToOOG(locationId, statusString, pendingTime){
 	return SendCopyData("D2NT Manager", null, (locationId<<16)|pendingTime, statusString);
 }
@@ -482,4 +500,17 @@ function getGameCounter(lastGameString, simple){
       }
       return myCount;
    }
+}
+
+function StoreLadderType(_txt){
+	var ladder = false;
+
+	if(_txt.indexOf("LADDER CHARACTER") != -1){
+		ladder = true;	
+	}	
+	
+	var fileName = "Configs/"+MyRealm+"/AMS/MuleInventory/" + me.account + "_" + _txt[1] + ".txt";
+	_file = FileOpen(fileName, 1);
+	_file.WriteLine(ladder);
+	_file.Close();
 }

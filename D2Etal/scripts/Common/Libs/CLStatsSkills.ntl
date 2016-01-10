@@ -189,8 +189,8 @@ function CLSS_SkillsAdd(skillid, num){
 	if(me.GetSkill(skillid, false) > pre)
 		CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_2 + "Successfully added " + (me.GetSkill(skillid, false)-pre) + " points to " + skilltree[0]);
 	
-	if(me.GetSkill(skillid, false) == pre)
-		CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Cant add to skill " + skilltree[0] + " need more levels");
+	//if(me.GetSkill(skillid, false) == pre)
+	//	CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Cant add to skill " + skilltree[0] + " need more levels");
 		
 	return;
 
