@@ -628,7 +628,7 @@ function CBCS_Chat(msg, type)
 	if(type != 0 && msg.indexOf(NTConfig_Leader) == -1)
 		return;
 
-	if(!trigger && (msg.indexOf(NTConfig_CS_SafeTP) != -1) && me.areaid == 108 && me.y > 5405){
+	if(!trigger && (msg.indexOf(NTConfig_CS_SafeTP) != -1) && me.areaid == 108 && me.y > 5348){
 		trigger = true;return;
 	}
 	
@@ -659,7 +659,7 @@ function CBCS_Chat(msg, type)
 	}
 	
 	if(msg.indexOf("Diablo Dead.") != -1){
-		if(NTConfig_LeechChaos < 2 && me.areaid == 108){
+		if(NTConfig_LeechChaos == 0 && me.areaid == 108){
 			Delay(3000);
 			CLM_MoveTo(me.areaid, 7769, 5284);
 			CLM_UsePortal("BluePortal", 103, NTConfig_Leader);
@@ -681,88 +681,55 @@ function CBCS_Chat(msg, type)
 	return;
 }
 
-var chaosentrance = [7791, 5571,7793, 5553, 7793, 5535, 7793, 5520, 7793, 5505, 7776, 5490, 7769, 5475,  7769, 5460, 7769, 5445, 7769, 5430, 7776, 5415, 7776, 5400, 7769, 5385, 7769, 5370, 7776, 5355, 7776, 5340, 7776, 5325]
-var chaosfollow = [7776, 5325, 7768, 5314, 7752, 5314, 7730, 5314, 7709 , 5291];//7776, 5340, 
-var chaosfollow1 =[7725, 5276, 7750, 5273, 7770, 5271, 7774, 5260, 7777, 5250, 7785, 5241, 7800, 5232, 7814, 5229];
-var chaosfollow2 =[7814, 5232, 7814, 5229, 7814, 5245, 7814, 5262, 7821, 5280, 7835, 5280, 7845, 5280, 7855, 5290, 7874, 5293];
+var Sealfollow = [];
 
-function CBCS_LeechFollow()
-{	
+function CBCS_LeechFollow(){	
+	var chaosentrance = [7791, 5571, 7793, 5553, 7793, 5535, 7793, 5520, 7793, 5505, 7776, 5490,
+						7769, 5475, 7769, 5460, 7769, 5445, 7769, 5430, 7776, 5415, 7776,
+						5400, 7769, 5385, 7769, 5370, 7776, 5355, 7776, 5340, 7776, 5325]
+
 	NTConfig_SnagRange = 15;
-
 	//me.showenemyonautomap = true;
 	
 	if (me.y > 5353 && me.areaid == 108) {
-
-		CLM_MoveTo(108, 7792, 5540);
+		CLM_MoveTo(108, 7793, 5535);
 		CLP_DoPrecast(true, NTConfig_LeechBo);
 		for(var e = 4 ; e < chaosentrance.length ; e+=2){
-			while(!CBCS_Safetoadvance())
-				{	if( e == 0){CBCS_FallBack(); return;}
-					if(leechwarn && e >= 2)
-						{e=e-2;CLM_MoveTo(108, chaosentrance[e], chaosentrance[e+1]);}
-					Delay(100);
-					if(trigger)
-					{
-						CLTM_CheckAct();
-						//Print("Trigger");
-						Delay(300);
-						while(me.areaid !=108){	CLM_UsePortal("BluePortal", 108, NTConfig_Leader);Delay(300);}
-						return CBCS_LeechFollow();
-					}
-					
-				}
-			CLM_MoveTo(108, chaosentrance[e], chaosentrance[e+1]);
-
+			while(!CBCS_Safetoadvance()){
+				if( e == 0  || SealBoss1){CBCS_FallBack(); return;}
+				if(leechwarn && e >= 2){e=e-2;CLM_MoveTo(108, chaosentrance[e], chaosentrance[e+1]);}
+				Delay(100);
+				if(trigger){
+					CLTM_CheckAct();
+					Delay(300);
+					while(me.areaid !=108){	CLM_UsePortal("BluePortal", 108, NTConfig_Leader);Delay(300);}
+					return CBCS_LeechFollow();
+				}					
+			}
+			if(!CLM_MoveTo(108, chaosentrance[e], chaosentrance[e+1]))
+				Print("Error moving to x:" + chaosentrance[e] + " y:" + chaosentrance[e+1]);
 		}
 	}
 	
-	CBCS_SeaBossWaitLoc(396);
-
-	CLP_DoPrecast(true, NTConfig_LeechBo);
+	var sealid = [396, 394, 392];
 	
-	for(var e = 2 ; e < chaosfollow.length ; e+=2){
-			while(!CBCS_Safetoadvance())
-				{	if(leechwarn && e == 0){CBCS_FallBack(); return;}
-					if(leechwarn && e > 0)
-						{e=e-2;CLM_MoveTo(108, chaosfollow[e], chaosfollow[e+1]);}
-					Delay(100);
-				}
-			CLM_MoveTo(108, chaosfollow[e], chaosfollow[e+1]);
-
+	for(var seal = 0 ; seal < 3 ; seal++){
+		CBCS_SeaPath(sealid[seal]);
+		CLP_DoPrecast(true, NTConfig_LeechBo);	
+		for(var e = 2 ; e < Sealfollow.length ; e+=2){
+			while(!CBCS_Safetoadvance()){
+				if(leechwarn && e == 0){CBCS_FallBack(); return;}
+				if(leechwarn && e > 0){e=e-2;CLM_MoveTo(108, Sealfollow[e], Sealfollow[e+1]);}
+				Delay(100);
+			}
+			if(!CLM_MoveTo(108, Sealfollow[e], Sealfollow[e+1]))
+				Print("Error moving to x:" + Sealfollow[e] + " y:"+Sealfollow[e+1]);
 		}
+		if(seal == 0){while(!SealBoss1 && !CBCS_SealbossDead(GetLocaleString(2851))){Delay(200);}}
+		if(seal == 1){while(!SealBoss2 && !CBCS_SealbossDead(GetLocaleString(2852))){Delay(200);}}
+		if(seal == 2){while(!SealBoss3 && !CBCS_SealbossDead(GetLocaleString(2853))){Delay(200);}}
+	}
 	
-	while(!SealBoss1){Delay(200);}
-	
-	CBCS_SeaBossWaitLoc(394);
-	CLP_DoPrecast(true, NTConfig_LeechBo);
-	for(var e = 0 ; e < chaosfollow1.length ; e+=2){
-			while(!CBCS_Safetoadvance())
-				{	if(leechwarn && e == 0){CBCS_FallBack(); return;}
-					if(leechwarn && e > 0)
-						{e=e-2;CLM_MoveTo(108, chaosfollow1[e], chaosfollow1[e+1]);}
-					Delay(100);
-				}
-			CLM_MoveTo(108, chaosfollow1[e], chaosfollow1[e+1]);
-		}
-	
-	while(!SealBoss2){Delay(200);}
-
-	CBCS_SeaBossWaitLoc(392);
-	CLP_DoPrecast(true, NTConfig_LeechBo);	
-	for(var e = 0 ; e < chaosfollow2.length ; e+=2){
-			while(!CBCS_Safetoadvance())
-				{	if(leechwarn && e == 0){CBCS_FallBack(); return;}
-					if(leechwarn && e > 0)
-						{e=e-2;CLM_MoveTo(108, chaosfollow2[e], chaosfollow2[e+1]);}
-					Delay(100);
-				}
-			CLM_MoveTo(108, chaosfollow2[e], chaosfollow2[e+1]);
-
-		}
-	
-	while(!SealBoss3){Delay(200);}
-
 	CLM_MoveTo(108, 7821, 5280, 2);
 	CLM_MoveTo(108, NTConfig_Chaosleechpos[0], NTConfig_Chaosleechpos[1]);
 	CLP_DoPrecast(true, NTConfig_LeechBo);
@@ -774,6 +741,12 @@ function CBCS_LeechFollow()
 	CLM_UsePortal("BluePortal", 103, NTConfig_Leader)
 
 	return;
+}
+
+function CBCS_SealbossDead(classid){
+	_target = CLC_FindUnit(NTC_UNIT_MONSTER, classid, 5);
+	if (!_target) { return false; }	
+	return _target.mode == 12;
 }
 
 function CBCS_Safetoadvance(){
@@ -807,27 +780,35 @@ function CBCS_Safetoadvance(){
 	return true;
 }
 
-function CBCS_SeaBossWaitLoc(classid)
-{
-
-	var _leechseal = GetPresetUnits(108, NTC_UNIT_OBJECT, classid);
-	
+function CBCS_SeaPath(classid){
+ 
+	var _leechseal = GetPresetUnits(108, NTC_UNIT_OBJECT, classid);	
 	locx = (_leechseal[0].roomx * 5 + _leechseal[0].x);
 	locy = (_leechseal[0].roomy * 5 + _leechseal[0].y);
-
-	if (locx == 7655 && locy == 5275)
-		{chaosfollow.push(7709, 5273);return;}
-			
-	if (locx == 7815 && locy == 5155)
-		{chaosfollow1.push(7810,5215);return;}
+	//Print("Seal ID = " + classid + " x:"+locx + " y:" + locy);
+	if (locx == 7655 && locy == 5275){//seal boss 1
+		return Sealfollow = [7776, 5325, 7768, 5314, 7752, 5314, 7730, 5314, 7709 , 5291, 7709, 5273];
+	 }
+	
+	if (classid == 396){//seal boss 1
+		return Sealfollow = [7776, 5325, 7768, 5314, 7752, 5314, 7730, 5314, 7709, 5291];
+	}
+	
+	if (locx == 7815 && locy == 5155){//seal boss 2
+		return Sealfollow = [7725, 5276, 7750, 5273, 7770, 5271, 7774, 5260, 7777, 5250, 7785, 5241, 7800, 5232, 7814, 5229, 7814, 5215, 7814, 5199];
+	}
+	
+	if (locx == 7773 && locy == 5155){//seal boss 2
+		return Sealfollow = [7725, 5276, 7750, 5273, 7770, 5271, 7774, 5260, 7777, 5250, 7785, 5241, 7800, 5232, 7814, 5229];
+	}
+	
+	if (locx == 7915 && locy == 5315){//seal boss 3
+		return Sealfollow = [7814, 5232, 7814, 5229, 7814, 5245, 7814, 5262, 7821, 5280, 7835, 5280, 7845, 5280, 7855, 5290, 7874, 5293, 7880, 5307];
+	}
 		
-	if (locx == 7915 && locy == 5315)
-		{chaosfollow2.push(7880, 5307);return;}
-
-		
-	if (locx == 7893 && locy == 5313)
-		chaosfollow2.push(7885, 5318);
-		
+	if (locx == 7893 && locy == 5313){//seal boss 3
+		return Sealfollow = [7814, 5232, 7814, 5229, 7814, 5245, 7814, 5262, 7821, 5280, 7835, 5280, 7845, 5280, 7855, 5290, 7874, 5293, 7885, 5318];
+	}
 	return;
 }
 
