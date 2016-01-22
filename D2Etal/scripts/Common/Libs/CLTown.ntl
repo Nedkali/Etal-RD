@@ -1586,7 +1586,7 @@ function CLT_ResetEnigma(){
 
 	CLC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Unable to find Enigma.  Check NTConfig_ResetEnigma var in char config.***");
 	Print(COLOR_1 + "***Unable to find Enigma.  Check NTConfig_ResetEnigma var in char config.***");
-	NTC_TimeKeeper("!Unable to find Enigma.")
+	CLC_TimeKeeper("!Unable to find Enigma.")
 	return false;
 }
 

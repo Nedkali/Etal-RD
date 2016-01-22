@@ -96,7 +96,7 @@ function NTMain(){
 				if(Load("Common/Bots/CBMuleLogging.ntj")){
 					_ingame = true;
 
-					sendEventToOOG(D2NT_MGR_INGAME, "In Game", 0);
+					sendEventToOOG(D2NT_MGR_INGAME,"Mule: " + muleIndex +" In Game", 0);
 					Delay(500);
 					
 					lastGameStatus = 2; // in game successful
