@@ -178,11 +178,11 @@ function CLSS_SkillsAdd(skillid, num){
 	
 		
 	me.ClickItem(0, 7, skilltree[1], 5);
-	me.ping; Delay(Random(200,500));
+	me.ping; Delay(Random(500));
 	
 	for(i = 0 ; i < num ; i++){
 		me.ClickItem(0, skilltree[3], skilltree[2], 5);				
-		me.ping;Delay(200);
+		me.ping;Delay(500);
 	}
 
 	Delay(100);
