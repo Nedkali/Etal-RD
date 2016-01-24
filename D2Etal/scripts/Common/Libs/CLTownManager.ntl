@@ -29,6 +29,7 @@ function CLTMGR_TownManager(simple, ranged){
 	CLT_ClearBelt();
 	CLT_CheckInventorypots();
 	CLT_CleanPotions();
+	CLTMGR_TossScrolls();
 	_NTTMGR_BuyPotsInt = CLT_CheckBelt();
 	_NTTMGR_BuyPots = NTConfig_CheckPotsTown ? CLT_NeedPots(true) : CLT_CheckBelt();
 	
@@ -1828,4 +1829,25 @@ function CLTMGR_StatusSet(){
 	}
 	
 	return false;
+}
+
+function CLTMGR_TossScrolls(){
+	var tptome = me.GetItems(518);
+	var idtome = me.GetItems(519);
+	if(!tptome || !idtome)//? may need this if low level char - quits check if no tomes
+		return;
+		
+	var _items = me.GetItems();
+	if(!_items)
+		return;	
+
+	for(var g = 0; g < _items.length; g++){
+		if((_items[g].classid == 529 && tptome) || (_items[g].classid == 530 && idtome)){
+			if(_items[g].mode == 0 && _items[g].itemloc == 0 && NTConfig_Columns[_items[g].y][_items[g].x] > 0 ){
+				if(!GetUIState(0x01)){SetUIState(0x01, true);}
+				CLT_DropItem(_items[g]);
+			}			
+		}
+	}
+	if(GetUIState(0x01)){me.Cancel(1);}
 }
