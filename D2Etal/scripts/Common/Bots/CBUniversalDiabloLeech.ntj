@@ -29,7 +29,7 @@ function NTMain() {
 	if(NTConfig_LeechChaos >= 1)
 	{
 		if(NTConfig_UseChatCommandPortal){
-			while(!CBCS_DiabloLeechMessageHandler() && !DiabloDead){				
+			while(!CBCS_DiabloLeechMessageHandler() && !DiabloDead && me.areaid != 108){				
 				Delay(500);
 			}
 			if(NTConfig_LeechChaos == 1){Delay(NTConfig_followDelay);}
@@ -67,7 +67,6 @@ function NTMain() {
 		for (i = 0; i < 2; i += 1) {
 			CLM_MoveTo(108, 7784, 5310);
 			CBCS_ClearPosition(30, CBCS_SealSort);
-			CLC_PingDelay(i < 1 ? 1000 : 10);
 		}
 
 		CBCS_ClearPosition(30, CBCS_SealSort);
@@ -121,8 +120,8 @@ function CBCS_OpenSealsInt() {
 	} else {
 		_result = CBCS_OpenVizierSealInt(2);
 	}
-
-	CLP_DoPrecast(true);
+	if(!NTConfig_LeechBo){Delay(2500);}
+	CLP_DoPrecast(true, NTConfig_LeechBo);
 
 	_unit = GetPresetUnits(108, NTC_UNIT_OBJECT, 394);
 	if (_unit[0].roomx * 5 + _unit[0].x == 7773) {
@@ -133,6 +132,7 @@ function CBCS_OpenSealsInt() {
 	if (!_result) {
 		return false;
 	}
+	if(!NTConfig_LeechBo){Delay(2500);}
 	CLP_DoPrecast(true, NTConfig_LeechBo);
 	CBCS_ClearPosition(40, CBCS_SealSortB);
 
@@ -145,26 +145,24 @@ function CBCS_OpenSealsInt() {
 	} else {
 		_result = CBCS_OpenVenomSealInt(2);
 	}
-	CLP_DoPrecast(true);
+	if(!NTConfig_LeechBo){Delay(2500);}
+	CLP_DoPrecast(true, NTConfig_LeechBo);
 	return _result;
 }
 
 function CBCS_OpenVizierSealInt(type) {
-	var i;
+	if (type === 1) {
+		var vx = [7767, 7756, 7744, 7747, 7750, 7741, 7729, 7720, 7720, 7721, 7719, 7712, 7700, 7687, 7676, 7666];
+		var vy = [5292, 5284, 5275, 5290, 5303, 5310, 5314, 5312, 5301, 5288, 5273, 5292, 5294, 5294, 5292, 5307];
+	} else {
+		var vx = [7768, 7755, 7741, 7733, 7723, 7714, 7707, 7680, 7666, 7655];
+		var vy = [5289, 5295, 5282, 5291, 5300, 5282, 5315, 5310, 5311, 5282];
+	}
 
-
-		if (type === 1) {
-			var vx = [7767, 7756, 7744, 7747, 7750, 7741, 7729, 7720, 7720, 7721, 7719, 7712, 7700, 7687, 7676, 7666];
-			var vy = [5292, 5284, 5275, 5290, 5303, 5310, 5314, 5312, 5301, 5288, 5273, 5292, 5294, 5294, 5292, 5307];
-		} else {
-			var vx = [7768, 7755, 7741, 7733, 7723, 7714, 7707, 7680, 7666, 7655];
-			var vy = [5289, 5295, 5282, 5291, 5300, 5282, 5315, 5310, 5311, 5282];
-		}
-		for (i = 0; i < vx.length; i += 1) {
-			CLM_MoveTo(108, vx[i], vy[i]);
-			CBCS_ClearPosition(30, CBCS_SealSort);
-		}
-
+	for (var i = 0; i < vx.length; i += 1) {
+		CLM_MoveTo(108, vx[i], vy[i]);
+		CBCS_ClearPosition(30, CBCS_SealSort);
+	}
 
 	if (!CBCS_OpenSealInt(395) || !CBCS_OpenSealInt(396)) {
 		return false;
@@ -275,23 +273,20 @@ function CBCS_OpenSealInt(classid) {
 		break;
 	}
 	var i, seal;
-	for (i = 0; i < 5; i += 1) {
-		CLM_MoveToPresetUnit(108, 2, classid, 0, -7);
-		seal = CLC_FindUnit(NTC_UNIT_OBJECT, classid);
-		if (!seal) {
-			return false;
-		}
 
-		//CLC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, seal);
-		CLC_Delay(classid === 394 ? 1000 : 500);
-
-		while(!seal.mode) {
-				CLC_Delay(350);
-			}
-		if(seal.mode) 
-			return true;
-		}
-	return false;
+	CLM_MoveToPresetUnit(108, 2, classid, 0, -7);
+	seal = CLC_FindUnit(NTC_UNIT_OBJECT, classid);
+	if (!seal) {
+		return false;
+	}
+	CBCS_ClearPosition(20, CBCS_DistanceSort);
+	CLM_MoveToPresetUnit(108, 2, classid, 0, -7);
+	while(!seal.mode) {
+		if(seal.mode){break;}
+		CLC_Delay(350);
+	}
+	
+	return true;
 }
 
 function CBCS_MonsterStats(unit) {
