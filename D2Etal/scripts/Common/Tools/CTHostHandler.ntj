@@ -150,7 +150,7 @@ function DumbassCity(msg, type)
 								HostLog.WriteLine("Info: " + Class[Names.indexOf(_dumbass)] + " (" + Levels[Names.indexOf(_dumbass)] + ")");
 								HostLog.WriteLine("");
 							HostLog.Close(); Delay(Random(100,200));
-
+							SendCopyData(d2monitor, null, 700, Names[Names.indexOf(_dumbass)]+ "" + Accounts[Names.indexOf(_dumbass)]);
 							HostileOOG = COLOR_1 + "HOSTILED IN " + Area.name.toUpperCase(1) + ";";
 							HostileOOG += COLOR_1 + "----------------------------------" + "\n";
 							HostileOOG += COLOR_4 + "Character: " + COLOR_8 + Names[Names.indexOf(_dumbass)] + "\n";

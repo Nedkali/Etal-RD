@@ -335,7 +335,7 @@ function locationAction(location){
 		break;
 
 	case 12: // Character Select
-		var _time, _control;
+		var _time, _control, _info;
 
 		sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name, 0);
 
@@ -347,6 +347,9 @@ function locationAction(location){
 			Delay(500);
 		}
 
+		_info = controlData.get(controlData.controls.characterSelect.textBox.characterInfo[me.charloc]).GetText();
+		if(_info ){	SendCopyData(d2monitor, null, 900, _info[1]);}
+		
 		if(_time < characterScreenTimeout){
 			Delay(characterSelectDelay);
 

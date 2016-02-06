@@ -514,7 +514,7 @@ function locationAction(location){
         break;
 
     case 12: // Character Select
-        var _time, _control;
+        var _time, _control, _info;
 		if(onMule) {
 			Delay(1000);
 			controlData.click(controlData.controls.characterSelect.button.exit);
@@ -530,7 +530,10 @@ function locationAction(location){
 
             Delay(500);
         }
-
+		
+		_info = controlData.get(controlData.controls.characterSelect.textBox.characterInfo[me.charloc]).GetText();
+		if(_info ){	SendCopyData(d2monitor, null, 900, _info[1]);}
+		
         if(_time < characterScreenTimeout){
             Delay(characterSelectDelay);
 

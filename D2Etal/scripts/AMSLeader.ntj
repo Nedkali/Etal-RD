@@ -112,7 +112,7 @@ var controlData = new controlInfo();
 var MyRealm;
 
 function NTMain(){
-	Delay(1000);
+	Delay(3000);
 	if(!Include("Configs/AMSLeader.ntl")){//prevents restarting D2 over & over on error
 		sendEventToOOG(D2NT_MGR_PRINT_LOG, COLOR_1 + "Stop the bot and correct the error", 0);
 		sendEventToOOG(D2NT_MGR_PRINT_LOG, COLOR_1 + "Configs/AMSLeader.ntl file ERROR!!", 0);
@@ -390,7 +390,7 @@ function locationAction(location){
 		break;
 
 	case 12: // Character Select
-		var _time, _control;
+		var _time, _control, _info;
 		if(onMule) {
 			Delay(1000);
 			controlData.click(controlData.controls.characterSelect.button.exit);
@@ -406,6 +406,9 @@ function locationAction(location){
 			
 			Delay(500);
 		}
+		
+		_info = controlData.get(controlData.controls.characterSelect.textBox.characterInfo[me.charloc]).GetText();
+		if(_info ){	SendCopyData(d2monitor, null, 900, _info[1]);}
 
 		if(_time < characterScreenTimeout){
 			Delay(characterSelectDelay);

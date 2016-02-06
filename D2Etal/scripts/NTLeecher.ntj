@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////
-// LEADER ENTRY SETTINGS -> EDIT FILE scripts/Configs/Leader.ntl
+// LEECHER ENTRY SETTINGS -> EDIT FILE scripts/Configs/Leecher.ntl
 // EDIT REALM AREA FOR DESIRED SETTINGS
 // SHOULD BE NO REASON TO EDIT ANYTHING IN THIS FILE
 ////////////////////////////////////////////////////////////////
@@ -509,7 +509,7 @@ function locationAction(location){
         break;
 
     case 12: // Character Select
-        var _time, _control;
+        var _time, _control, _info;
 
         sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name, 0);
 
@@ -520,7 +520,10 @@ function locationAction(location){
 
             Delay(500);
         }
-
+		
+		_info = controlData.get(controlData.controls.characterSelect.textBox.characterInfo[me.charloc]).GetText();
+		if(_info ){	SendCopyData(d2monitor, null, 900, _info[1]);}
+		
         if(_time < characterScreenTimeout){
             Delay(characterSelectDelay);
             controlData.click(controlData.controls.characterSelect.textBox.characters[me.charloc], 0, 0, 1);
