@@ -2,7 +2,6 @@
 // 3 = Arcane
 // 4 = Frigid-shenk - incomplete not tested
 NTConfig_Leader = me.name;
-var clonearea = 3;
 
 function NTMain()
 {
@@ -32,7 +31,7 @@ function NTMain()
 	if(!_target){
 		CLTM_CheckAct();
 		CLTMGR_TownManager();
-		switch(clonearea){
+		switch(NTConfig_SpawnArea){
 			case 2: NTCL_Stoney();
 					break;
 			case 3: NTCL_Arcane();
@@ -171,21 +170,6 @@ function NTCL_Frigid(){
 	CLM_MoveTo(111, 3752, 5094);
 
 	CLM_MoveToPresetUnit(me.areaid, NTC_UNIT_MONSTER, 333, 15, 5);
-	/////////////////////////////////////////////////////
-	// code below here was to try to get him to shenk
-	/////////////////////////////////////////////////////
-	//var DiabloC = CLC_FindUnit(NTC_UNIT_MONSTER, 333, 5);
-
-	//if(DiabloC){
-	//var loc = [3786, 5102,3801, 5102,3820, 5107,3820, 5107,3839, 5117,3855, 5124,3873, 5124,3892, 5115];
-
-	//for (var i = 0; i< loc.length; i=i+2){
-	//	CLM_MoveTo(111, loc[i], loc[i+1]);
-	//	if(GetDistance(me, DiabloC) > 25)// try to keep him close
-	//		Delay(2000);
-	//}
-	//CLA_KillMonster(GetLocaleString(22435));// kill shenk
-	//}
 
 	if(!CLA_KillMonster(333)){
 		CLA_KillMonster(333);
