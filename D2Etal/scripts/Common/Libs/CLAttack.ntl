@@ -913,9 +913,9 @@ function CLA_IsValidMonster(monster) {
 	if (NTConfig_SkipRegularMonsters) if (monster.spectype == 1 && me.areaid != 131) return false;
 
 	if (me.classid == NTC_CHAR_CLASS_DRUID) {
-		if (!me.GetState(144)) NTC_CastSkill(250, NTC_HAND_RIGHT);
-		if (!me.GetState(151)) NTC_CastSkill(235, NTC_HAND_RIGHT);
-		if (!me.GetState(149)) NTC_CastSkill(226, NTC_HAND_RIGHT);
+		if (!me.GetState(144)) CLC_CastSkill(250, NTC_HAND_RIGHT);
+		if (!me.GetState(151)) CLC_CastSkill(235, NTC_HAND_RIGHT);
+		if (!me.GetState(149)) CLC_CastSkill(226, NTC_HAND_RIGHT);
 
 	}
 	
