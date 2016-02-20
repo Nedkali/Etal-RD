@@ -49,7 +49,7 @@ function CLTMGR_TownManager(simple, ranged){
 	
 	if(_NTTMGR_BuyArrows) {
 		// check if we need ammo or not.  If we have 350 already then set _NTTMGR_BuyArrows false
-		NTT_TossAmmo();
+		CLT_TossAmmo();
 	}
 	
 	switch(me.act){
