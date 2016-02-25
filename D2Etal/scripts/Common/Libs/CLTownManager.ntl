@@ -21,8 +21,9 @@ function CLTMGR_TownManager(simple, ranged){
 	var _cubing;
 
 	if(arguments.length < 2)
-		ranged = false;		
+		ranged = false;	
 		
+	ranged = CLTMGR_CheckBow();	
 	if(arguments.length < 1)
 		simple = false;		
 	

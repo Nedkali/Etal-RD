@@ -682,7 +682,7 @@ function CBCS_LeechFollow(){
 	var chaosentrance = [7791, 5571, 7793, 5553, 7793, 5535, 7793, 5520, 7793, 5505, 7776, 5490,
 						7769, 5475, 7769, 5460, 7769, 5445, 7769, 5430, 7776, 5415, 7776,
 						5400, 7769, 5385, 7769, 5370, 7776, 5355, 7776, 5340, 7776, 5325]
-	Print("trigger = " + trigger);
+
 	trigger = false;
 	NTConfig_SnagRange = 15;
 	//me.showenemyonautomap = true;
@@ -778,7 +778,7 @@ function CBCS_SealPath(classid){
 	var _leechseal = GetPresetUnits(108, NTC_UNIT_OBJECT, classid);	
 	var locx = (_leechseal[0].roomx * 5 + _leechseal[0].x);
 	var locy = (_leechseal[0].roomy * 5 + _leechseal[0].y);
-	Print("Seal ID = " + classid + " x:"+locx + " y:" + locy);
+	//Print("Seal ID = " + classid + " x:"+locx + " y:" + locy);
 	if (locx == 7655 && locy == 5275){//seal boss 1
 		return Sealfollow = [7776, 5325, 7768, 5314, 7752, 5314, 7730, 5314, 7709 , 5291, 7709, 5273];
 	 }
