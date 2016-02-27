@@ -57,7 +57,7 @@ function CLM_MoveTo(areaid, x, y, retry, clearpath, canswitch){
 		if(!CLC_InTown()) { 
 			if((NTConfig_CheckSelfSafe.indexOf("01") != -1) && CLT_NeedPots()) {
 					Print("I need some more potions!");
-					return CLTMGR_VisitTown();		
+					CLTMGR_VisitTown();		
 			}
 		}
 		
