@@ -9,7 +9,7 @@
 //UNIQUE GLOVES
 [Name] == HeavyGloves && [Quality] == Unique && [Flag] != Ethereal # [EnhancedDefense] >= 20																			//BLOOD FIST
 [Name] == ChainGloves && [Quality] == Unique && [Flag] != Ethereal # [ItemMagicBonus] >= 40 && [EnhancedDefense] >= 30													//CHANCE GUARDS
-//[Name] == LightGauntlets && [Quality] == Unique && [Flag] != Ethereal # [EnhancedDefense] >= 30																		//MAGEFIST
+[Name] == LightGauntlets && [Quality] == Unique && [Flag] != Ethereal # [EnhancedDefense] >= 20																		//MAGEFIST
 //[Name] == Gauntlets && [Quality] == Unique && [Flag] != Ethereal # [EnhancedDefense] >= 20																			//FROSTBURN
 //[Name] == VampireboneGloves && [Quality] == Unique && [Flag] != Ethereal # [Strength] == 15 && [LifeLeech] >= 10 && [ItemHealAfterKill] >= 1							//DRACUL'S GRASP
 //[Name] == Vambraces && [Quality] == Unique && [Flag] != Ethereal # [LifeLeech] >= 7 && [ManaLeech] >= 7 && [EnhancedDefense] >= 120									//SOUL DRAINER
@@ -48,7 +48,7 @@
 //[Name] == GrandCrown && [Quality] == Unique && [Flag] == Ethereal # [ItemGoldBonus] >= 100 && [LifeLeech] >= 10																			//Ethereal CROWN OF THIEVES
 //[Name] == GrimHelm && [Quality] == Unique && [Flag] != Ethereal # [LifeLeech] >= 6 && [ManaLeech] >= 6 && [DamageResist] >= 20 && [MagicDamageReduction] >= 1								//VAMPIRE GAZE
 //[Name] == GrimHelm && [Quality] == Unique && [Flag] == Ethereal # [LifeLeech] >= 6 && [ManaLeech] >= 6 && [DamageResist] >= 20 && [MagicDamageReduction] >= 1								//Ethereal VAMPIRE GAZE
-//[Name] == Shako && [Quality] == Unique && [Flag] != Ethereal # [Defense] >= 100																											//HARLEQUIN CREST
+[Name] == Shako && [Quality] == Unique && [Flag] != Ethereal # [Defense] >= 100																											//HARLEQUIN CREST
 //[Name] == SpiredHelm && [Quality] == Unique && [Flag] != Ethereal # [Dexterity] >= 1 && [PassiveColdMastery] >= 15 && [ItemAbsorbCold] >= 1												//NIGHTWING'S VEIL
 //[Name] == Demonhead && [Quality] == Unique && [Flag] != Ethereal # [EnhancedDefense] >= 100 && [Strength] >= 30 && [LifeLeech] >= 10														//ANDARIEL'S VISAGE
 //[Name] == Demonhead && [Quality] == Unique && [Flag] == Ethereal # [EnhancedDefense] >= 100 && [Strength] >= 25 && [LifeLeech] >= 8														//Ethereal ANDARIEL's VISAGE
@@ -58,7 +58,7 @@
 //[Name] == Corona && [Quality] == Unique # [Sockets] >= 2 && [DamageResist] >= 13 && [ColdResist]+[FireResist]+[LightResist]+[PoisonResist] >= 80											//CROWN OF AGES/
 
 //UNIQUE ARMOR
-[Name] == SerpentskinArmor && [Quality] == Unique # [ColdResist] >= 30 && [MagicDamageReduction] >= 10																				//SKIN OF THE VIPERMAGI
+[Name] == SerpentskinArmor && [Quality] == Unique # [ColdResist] >= 25																				//SKIN OF THE VIPERMAGI
 //[Name] == Cuirass && [Quality] == Unique && [Flag] != Ethereal # [EnhancedDefense] >= 190																							//DURIEL'S SHELL
 [Name] == Cuirass && [Quality] == Unique && [Flag] == Ethereal # [EnhancedDefense] >= 190																							//Ethereal DURIEL'S SHELL
 //[Name] == MeshArmor && [Quality] == Unique && [Flag] != Ethereal # [EnhancedDefense] >= 210																						//SHAFTSTOP
@@ -188,13 +188,14 @@
 //UNIQUE PALADIN
 [Name] == GildedShield && [Quality] == Unique 		//HERALD OF ZAKARUM
 [Name] == SacredRondache && [Quality] == Unique 	//ALMA NEGRA
-[Name] == GildedShield && [Quality] == Unique 		//DRAGONSCALE
+[Name] == ZakarumShield && [Quality] == unique 		//HERALD OF ZAKARUM
 
 //UNIQUE SORCERESS
 [Name] == EldritchOrb && [Quality] == Unique 		//ESCHUTA'S TEMPER
 [Name] == DimensionalShard && [Quality] == Unique 	//DEATH'S FATHOM
+[Type] == Amulet && [Quality] == Unique									//all 
 
-
+//UNIQUE AMULET
 [Type] == Amulet && [Quality] == Unique # [Strength] >= 12 									//SARACEN'S CHANCE
 [Type] == Amulet && [Quality] == Unique # [Dexterity] >= 25									//THE CAT'S EYE
 [Type] == Amulet && [Quality] == Unique # [LifeLeech] >= 5 && [ManaLeech] >= 11				//CRESCENT MOON

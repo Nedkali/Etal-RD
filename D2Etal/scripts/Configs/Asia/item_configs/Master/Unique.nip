@@ -188,13 +188,14 @@
 //UNIQUE PALADIN
 [Name] == GildedShield && [Quality] == Unique 		//HERALD OF ZAKARUM
 [Name] == SacredRondache && [Quality] == Unique 	//ALMA NEGRA
-[Name] == GildedShield && [Quality] == Unique 		//DRAGONSCALE
+[Name] == ZakarumShield && [Quality] == unique 		//HERALD OF ZAKARUM
 
 //UNIQUE SORCERESS
 [Name] == EldritchOrb && [Quality] == Unique 		//ESCHUTA'S TEMPER
 [Name] == DimensionalShard && [Quality] == Unique 	//DEATH'S FATHOM
 [Type] == Amulet && [Quality] == Unique									//all 
 
+//UNIQUE AMULET
 [Type] == Amulet && [Quality] == Unique # [Strength] >= 12 									//SARACEN'S CHANCE
 [Type] == Amulet && [Quality] == Unique # [Dexterity] >= 25									//THE CAT'S EYE
 [Type] == Amulet && [Quality] == Unique # [LifeLeech] >= 5 && [ManaLeech] >= 11				//CRESCENT MOON
