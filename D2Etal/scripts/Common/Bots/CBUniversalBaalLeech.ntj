@@ -73,7 +73,7 @@ function NTMain(){
 			NT_BaalLeechMessageHandler();
 			Delay(500);
 		}
-		LXPC_GrabShrineXp();
+		CLCS_GrabShrineXp();
 		CLTM_TownMove("portalspot");
 		while(TakeShrine <= 2){
 			NT_BaalLeechMessageHandler();
