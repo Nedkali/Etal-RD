@@ -1471,10 +1471,10 @@ function CLA_FieldID() {
 			break;
 		default:
 			if(NTConfig_LogSoldItemQuality != 0 && items[i].quality >= NTConfig_LogSoldItemQuality) {	
-				CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Field id Dropped " + CLC_ItemQualityToMGRColor[items[i].quality] + items[i].name.split("\n")[0]+ ";" + items[i].itemdesc + COLOR_2 + "\n iLvl: " + items[i].itemlevel + COLOR_2 + "\n Area: " + _location.name);
+				CLC_SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Field id Dropped " + NTC_ItemQualityToMGRColor[items[i].quality] + items[i].name.split("\n")[0]+ ";" + items[i].itemdesc + COLOR_2 + "\n iLvl: " + items[i].itemlevel + COLOR_2 + "\n Area: " + _location.name);
 			}
 			if(NTConfig_AnnounceDroppedItems){
-				Say(CLC_RandomSelect(NTConfig_dropMessages) + CLC_ItemQualityToName[items[i].quality] + " " + items[i].name.split("\n")[0]);
+				Say(CLC_RandomSelect(NTConfig_dropMessages) + NTC_ItemQualityToName[items[i].quality] + " " + items[i].name.split("\n")[0]);
 				Delay(100);
 			}
 			CLT_DropItem(items[i]);
