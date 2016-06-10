@@ -1,14 +1,14 @@
-function CLA_DetectAttackPattern() {
-	return CLA_AssassinAttackPatternInt();
-}
+
+
+
 
 function CLA_Attack(target, firstorder) {
 	return CLA_AssassinAttackInt(target, firstorder);
 }
 
-function CLA_AssassinAttackPatternInt() {
-	return false;
-}
+
+
+
 
 function CLA_AssassinAttackInt(target, firstorder) {
 	var _primaryindex;
@@ -106,7 +106,7 @@ function CLA_AssassinCastSkillInt(index, target, primaryIndex) {
 		return CLC_CastSkill(NTConfig_AttackSkill[secondarySkill], _NTA_SkillHand[secondarySkill], target);
 	}
 	for (var i = 0; i < 25; i++) {
-		CLC_Delay(NTC_DELAY_FRAME);
+		CLC_Delay(NTC_Delay_FRAME);
 
 		if (me.GetSkillStatus(NTConfig_AttackSkill[index]) != 8) break;
 	}
@@ -137,6 +137,30 @@ function CLA_CheckTraps(target) {
 					}
 				}
 			}
+
+		} while (traps.GetNext())
+
+		if (trapcount < (_isActBoss ? NTConfig_NumBossTrap : NTConfig_NumTraps) && target.hp > 0) {
+
+			var _pos = me.GetOptimalAttackPos(target.areaid, target.x, target.y, 13, 10);
+
+			if (_pos) CLM_MoveTo(target.areaid, _pos[0], _pos[1], 0, false, false);
+
+
+			_trapOffset = CLA_GetTrapAttackPattern(_isActBoss);
+
+			for (var i = 0; i < 5; i++) {
+				if (NTConfig_TrapSet[i] > 0) {
+					if (i == 0 || i == 2 || i == 3) // Added delays to prevent trap miscast
+					CLC_Delay(25);
+					CLC_CastSkill((_isActBoss ? NTConfig_TrapSet[0] : NTConfig_TrapSet[i]), NTC_HAND_RIGHT, target.x + _trapOffset[i][0], target.y + _trapOffset[i][1]);
+					if(NTConfig_FastPickit && target.hp <= 0) {
+						break;
+					}				
+				}
+			}
+		}
+
 	}
 }
 
