@@ -12,7 +12,7 @@ function NTMain() {
 	CLSI_LoadNIPFiles();
 	CLC_File("Configs/"+MyRealm+"/AMS/MuleStatus/" + me.account + "_mulegame.txt", 1, me.gamename);
 	
-	Say("/f m Got myself into a perm and drop game!");
+	Print("Got myself into a perm and drop game!");
 	
 	NTConfig_IdentAtCain = false;
 	NTConfig_Gamble = false;
