@@ -252,7 +252,10 @@ function CLTMGR_TownManager(simple, ranged){
 	
 	if (NTConfig_StopIfStashInventoryFull && !NTConfig_AutoMule && CLTMGR_CheckMuleStash() < 4  && CLTMGR_CheckMuleInventory() < NTConfig_FreeRowsQuit){
 		CLC_SendLogToOOG(NTC_LOG_COMMON,  COLOR_1 + 'Paused - Stash & Invenory full');
-		while(true){Say("! ");Delay(300);Say("!Inventory & Stash Full");Delay(1200);}
+		while(true){
+			Print("!Inventory & Stash Full");
+			Delay(10000);
+		}
 	}
 	
 	if(NTConfig_PickupFreeGold){CLTMGR_FreeGold();}

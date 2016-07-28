@@ -14,7 +14,7 @@ function NTMain(){
 
 	CLA_Initialize();
 
-	Include("libs/common/NTVoyage.ntl");
+	Include("Common/Libs/CLVoyage.ntl");
 
 	checknext = false;	
 	NTConfig_Shrines = [];

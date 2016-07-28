@@ -1916,8 +1916,8 @@ function CLT_CheckForFullStash(){
 
 
 function CLT_CheckNeedTown(Hpshort, Mpshort){ // may want to add an arguement here and use this like the checksafe....or make it a character_config
-	if(CLT_CheckBeltHp(Hpshort) || CLT_CheckBeltMp(Mpshort) || CLT_CheckMerc() || NTTMGR_CheckScrolls(1) < 4)
-		NTTMGR_VisitTown(); 
+	if(CLT_CheckBeltHp(Hpshort) || CLT_CheckBeltMp(Mpshort) || CLT_CheckMerc() || CLTMGR_CheckScrolls(1) < 4)
+		CLTMGR_VisitTown();
 	return;
 }
 
